@@ -58,7 +58,7 @@ class Settings(BaseSettings):
     # Containers (the three distinct roles from the spec) ------------------
     container_bunbuns: str = "bunbuns"      # permanent Library
     container_ephemera: str = "ephemera"    # scout quarantine
-    container_scrappa: str = "scrappa"      # pipeline scratchpad
+    container_scrappa: str = "magic-carpet" # pipeline scratchpad (owner-named)
     # AI (local Ollama) ----------------------------------------------------
     ollama_enabled: bool = False
     ollama_endpoint: str = "http://127.0.0.1:11434"
