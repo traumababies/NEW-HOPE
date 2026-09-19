@@ -1,0 +1,611 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{{ week.theme or 'Post' }} · Post {{ post.visual_position }} · {{ brand.company_name }}</title>
+  <link rel="stylesheet" href="/static/ui-system.css">
+  <link rel="stylesheet" href="/static/godzilla-companion.css">
+  <script src="/static/ui-navigation.js" defer></script>
+  <script src="/static/assistant-chat.js" defer></script>
+  <script src="/static/godzilla-companion.js" defer></script>
+  <script src="/static/save-feedback.js" defer></script>
+  <script src="/static/creative-studio.js" defer></script>
+  <script src="/static/visual-crop.js" defer></script>
+  <script src="/static/post-editor.js" defer></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const studio = document.querySelector('[data-ace-studio]');
+      const dialog = document.querySelector('[data-ace-inspire-dialog]');
+      const audio = document.querySelector('[data-post-audio]');
+      if (!studio) return;
+      const button = (name) => studio.querySelector(`[data-ace-action="${name}"]`);
+      button('rewind')?.addEventListener('click', () => {
+        if (audio) audio.currentTime = 0;
+      });
+      button('play')?.addEventListener('click', () => {
+        if (audio) audio.paused ? audio.play() : audio.pause();
+      });
+      button('stop')?.addEventListener('click', () => {
+        if (audio) {
+          audio.pause();
+          audio.currentTime = 0;
+        }
+      });
+      button('metronome')?.addEventListener('click', (event) => {
+        const enabled = event.currentTarget.classList.toggle('active');
+        event.currentTarget.setAttribute('aria-pressed', String(enabled));
+      });
+      button('loop')?.addEventListener('click', (event) => {
+        if (audio) {
+          audio.loop = !audio.loop;
+          event.currentTarget.classList.toggle('active', audio.loop);
+          event.currentTarget.setAttribute('aria-pressed', String(audio.loop));
+        }
+      });
+      button('export')?.addEventListener('click', () => {
+        const source = audio?.currentSrc;
+        if (source) {
+          const link = document.createElement('a');
+          link.href = source;
+          link.download = 'post-music';
+          link.click();
+        }
+      });
+      const sliders = studio.querySelectorAll('[data-ace-track-volume]');
+      sliders.forEach((slider) => slider.addEventListener('input', () => {
+        if (audio) audio.volume = Number(slider.value) / 100;
+      }));
+      if (audio && sliders[0]) audio.volume = Number(sliders[0].value) / 100;
+      studio.querySelectorAll('[data-ace-action="mute"]').forEach((control) => control.addEventListener('click', () => {
+        if (audio) {
+          audio.muted = !audio.muted;
+          control.classList.toggle('active', audio.muted);
+          control.setAttribute('aria-pressed', String(audio.muted));
+        }
+      }));
+      document.querySelector('[data-ace-inspire]')?.addEventListener('click', () => dialog?.showModal());
+      document.querySelector('[data-ace-inspire-close]')?.addEventListener('click', () => dialog?.close());
+    });
+  </script>
+  <script src="/static/media-picker.js?v=20260905-3" defer></script>
+  <style>
+    :root{
+      --ink:#666B6E;--muted:#7A8084;--quiet:#A9AEB2;--line:#CDD1D4;--soft:#eef2f5;--green:#dfeee2;
+      --approve:#dfeee2;--approve-ink:#3f6b4a;--approve-line:#c3ddc9;
+      --page:#fff;--card:#fff;--field:#fff;--card-shadow:none;
+      --pink:#f9eff2;--pink-line:#d9bfc4;--pink-ink:#7b4d55;
+      --btn:#A9AEB2;--btn-hover:#8B9195;--btn-primary:#7A8084;--btn-primary-hover:#666B6E;--radius:6px;
+      --slider-track:#d7dce1;--slider-fill:#A9AEB2;--slider-thumb:#5f6772;
+      --studio-fill:var(--pink);--studio-ink:var(--pink-ink);--studio-sori-line:var(--pink-line);--studio-sori-ink:var(--pink-ink);
+    }
+    *{box-sizing:border-box}html,body{margin:0;background:var(--page);color:var(--ink);font-family:"Jost","Segoe UI",sans-serif;-webkit-font-smoothing:antialiased}
+    .sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+    a{color:inherit;text-decoration:none}button,input,textarea,select{font:inherit}textarea{resize:vertical}
+    input:focus-visible,textarea:focus-visible,select:focus-visible,button:focus-visible,a:focus-visible{outline:none;outline-offset:0}
+
+    .header{position:sticky;top:0;z-index:20;background:rgba(255,255,255,.95);backdrop-filter:blur(8px);border-bottom:1px solid var(--line);overflow:visible}
+    .header-inner{max-width:1400px;height:74px;margin:auto;padding:0 44px;display:flex;align-items:center;justify-content:space-between;gap:32px;overflow:visible}
+    .brand{font-size:26px;font-weight:200}.brand img{display:block;max-width:180px;height:38px;object-fit:contain}
+    .nav{display:flex;overflow:visible}.nav a{padding:10px 14px;color:#9ba9b7;font:500 11px "Archivo","Segoe UI",sans-serif;letter-spacing:.18em;text-transform:uppercase;white-space:nowrap}
+    .nav a:hover{color:var(--ink)}.nav .active{border-bottom:2px solid var(--ink);color:var(--ink)}
+
+    .icon-page{display:inline-flex;align-items:center;color:var(--muted);padding:4px}.icon-page:hover{color:var(--ink)}.icon-page svg{display:block}main{max-width:1400px;margin:auto;padding:42px 44px 80px}
+    .crumb{display:flex;justify-content:space-between;align-items:center;gap:20px;color:var(--quiet);font:500 10px "Archivo","Segoe UI",sans-serif;letter-spacing:.18em;text-transform:uppercase}
+    .crumb .nav-btns{display:flex;gap:6px}
+    .rule{height:1px;background:var(--line);margin:18px 0 30px}
+
+    .button,.ibtn{display:inline-flex;align-items:center;justify-content:center;gap:6px;border:1px solid var(--btn);border-radius:var(--radius);background:var(--btn);color:#fff;font-family:"Archivo","Segoe UI",sans-serif;font-weight:600;letter-spacing:.13em;text-transform:uppercase;cursor:pointer;white-space:nowrap}
+    .button{padding:9px 13px;font-size:9px}
+    .button:hover{background:var(--btn-hover);border-color:var(--btn-hover)}
+    .button:disabled{border-color:var(--line);background:var(--soft);color:var(--quiet);cursor:not-allowed}
+    .button.primary{background:#dfeee2;border-color:#c3ddc9;color:#3f6b4a}
+    .button.primary:hover{background:#cfe6d5;border-color:#c3ddc9}
+    .ibtn{min-width:34px;min-height:32px;padding:7px 9px;font-size:9px}
+    .ibtn:hover{background:var(--btn-hover);border-color:var(--btn-hover)}
+    .ibtn svg{width:14px;height:14px;display:block;flex:none}
+    .ibtn.primary{background:#dfeee2;border-color:#c3ddc9;color:#3f6b4a}
+    .ibtn.primary:hover{background:#cfe6d5;border-color:#c3ddc9}
+    .ibtn.wide{padding-inline:12px}
+    .ibtn.pink,.button.pink-btn{background:#ebedf0;border-color:var(--pink-line);color:var(--pink-ink)}
+    .ibtn.pink:hover,.button.pink-btn:hover{background:var(--pink);border-color:var(--pink-line)}
+    .ibtn input{display:none}
+
+    input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:16px;background:transparent;margin:4px 0;cursor:pointer}
+    input[type=range]::-webkit-slider-runnable-track{height:4px;border-radius:999px;background:var(--slider-track)}
+    input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;margin-top:-4.5px;width:13px;height:13px;border-radius:50%;background:var(--slider-thumb);border:2px solid #fff;box-shadow:0 1px 3px rgba(35,42,64,.28)}
+    input[type=range]::-moz-range-track{height:4px;border-radius:999px;background:var(--slider-track)}
+    input[type=range]::-moz-range-progress{height:4px;border-radius:999px;background:var(--slider-fill)}
+    input[type=range]::-moz-range-thumb{width:13px;height:13px;border-radius:50%;background:var(--slider-thumb);border:2px solid #fff}
+
+    label,.eyebrow,.panel-title,.pill{font-family:"Archivo","Segoe UI",sans-serif;text-transform:uppercase}
+    .eyebrow{display:block;color:var(--quiet);font-size:9px;font-weight:500;letter-spacing:.16em}
+    .panel-title{font-size:10px;font-weight:600;letter-spacing:.2em}
+    .field{width:100%;padding:10px 11px;border:1px solid var(--line);border-radius:var(--radius);background:var(--field);color:var(--ink);font-size:14px;font-weight:300;line-height:1.6}
+    .pill{display:inline-block;padding:5px 10px;border-radius:999px;font-size:9px;font-weight:600;letter-spacing:.14em;background:var(--soft);color:var(--muted)}
+    .pill.approved{background:var(--green);color:#3f6b4a}.pill.rejected,.pill.redo{background:var(--pink);color:#9c4f5e}
+    .pill.replace,.pill.hold{background:#f4ecd6;color:#8a6b23}.pill.skipped{background:var(--pink);color:#9c4f5e}
+
+    /* Four columns — image | editors | Instagram | TikTok — on a 3-row grid:
+       row 1 the editor heads, row 2 the bodies (stretch to equal height),
+       row 3 the action strip. So every column starts and ends on the same
+       lines and Approve / Copywriter toggle / Copywriter notes sit in one row. */
+    .layout{display:grid;grid-template-columns:minmax(250px,1fr) minmax(206px,0.72fr) minmax(188px,1fr) minmax(188px,1fr);grid-template-rows:auto auto auto;row-gap:14px;column-gap:18px;align-items:start}
+    .stage,.capcol{display:contents}
+    .mid{grid-column:2;grid-row:1/3;display:flex;flex-direction:column;align-self:start;min-width:0}
+
+    .preview{grid-column:1;grid-row:1;position:relative;width:100%;aspect-ratio:4/5;display:flex;align-items:center;justify-content:center;background:#f7f8f9;border:1px solid var(--line);border-radius:10px;overflow:hidden;min-height:0;max-height:none;transition:aspect-ratio .18s ease}
+    .preview[data-shape="story"]{aspect-ratio:9/16}
+    .preview img,.preview video{width:100%;height:100%;object-fit:contain;display:block;background:#fff}
+    .preview .empty{padding:60px 16px;color:var(--quiet);font-size:12px}
+    .preview .no-badge{position:absolute;left:8px;top:8px;z-index:2}
+    .preview .spec-note{position:absolute;left:0;right:0;bottom:0;z-index:2;padding:5px 10px;background:rgba(255,255,255,.86);text-align:center}
+    .no-badge{width:26px;height:26px;border:1px solid var(--line);border-radius:6px;background:#f7f8f9;display:grid;place-items:center;font:600 10px "Archivo",sans-serif}
+    .spec-note{font:500 10px "Archivo",sans-serif;letter-spacing:.1em;text-transform:uppercase;color:var(--quiet)}
+
+    /* Visual crop — identical interaction to the Week theme editor */
+    .crop-box{position:absolute;border:1.5px solid #fff;box-shadow:0 0 0 9999px rgba(35,38,42,.42);cursor:move;touch-action:none;z-index:3}
+    .crop-box[hidden]{display:none}
+    .crop-handle{position:absolute;width:12px;height:12px;border:2px solid #fff;background:var(--btn-primary)}
+    .crop-handle.nw{left:-7px;top:-7px;cursor:nwse-resize}.crop-handle.ne{right:-7px;top:-7px;cursor:nesw-resize}
+    .crop-handle.sw{left:-7px;bottom:-7px;cursor:nesw-resize}.crop-handle.se{right:-7px;bottom:-7px;cursor:nwse-resize}
+    .crop-done{position:absolute;left:50%;bottom:8px;transform:translateX(-50%);display:inline-flex;align-items:center;gap:5px;padding:6px 11px;border:0;border-radius:999px;background:var(--btn-primary);color:#fff;font:600 9px "Archivo",sans-serif;letter-spacing:.1em;text-transform:uppercase;cursor:pointer}
+    .crop-done svg{width:11px;height:11px}
+
+    .editor-head{position:relative;z-index:2;display:flex;flex-direction:column;gap:12px;min-width:0;margin:0}
+    .editor-body{position:relative;z-index:1;display:flex;flex-direction:column;gap:12px;min-width:0;margin:14px 0 0;clear:both}
+    .ig-col{grid-column:3;grid-row:1;align-self:start;height:fit-content;margin:0}
+    .tt-col{grid-column:4;grid-row:1;align-self:start;height:fit-content;margin:0}
+    .ig-col,.tt-col{min-height:0}
+    .cap-grow{flex:1 1 auto;min-height:230px;resize:none}
+    .cap-box .field[name$="_hashtags"]{min-height:100px;resize:vertical}
+
+    .mid-actions{grid-column:1;grid-row:2;align-self:start;display:flex;flex-direction:row;gap:10px;margin:-82.5px 0 0}
+    .ig-copywriter{grid-column:3;grid-row:2;align-self:start;margin:-82.5px 0 0}
+    .tt-copywriter{grid-column:4;grid-row:2;align-self:start;margin:-82.5px 0 0}
+    .mid-actions,.ig-copywriter,.tt-copywriter{height:48px;min-height:48px}
+    .copywriter-generate{width:34px;height:34px;padding:7px!important;display:inline-flex;align-items:center;justify-content:center;line-height:1;border-radius:50%}
+    .copywriter-generate svg{width:18px;height:18px;display:block;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+
+    .box.compact{flex-direction:row;align-items:center;justify-content:space-between;gap:10px;padding:9px 12px}
+    .box.compact .box-title{border:0;padding:0;white-space:nowrap}
+    .box.compact .toggle{margin:0}
+    .box.compact .button{white-space:nowrap;padding:7px 11px}
+    .approve-btn{min-width:0;flex:1 1 auto;height:48px;padding:8px 18px;border:1px solid var(--approve-line);border-radius:var(--radius);background:#ebedf0;color:var(--approve-ink);font-family:"Archivo","Segoe UI",sans-serif;font-size:11px;font-weight:700;letter-spacing:.2em;text-transform:uppercase;cursor:pointer}
+    .approve-btn:hover{background:var(--approve)}
+    .approve-btn.is-approved{background:var(--approve);border-color:var(--approve-line);color:var(--approve-ink)}
+    .approve-btn.is-approved:hover{background:#d3e7dc}
+    .cover-preview{width:48px;height:48px;flex:none;border:1px solid var(--line);border-radius:var(--radius);background:#f7f8f9;overflow:hidden}
+    .cover-preview-image{width:100%;height:100%;display:block;background:var(--soft);object-fit:cover}
+    .cover-preview-empty{display:grid;place-items:center;color:var(--quiet);font:500 8px "Archivo",sans-serif;letter-spacing:.1em;text-align:center;text-transform:uppercase}
+
+    .action-row{display:flex;flex-wrap:wrap;gap:6px}
+    .media-tools{display:flex;align-items:center;gap:6px;min-width:0;flex-wrap:nowrap}
+    .media-size-select{height:32px;margin-left:4px;padding:6px 8px;border:1px solid var(--line);border-radius:var(--radius);background:var(--field);color:var(--muted);font:600 8px "Archivo",sans-serif;letter-spacing:.1em;text-transform:uppercase}
+    .editor-tabs{display:flex;gap:4px}
+    .editor-tabs button{flex:1;padding:8px 6px;border:1px solid var(--line);border-radius:var(--radius);background:var(--field);color:var(--muted);font:600 9px "Archivo",sans-serif;letter-spacing:.1em;text-transform:uppercase;cursor:pointer}
+    .editor-tabs button.sel{border-color:var(--btn-primary);background:var(--btn-primary);color:#fff}
+    .editor-form{margin:0;border:1px solid var(--line);border-radius:10px;padding:14px;background:#f7f8f9}
+    .editor-form[hidden]{display:none}
+    .edit-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px 12px}
+    .edit-grid label{display:flex;flex-direction:column;gap:4px;color:var(--quiet);font-size:9px;font-weight:500;letter-spacing:.13em;min-width:0;margin:0}
+    .edit-grid .fld{padding:7px 8px;border:1px solid var(--line);border-radius:var(--radius);background:var(--field);color:var(--ink);font:inherit;font-size:12px;font-weight:300}
+    .edit-grid .chk{flex-direction:row;align-items:center;gap:8px;text-transform:none;letter-spacing:0;color:var(--muted);font-size:12px}
+    .edit-grid .span2{grid-column:1/-1}
+    .edit-grid.splice-grid label{font-size:8px;letter-spacing:.08em;white-space:nowrap}
+    .editor-form .hint{margin:0 0 10px;font-size:11px;font-weight:300;color:var(--quiet)}
+
+    /* Creator's Studio + Animate with Sori + Copywriter panels: colours/outlines live
+       in ui-system.css (shared, every page). Only layout stays here. */
+    .studio-sori{margin-top:auto;display:flex;flex-direction:column;gap:8px}
+
+    .box{border:1px solid var(--line);border-radius:10px;padding:14px;display:flex;flex-direction:column;gap:9px;background:#f7f8f9}
+    .box .box-title{font:600 10px "Archivo",sans-serif;letter-spacing:.2em;text-transform:uppercase;color:var(--ink);padding-bottom:8px;border-bottom:1px solid var(--line)}
+    .box label{color:var(--quiet);font-size:9px;font-weight:500;letter-spacing:.14em;margin-bottom:-4px}
+    .copywriter-row{flex-wrap:nowrap;gap:10px}
+    .toggle{display:flex;align-items:center;gap:9px;font-size:13px;font-weight:300;cursor:pointer}
+
+    .copywriter-box{height:48px;min-height:48px}
+    .ace-studio{grid-column:1/-1;grid-row:4;margin-top:14px;border:1px solid var(--line);border-radius:10px;background:#f7f8f9;padding:14px;display:flex;flex-direction:column;gap:12px}
+    .ace-studio-head{display:flex;align-items:center;justify-content:space-between;gap:12px}
+    .ace-studio-title{font:600 10px "Archivo",sans-serif;letter-spacing:.2em;text-transform:uppercase}
+    .ace-transport{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+    .ace-transport button,.ace-tool-button{min-height:30px;padding:6px 9px;border:1px solid var(--line);border-radius:var(--radius);background:#ebedf0;color:var(--muted);font:600 8px "Archivo",sans-serif;letter-spacing:.1em;text-transform:uppercase;cursor:pointer}
+    .ace-transport button:hover,.ace-tool-button:hover{background:var(--soft);color:var(--ink)}
+    .ace-transport button.active,.ace-lane-controls button.active{background:var(--btn-primary);border-color:var(--btn-primary);color:#fff}
+    .ace-transport .ace-inspire{border-color:var(--pink-line);background:var(--pink);color:var(--pink-ink)}
+    .ace-values{display:flex;gap:6px;margin-left:auto}
+    .ace-value{padding:6px 9px;border:1px solid var(--line);background:#fff;color:var(--ink);font:600 10px "Archivo",sans-serif;letter-spacing:.08em}
+    .ace-workspace{display:grid;grid-template-columns:170px 1fr;gap:12px;min-height:150px}
+    .ace-sidebar,.ace-track{border:1px solid var(--line);background:#fff;padding:10px}
+    .ace-sidebar{display:flex;flex-direction:column;gap:6px}
+    .ace-sidebar-title,.ace-track-title{color:var(--quiet);font:600 8px "Archivo",sans-serif;letter-spacing:.15em;text-transform:uppercase}
+    .ace-track{display:flex;flex-direction:column;gap:8px}
+    .ace-lane{display:grid;grid-template-columns:130px 1fr 100px;align-items:center;gap:8px;padding:9px;background:var(--soft);border:1px solid var(--line)}
+    .ace-lane-controls{display:flex;gap:4px}.ace-lane-controls button{width:25px;height:25px;padding:0;border:1px solid var(--line);background:#fff;color:var(--muted);font:600 8px "Archivo",sans-serif;cursor:pointer}
+    .ace-lane input[type=range]{margin:0}
+    .ace-inspire-dialog{width:min(620px,calc(100vw - 24px));padding:0;border:1px solid var(--ink);border-radius:10px;background:#f7f8f9;color:var(--ink)}
+    .ace-inspire-dialog::backdrop{background:rgba(35,38,42,.42)}
+    .ace-dialog-body{padding:16px;display:flex;flex-direction:column;gap:12px}.ace-dialog-body label{display:flex;flex-direction:column;gap:5px;color:var(--quiet);font:600 8px "Archivo",sans-serif;letter-spacing:.12em;text-transform:uppercase}.ace-dialog-body .field{margin:0}
+
+    .history{display:flex;flex-direction:column;gap:1px;background:var(--line);border:1px solid var(--line);border-radius:6px;overflow:hidden}
+    .history .row{background:#f7f8f9;padding:10px 12px;display:flex;align-items:baseline;justify-content:space-between;gap:14px;font-size:13px;font-weight:300}
+    .history .row .when{font:500 9px "Archivo",sans-serif;letter-spacing:.13em;color:#b4babe;white-space:nowrap;text-transform:uppercase}
+    .history-empty{font-size:13px;font-weight:300;color:var(--quiet)}
+
+    /* Creator's Studio dialog — copied verbatim from the Week page */
+    .studio-dialog,.sticker-dialog{width:min(1040px,calc(100vw - 24px));height:min(760px,calc(100vh - 24px));max-height:calc(100vh - 24px);padding:0;border:1px solid var(--ink);border-radius:12px;background:#f7f8f9;color:var(--ink);overflow:hidden}
+    .studio-dialog::backdrop,.sticker-dialog::backdrop{background:rgba(35,38,42,.45);backdrop-filter:blur(3px)}
+    .studio-head{height:44px;padding:8px 12px;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;gap:12px}
+    .studio-head .button,.studio-head .ibtn{padding:5px 8px;min-height:0}
+    .studio-body{height:calc(100% - 44px);padding:12px;display:grid;grid-template-columns:minmax(0,1fr) 250px;gap:12px;overflow:hidden;align-items:stretch}
+    .studio-stage{position:relative;min-height:0;overflow:hidden;background:var(--soft);border-radius:8px;display:grid;place-items:center}
+    .studio-stage canvas{display:block;max-width:100%;max-height:100%;width:auto;height:auto;aspect-ratio:1;touch-action:none}
+    .studio-tools{align-self:start;max-height:100%;min-height:0;overflow-y:auto;padding-right:4px;display:flex;flex-direction:column;gap:9px}
+    .studio-tools .choice-title{font-family:"Archivo",sans-serif;font-weight:600;font-size:9px;letter-spacing:.16em;text-transform:uppercase;color:var(--quiet)}
+    .studio-global-actions{display:grid;grid-template-columns:1fr 1fr;gap:5px}
+    .studio-global-actions .button{min-height:28px;padding:6px 8px}
+    .draw-tools{display:grid;grid-template-columns:56px 1fr;gap:8px;align-items:end}
+    .draw-tools label{margin:0;display:flex;flex-direction:column;align-items:flex-start;gap:4px}
+    .draw-tools label svg{width:17px;height:17px;color:var(--muted)}
+    .draw-tools .field,.draw-tools .range{margin-top:0}
+    .draw-tools input[type="color"]{width:46px;height:26px;padding:2px;border:1px solid var(--line);border-radius:var(--radius)}
+    .compact-actions,.studio-sticker-actions{display:flex;gap:5px;flex-wrap:wrap}
+    .studio-sticker-actions{display:grid;grid-template-columns:1fr 1fr;gap:5px;padding-top:6px;border-top:1px solid var(--line)}
+    .studio-sticker-actions form{margin:0}
+    .studio-sticker-actions .button{width:100%;min-height:28px;padding:6px 7px;text-align:center}
+    .studio-sticker-actions input{display:none}
+    .studio-section{padding-top:6px;border-top:1px solid var(--line);display:flex;flex-direction:column;gap:5px}
+    .studio-section .field{margin-top:3px;padding:6px}
+    .emoji-scroll{overflow-x:auto;overflow-y:hidden;padding-bottom:4px}
+    .emoji-grid{display:flex;flex-wrap:nowrap;gap:3px;width:max-content}
+    .emoji-grid button{flex:none;width:26px;height:26px;padding:1px;border:1px solid var(--line);border-radius:5px;background:#ebedf0;font:16px "Noto Color Emoji","Segoe UI Emoji",sans-serif;cursor:pointer}
+    .emoji-grid button:hover{border-color:var(--btn-primary);background:var(--soft)}
+    .tool-row{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+    .overlay-help{margin:0;color:var(--muted);font-size:9px;line-height:1.35}
+    .sticker-grid{padding:12px;display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:6px;overflow:auto}
+    .sticker-choice{padding:0;border:1px solid var(--line);border-radius:6px;background:var(--soft);aspect-ratio:1;cursor:pointer;overflow:hidden}
+    .sticker-choice:hover,.sticker-choice:focus-visible{border-color:var(--btn-primary)}
+    .sticker-choice img{width:100%;height:100%;object-fit:contain}
+    .sticker-empty{grid-column:1/-1;padding:32px 14px;text-align:center;color:var(--muted)}
+    .button.pink-btn{background:#ebedf0;border-color:var(--pink-line);color:var(--pink-ink)}
+    .button.pink-btn:hover{background:var(--pink);border-color:var(--pink-line)}
+    .studio-section .button{min-height:28px;padding:6px 8px}
+    .studio-section>.choice-title{margin-bottom:2px}
+    .studio-section input[type="file"]{display:none}
+    .studio-section form{margin:0}
+    .layouts{display:flex;flex-wrap:wrap;gap:5px;margin-top:6px}
+    .layouts button{position:relative;flex:none;width:32px;height:32px;padding:0;border:1px solid var(--line);border-radius:5px;background:#ebedf0;cursor:pointer}
+    .layouts button.sel{border-color:var(--btn-primary);box-shadow:0 0 0 1px var(--btn-primary) inset}
+    .layouts button span{position:absolute;background:#c6ccd3;border-radius:1px}
+    .photos{display:flex;flex-wrap:wrap;gap:5px;margin-top:6px}
+    .photos figure{position:relative;width:38px;height:38px;margin:0;border-radius:6px;overflow:hidden;background:var(--soft);cursor:grab}
+    .photos figure.dragging{opacity:.4}
+    .photos img{width:100%;height:100%;object-fit:cover;pointer-events:none}
+    .photos button{position:absolute;right:-4px;top:-4px;width:15px;height:15px;padding:0;border:0;border-radius:50%;background:var(--btn-primary);color:#fff;font-size:10px;line-height:1;cursor:pointer}
+    .opacity-row{display:grid;grid-template-columns:1fr auto auto;gap:6px;align-items:end}
+    /* every label in the tools column: small, grey, uppercase, not bold */
+    .tool-row label,.opacity-row label,.studio-section>label:not(.button){display:flex;flex-direction:column;gap:3px;font:500 9px "Archivo",sans-serif;letter-spacing:.13em;text-transform:uppercase;color:var(--quiet);margin:0}
+
+    footer{max-width:1400px;margin:60px auto 0;padding:26px 44px;border-top:1px solid var(--line);display:flex;justify-content:space-between;color:#b4babe;font:500 10px "Archivo","Segoe UI",sans-serif;letter-spacing:.2em;text-transform:uppercase}
+    
+    .assistant-chat-row{display:flex;justify-content:flex-end;margin:20px 0}
+    .assistant-chat-grid{display:grid;grid-template-columns:minmax(160px,200px) 1fr;gap:16px;align-items:start;width:100%;max-width:980px}
+    .assistant-notes-col{display:flex;flex-direction:column;gap:8px}
+    .assistant-notes{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:7px}
+    .assistant-notes li{color:var(--muted);font-size:13px;font-weight:300;line-height:1.5}
+    .assistant-notes strong{color:var(--ink);font-weight:600;font-size:12px;letter-spacing:.03em}
+    .assistant-chat-grid .assistant-chat{margin-top:0;max-width:none;border:1.5px solid #c5cfd7;background:#fbfbfb;display:block}
+    .assistant-chat-header{display:flex;justify-content:space-between;align-items:center;padding:12px 14px;border-bottom:1.5px solid #c5cfd7}
+    .assistant-tabs{display:flex;gap:8px;flex-wrap:wrap}
+    .assistant-tab{padding:7px 9px;border:1px solid var(--line);background:#ebedf0;font:600 8px "Arial",sans-serif;letter-spacing:.12em;text-transform:uppercase;cursor:pointer}
+    .assistant-tab.active{background:var(--ink);color:#fff;border-color:var(--ink)}
+    .chat-role{font:600 7px "Arial",sans-serif;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+    .assistant-chat-body{display:grid;grid-template-columns:1fr 180px;gap:0}
+    .chat-messages{height:160px;overflow:auto;padding:14px;background:#fff;border-right:1.5px solid #c5cfd7}
+    .chat-message{padding:8px 10px;border-radius:8px;margin-bottom:8px;max-width:90%}
+    .chat-message strong{display:block;margin-bottom:4px;font:700 9px "Archivo","Segoe UI",sans-serif;letter-spacing:.12em;text-transform:uppercase}
+    .chat-message.user{margin-left:auto;background:#f0f2f2}
+    .chat-message.assistant{background:var(--soft)}
+    .empty-line{color:var(--muted);font-size:12px}
+    .chat-input-wrap{padding:12px;display:flex;flex-direction:column;gap:10px}
+    .chat-input-wrap textarea{width:100%;min-height:60px;border:1px solid var(--line);padding:9px;background:#fff;resize:vertical}
+    .godzilla-treats{display:grid;grid-template-columns:repeat(2,1fr);gap:5px}
+    .godzilla-treats button{padding:5px 6px;border:1px solid #7c9473;background:#eef4e6;color:#4a5c3a;font:600 7px "Arial",sans-serif;letter-spacing:.04em;cursor:pointer;border-radius:10px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .chat-actions{display:flex;justify-content:space-between;gap:10px}
+    .chat-actions button{padding:6px 10px;border:1px solid var(--line);background:#ebedf0;font:600 8px "Archivo","Segoe UI",sans-serif;letter-spacing:.12em;text-transform:uppercase;cursor:pointer}
+    
+    @media(max-width:1180px){
+      .layout{display:block}
+      .stage,.mid,.capcol{display:flex;flex-direction:column;gap:14px;margin-bottom:18px}
+      .preview,.mid-actions,.editor-head,.editor-body,.ig-col,.tt-col,.ig-copywriter,.tt-copywriter{grid-column:auto;grid-row:auto}
+      .preview{min-height:0}.cap-grow{min-height:120px}
+    }
+    @media(max-width:900px){.studio-body{grid-template-columns:1fr;grid-template-rows:minmax(240px,52vh) minmax(0,1fr)}}
+    @media(max-width:620px){.header-inner{max-width:1400px;height:74px;margin:auto;padding:0 44px;display:flex;align-items:center;justify-content:space-between;gap:32px}.nav{width:100%}main{padding:32px 20px 60px}.crumb{flex-direction:column;align-items:flex-start;gap:10px}.edit-grid{grid-template-columns:1fr}footer{padding:22px 20px;flex-direction:column;gap:10px}}
+  </style>
+</head>
+<body>
+{% set ig = post.platform_versions | selectattr('platform.value', 'equalto', 'instagram') | first %}
+{% set tt = post.platform_versions | selectattr('platform.value', 'equalto', 'tiktok') | first %}
+{% set content = version_map.get(post.content_version_id) if post.content_version_id else None %}
+{% set cover = version_map.get(post.cover_version_id) if post.cover_version_id else None %}
+{% set content_is_tile = content and (content.edit_instructions or {}).get('purpose') in ['weekly_theme_tile', 'weekly_theme_tile_reset', 'instagram_theme_tile', 'tiktok_theme_tile'] %}
+{% set status = post.creative_status.value %}
+{% include "_header.html" %}
+<main>
+  <div class="crumb">
+    <span>{{ week.week_start.strftime('%Y') }} / Week {{ '%02d'|format(week.week_number) }} / {{ (week.theme or 'Untitled') }} / Post {{ post.visual_position }}</span>
+    <span class="nav-btns"><!-- Previous / next post, as SVG chevrons matching the Library pager. --><a class="icon-page" href="/posts/{{ previous_post.id }}" title="Previous post" aria-label="Previous post"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg></a><a class="icon-page" href="/posts/{{ next_post.id }}" title="Next post" aria-label="Next post"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5l7 7-7 7"/></svg></a><a class="button" href="/weeks/{{ week.id }}">Back to nine</a></span>
+  </div>
+  <div class="rule"></div>
+
+  {% if assistant_panels %}<div class="assistant-chat-row"><div class="assistant-chat-grid">
+  <div class="assistant-notes-col">
+  <ul class="assistant-notes">
+  {% for assistant in assistant_panels if assistant.kind != 'godzilla' %}
+  <li><strong>{{ assistant.name }}</strong> — {{ assistant.summary }}</li>
+  {% endfor %}
+  </ul>
+  </div>
+  <section class="assistant-chat" data-assistant-chat>
+  <div class="assistant-chat-header">
+  <div class="assistant-tabs" role="tablist" aria-label="Assistant chat tabs">
+  {% for assistant in assistant_panels %}
+  <button type="button" class="assistant-tab{% if loop.first %} active{% endif %}" data-assistant-tab="{{ assistant.kind }}" aria-selected="{{ 'true' if loop.first else 'false' }}">{{ assistant.name }}</button>
+  {% endfor %}
+  </div>
+  <button type="button" data-activity-open title="Assistant activity" aria-label="Assistant activity" style="border:0;background:none;padding:0;cursor:pointer;color:#7A8084;display:inline-flex"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12h3.5l2-6 3.5 12 2.5-8 1.8 4H21"/></svg></button>
+  </div>
+  <div class="assistant-chat-body">
+  <div class="chat-messages" data-chat-messages>
+  <div class="empty-line">Choose an assistant and ask a question.</div>
+  </div>
+  <div class="chat-input-wrap">
+  <textarea data-chat-input placeholder="Ask a question…"></textarea>
+  <div class="godzilla-treats" data-godzilla-treats hidden>
+  <button type="button" data-treat="bacon">🥓 Bacon</button>
+  <button type="button" data-treat="ice cream">🍦 Ice cream</button>
+  <button type="button" data-treat="rice pudding">🍚 Rice pudding</button>
+  <button type="button" data-treat="popcorn">🍿 Popcorn</button>
+  <button type="button" data-treat="McNuggets">🍗 McNuggets</button>
+  <button type="button" data-treat="hold hand">✋ Hold hand</button>
+  </div>
+  <div class="chat-actions">
+  <button type="button" data-chat-clear class="icon-action" title="Clear the conversation" aria-label="Clear the conversation"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M9 9l6 6M15 9l-6 6"/></svg></button>
+  <button type="button" data-chat-send class="icon-action" title="Send" aria-label="Send"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 3L10.5 13.5M21 3l-6.8 18-3.7-7.5L3 10l18-7z"/></svg></button>
+  </div>
+  </div>
+  </div>
+  </section>
+  </div></div>
+  <div class="rule"></div>{% endif %}
+
+  <div class="notice{% if flash and flash.level == 'error' %} error{% endif %}" data-save-notice role="status" aria-live="polite" {% if not flash %}hidden{% endif %} style="position:fixed;right:24px;bottom:24px;z-index:100;max-width:min(420px,calc(100vw - 40px));padding:12px 14px;border:1px solid #b9cfc1;background:#edf6f0;color:#365844;font:600 10px 'Archivo',sans-serif;letter-spacing:.12em;text-transform:uppercase;box-shadow:0 14px 34px rgba(35,38,42,.12)">{% if flash %}{{ flash.message }}{% endif %}</div>
+
+  <div class="layout" data-post-editor>
+    <div class="stage" data-post-preview data-crop-stage>
+      <div class="preview" data-preview data-crop-frame data-shape="portrait">
+        <span class="no-badge">{{ post.visual_position }}</span>
+        {% if content and not content_is_tile and content.mime_type.startswith('image/') %}<img src="/media-versions/{{ content.id }}" alt="Post {{ post.visual_position }} content">
+        {% elif content and not content_is_tile and content.mime_type.startswith('video/') %}<video src="/media-versions/{{ content.id }}" controls preload="metadata"></video>
+        {% else %}<div class="empty">No image or video chosen yet</div>{% endif %}
+        <span class="spec-note" data-spec>Portrait 4:5 &middot; 1080 &times; 1350 &middot; Instagram feed</span>
+        <div class="crop-box" data-crop-box hidden>
+          <span class="crop-handle nw" data-crop-handle="nw"></span><span class="crop-handle ne" data-crop-handle="ne"></span><span class="crop-handle sw" data-crop-handle="sw"></span><span class="crop-handle se" data-crop-handle="se"></span>
+          <button class="crop-done" type="button" data-crop-done><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 13l4 4L19 7"/></svg>Done</button>
+        </div>
+      </div>
+      <div class="mid-actions">
+        {% if status == 'approved' %}
+          <button class="approve-btn is-approved icon-only" type="submit" form="post-assign-form" formaction="/posts/{{ post.id }}/approve" title="Remove approval" aria-label="Remove approval"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 13l4 4L19 7"/></svg></button>
+        {% else %}
+        <button class="approve-btn icon-only" type="submit" form="post-assign-form" formaction="/posts/{{ post.id }}/approve" title="Approve post" aria-label="Approve post"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 13l4 4L19 7"/></svg></button>
+        {% endif %}
+        <div class="cover-preview" aria-label="Calendar tile image preview" title="Calendar tile{% if not cover %} — no dedicated cover yet{% endif %}">
+          {% if cover and cover.mime_type.startswith('image/') %}<img class="cover-preview-image" src="/media-versions/{{ cover.id }}" alt="Calendar tile for post {{ post.visual_position }}">
+          {% else %}<div class="cover-preview-image cover-preview-empty">No tile image</div>{% endif %}
+        </div>
+      </div>
+
+      <section class="ace-studio" data-ace-studio aria-labelledby="ace-studio-title">
+        <div class="ace-studio-head">
+          <div class="ace-studio-title" id="ace-studio-title">ACE Studio</div>
+          <div class="ace-transport">
+            <button type="button" data-ace-action="rewind" title="Rewind">Rewind</button><button type="button" data-ace-action="play" title="Play or pause">Play / Pause</button><button type="button" data-ace-action="stop" title="Stop">Stop</button><button type="button" data-ace-action="metronome" title="Toggle metronome" aria-pressed="false">Metronome</button><button type="button" data-ace-action="loop" title="Toggle loop" aria-pressed="false">Loop</button><button type="button" data-ace-action="export" title="Export audio">Export</button>
+            <button type="button" class="ace-inspire" data-ace-inspire>Inspire Me</button>
+          </div>
+          <div class="ace-values"><span class="ace-value" title="Beats per minute">120 BPM</span><span class="ace-value" title="Time signature">4/4</span></div>
+        </div>
+        <audio data-post-audio preload="metadata"{% if post.audio_version_id %} src="/media-versions/{{ post.audio_version_id }}"{% endif %}></audio>
+        <div class="ace-workspace">
+          <aside class="ace-sidebar">
+            <div class="ace-sidebar-title">Creative tools</div>
+            <button class="ace-tool-button" type="button">Voice / Singer Library</button><button class="ace-tool-button" type="button">Remix / Music Enhancer</button><button class="ace-tool-button" type="button">Stem Splitter</button><button class="ace-tool-button" type="button">Voice Changer</button><button class="ace-tool-button" type="button">Vocal to MIDI</button>
+          </aside>
+          <div class="ace-track">
+            <div class="ace-track-title">Timeline mixer</div>
+            <div class="ace-lane"><span>Generated track</span><div class="ace-lane-controls"><button type="button" title="Solo">S</button><button type="button" data-ace-action="mute" title="Mute" aria-pressed="false">M</button><button type="button" title="Effects">FX</button></div><input type="range" data-ace-track-volume min="0" max="100" value="80" aria-label="Track volume"></div>
+            <div class="ace-lane"><span>Voice / singer</span><div class="ace-lane-controls"><button type="button" title="Solo">S</button><button type="button" data-ace-action="mute" title="Mute" aria-pressed="false">M</button><button type="button" title="Effects">FX</button></div><input type="range" data-ace-track-volume min="0" max="100" value="70" aria-label="Voice volume"></div>
+            <div class="ace-studio-title" style="margin-top:auto">Piano roll · Note Mover (V) · Note Brush (B) · Lyrics</div>
+          </div>
+        </div>
+        <dialog class="ace-inspire-dialog" data-ace-inspire-dialog aria-labelledby="ace-inspire-title">
+          <div class="studio-head"><div class="preview-title" id="ace-inspire-title">Inspire Me</div><button type="button" class="close-x" data-ace-inspire-close title="Close" aria-label="Close"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg></button></div>
+          <form class="ace-dialog-body" method="post" action="/posts/{{ post.id }}/generate-music">
+            <label>Style prompt<textarea class="field" name="prompt" rows="4" placeholder="Describe the genre, mood, instruments, tempo, and vocal style"></textarea></label>
+            <label>Music direction<textarea class="field" name="lyrics" rows="5" placeholder="Describe the instrumental music"></textarea></label>
+            <label>Duration<input class="field" type="number" name="duration" min="10" max="60" value="30"></label>
+            <p class="hint">Local MusicGen Small creates instrumental audio with lower memory use.</p>
+            <button class="button primary" type="submit">Generate track</button>
+          </form>
+        </dialog>
+      </section>
+    </div>
+
+    <div class="mid">
+      <div class="editor-head">
+      <div class="action-row" aria-label="Media upload controls">
+        <div class="media-tools">
+        <button class="ibtn" type="button" data-open-media-picker title="Choose from Library" aria-label="Choose from Library"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="14" height="14" rx="1.5"/><path d="M7 8h6M7 12h6M20 8v12H8"/></svg></button>
+        <form class="inline-upload" method="post" action="/posts/{{ post.id }}/upload" enctype="multipart/form-data"><label class="ibtn" title="Upload image, video, or audio from computer" aria-label="Upload image, video, or audio from computer"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 15V4m0 0l-4 4m4-4l4 4"/><path d="M4 15v3a2 2 0 002 2h12a2 2 0 002-2v-3"/></svg><input type="file" name="upload" accept="image/*,video/*,audio/*" onchange="if(this.files.length)this.form.submit()"></label></form>
+        <button class="ibtn primary wide" type="button" data-editor-save title="Save this edit as a new version" aria-label="Save this edit as a new version"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 13l4 4L19 7"/></svg></button>
+        </div>
+      </div>
+
+      <div class="action-row" aria-label="Crop and format controls">
+        <div class="media-tools">
+        <button class="ibtn" type="button" data-crop-toggle title="Crop"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2v14a2 2 0 002 2h14M2 6h14a2 2 0 012 2v14"/></svg></button>
+        <button class="ibtn" type="button" data-editor-reset title="Reset this editor"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 109-9 9 9 0 00-7 3.5M3 3v4h4"/></svg></button>
+        <select class="media-size-select" data-media-size aria-label="Post media size"><option value="instagram" selected>Instagram 4:5</option><option value="tiktok">TikTok 9:16</option></select>
+        </div>
+      </div>
+
+      <div class="editor-tabs" data-editor-tabs>
+        <button type="button" data-tab="image" class="sel">Image editor</button>
+        <button type="button" data-tab="video">Video editor</button>
+        <button type="button" data-tab="audio">Audio editor</button>
+      </div>
+      </div>
+
+      <div class="editor-body">
+      <form class="editor-form" data-editor="image" data-crop-form method="post" action="/posts/{{ post.id }}/corrections">
+        <input type="hidden" name="crop" value="original">
+        <input type="hidden" name="crop_width" value="100"><input type="hidden" name="crop_height" value="100">
+        <input type="hidden" name="crop_x" value="50"><input type="hidden" name="crop_y" value="50">
+        <div class="edit-grid">
+          <label>Style<select class="fld" name="style_preset">
+            <option value="none">None</option>
+            <optgroup label="Anime &amp; manga"><option value="anime">Anime cel</option><option value="manga">Manga (B&amp;W)</option><option value="comic">Comic / cover</option></optgroup>
+            <optgroup label="Manhua &amp; ink"><option value="webtoon">Webtoon flat</option><option value="ink_wash">Ink wash</option></optgroup>
+            <optgroup label="Classic"><option value="sepia">Sepia</option><option value="black_and_white">Black &amp; white</option><option value="old_western">Old Western</option><option value="mermaid">Mermaid</option><option value="fantasy">Fantasy</option><option value="fairy_glow">Fairy glow</option><option value="dreamy">Dreamy</option><option value="vintage">Vintage</option><option value="soft_film">Soft film</option><option value="glitter">Glitter</option></optgroup>
+          </select></label>
+          <label>Rotate<select class="fld" name="rotate"><option value="0">0&deg;</option><option value="90">90&deg;</option><option value="180">180&deg;</option><option value="270">270&deg;</option></select></label>
+          <label>Flip<select class="fld" name="flip"><option value="none">None</option><option value="horizontal">Horizontal</option><option value="vertical">Vertical</option></select></label>
+          <label>Straighten<input type="range" name="straighten" min="-15" max="15" step="0.5" value="0"></label>
+          {% for control in ['brightness','contrast','highlights','shadows','temperature','saturation','sharpness'] %}<label>{{ control }}<input type="range" name="{{ control }}" min="-100" max="100" value="0"></label>{% endfor %}
+          <label>Zoom<input type="range" name="zoom" min="1" max="3" step="0.05" value="1"></label>
+          <label class="chk span2"><input type="checkbox" name="black_and_white" value="true"> Black &amp; white</label>
+        </div>
+      </form>
+
+      <form class="editor-form" data-editor="video" method="post" action="/posts/{{ post.id }}/video-edits" hidden>
+        <p class="hint">Applies when the post content is a video. Exports a new final video.</p>
+        <div class="edit-grid">
+          <label>Trim start (s)<input class="fld" type="number" name="trim_start" min="0" step="0.1" value="0"></label>
+          <label>Trim end (s)<input class="fld" type="number" name="trim_end" min="0" step="0.1" placeholder="End"></label>
+          <label>Crop<select class="fld" name="crop" data-crop-field><option value="original">Original</option><option value="square">Square 1:1</option><option value="portrait" selected>Portrait 4:5</option><option value="story">Story 9:16</option></select></label>
+          <label>Rotate<select class="fld" name="rotate"><option value="0">0&deg;</option><option value="90">90&deg;</option><option value="180">180&deg;</option><option value="270">270&deg;</option></select></label>
+          <label>Speed<select class="fld" name="speed"><option value="0.5">0.5&times;</option><option value="0.75">0.75&times;</option><option value="1" selected>1&times;</option><option value="1.25">1.25&times;</option><option value="1.5">1.5&times;</option><option value="2">2&times;</option></select></label>
+          <label>Volume<input type="range" name="volume" min="0" max="2" step="0.05" value="1"></label>
+          <label>Overlay text<input class="fld span2" name="overlay_text" maxlength="80" placeholder="Optional"></label>
+          <label>Overlay position<select class="fld" name="overlay_position"><option value="bottom_right">Bottom right</option><option value="bottom_left">Bottom left</option><option value="center">Center</option><option value="top_right">Top right</option><option value="top_left">Top left</option></select></label>
+          <label class="chk span2"><input type="checkbox" name="mute" value="true"> Mute exported video</label>
+        </div>
+      </form>
+
+      <form class="editor-form" data-editor="audio" method="post" action="/posts/{{ post.id }}/audio-edits" enctype="multipart/form-data" hidden>
+        <div class="edit-grid">
+          <label>Trim start (s)<input class="fld" type="number" name="trim_start" min="0" step="0.1" value="0"></label>
+          <label>Trim end (s)<input class="fld" type="number" name="trim_end" min="0" step="0.1" placeholder="End"></label>
+          <label>Volume<input type="range" name="volume" min="0" max="2" step="0.05" value="1"></label>
+          <label>Fade in (s)<input class="fld" type="number" name="fade_in" min="0" max="30" step="0.1" value="0"></label>
+          <label>Fade out (s)<input class="fld" type="number" name="fade_out" min="0" max="30" step="0.1" value="0"></label>
+          <label class="chk span2"><input type="checkbox" name="remove_audio" value="true"> Remove audio from this post</label>
+        </div>
+        <div class="edit-grid splice-grid">
+          <label class="span2">Upload a recording<input class="fld" type="file" name="splice_audio_file" accept="audio/*"></label>
+          <label class="span2">…or a Library clip<select class="fld" name="splice_asset_id"><option value="">None</option>{% for clip in audio_assets %}<option value="{{ clip.id }}">{{ clip.display_name }}</option>{% endfor %}</select></label>
+          <label>Replace from (s)<input class="fld" type="number" name="splice_start" min="0" step="0.1" value="0"></label>
+          <label>Replace to (s)<input class="fld" type="number" name="splice_end" min="0" step="0.1" placeholder="End"></label>
+        </div>
+      </form>
+
+      <div class="studio-sori">
+      <section class="creator-card" id="creative-studio" data-creative-studio
+        data-source-url="{% if content and not content_is_tile %}/media-versions/{{ content.id }}{% endif %}"
+        data-source-kind="{% if content and not content_is_tile and content.mime_type.startswith('video/') %}video{% else %}image{% endif %}"
+        data-save-url="/posts/{{ post.id }}/studio-save" data-sticker-url="" aria-labelledby="creative-preview-title">
+        <div class="preview-heading"><div class="preview-title" id="creative-preview-title">Creator's Studio</div><button class="creator-enter icon-only" type="button" data-open-studio title="Open Creator's Studio" aria-label="Open Creator's Studio"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M8 5l8 7-8 7"/></svg></button></div>
+        <dialog class="studio-dialog" aria-labelledby="studio-title">
+          <div class="studio-head"><div class="preview-title" id="studio-title">Creator's Studio</div><button type="button" class="close-x" data-close-studio title="Close" aria-label="Close"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg></button></div>
+          <div class="studio-body">
+            <div class="studio-stage"><canvas width="900" height="900" aria-label="Post creative canvas"></canvas></div>
+            <div class="studio-tools">
+              <div class="studio-global-actions">
+                <button class="ibtn" type="button" data-undo title="Undo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 7L4 12l5 5M4 12h11a5 5 0 010 10h-1"/></svg></button>
+                <button class="ibtn" type="button" data-reset-studio title="Reset all"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 109-9 9 9 0 00-7 3.5M3 3v4h4"/></svg></button>
+              </div>
+              <div class="studio-section"><div class="choice-title">Collage</div>
+                <label class="button" style="text-align:center">Add photos<input type="file" accept="image/*" multiple data-collage-files hidden></label>
+                <div class="layouts" data-layouts aria-label="Collage layouts"></div>
+                <div class="photos" data-photos aria-label="Collage photos"></div>
+              </div>
+              <div class="studio-section" data-item-controls hidden><div class="choice-title">Selected item</div>
+                <div class="tool-row"><label>Size<input class="range" type="range" min="8" max="100" value="30" data-sticker-size></label><label>Rotate<input class="range" type="range" min="-180" max="180" value="0" data-sticker-rotate></label></div>
+                <div class="opacity-row"><label>Opacity<input class="range" type="range" min="10" max="100" value="100" data-sticker-opacity></label><button class="ibtn" type="button" data-sticker-flip title="Flip"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v18M7 8l-4 4 4 4M17 8l4 4-4 4"/></svg></button><button class="ibtn" type="button" data-item-remove title="Remove item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
+              </div>
+              <div class="studio-section"><div class="choice-title">Stickers &amp; emoji</div>
+                <div class="tool-row"><button type="button" data-browse-stickers class="icon-action" title="Browse stickers" aria-label="Browse stickers"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg></button><form method="post" action="/library/stickers/create-from-photo" enctype="multipart/form-data" data-make-sticker-form><input type="hidden" name="return_to" value="/posts/{{ post.id }}"><label class="button pink-btn">Make<input type="file" name="photo" accept="image/*" required data-make-sticker></label></form></div>
+                <div class="emoji-scroll"><div class="emoji-grid">{% for mark in ['😀','😃','😄','😁','😆','🥹','😂','😊','😍','🥰','😘','😋','😎','🤩','🥳','😇','🙂','🙃','😉','😌','😏','🤗','🤭','🫢','🤔','🫡','🤐','😴','🥺','😭','😤','😡','🤯','🥶','🥵','🤠','👻','💀','👽','🤖','😺','😸','😻','🙌','👏','🙏','💪','🤝','👍','👎','✌️','🤞','🤟','🤘','👌','🫶','💅','👀','🧠','🫀','💋','💖','❤️','🩷','🧡','💛','💚','🩵','💙','💜','🤍','🖤','🤎','💔','💕','💞','💓','💗','💝','💘','💌','✨','⭐','🌟','💫','🔥','🌈','☀️','🌙','☁️','❄️','🌸','🌹','🌺','🌻','🌼','🌷','🪻','🦋','🐝','🐞','🐈','🐕','🕊️','🌿','🍃','🍀','🍓','🍒','🍑','🍋','🍉','🎀','🎈','🎉','🎊','🎁','🎂','🎵','🎶','🎼','🎨','📸','💎','👑','🪄','🕯️','🫧','🪩'] %}<button type="button" data-emoji-choice="{{ mark }}" aria-label="Place {{ mark }} emoji">{{ mark }}</button>{% endfor %}</div></div>
+              </div>
+              <div class="studio-section"><div class="choice-title">Words</div>
+                <input class="field" type="text" maxlength="60" placeholder="Type to add words" data-custom-words>
+                <label>Font<select class="field" data-word-font><option value="Jost">Jost</option><option value="Archivo">Archivo</option><option value="Georgia">Georgia</option><option value="Courier New">Typewriter</option></select></label>
+                <p class="overlay-help">Words appear on the canvas as you type. Drag to move. Use Size, Rotate, and Opacity above.</p>
+              </div>
+              <div class="draw-tools"><label title="Paint colour"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2.5c-5.2 0-9.5 3.8-9.5 8.5 0 3 2.4 5 5 5h1.6c1 0 1.7.9 1.5 1.9l-.2 1c-.2 1.2.7 2.1 1.6 2.1 5.2 0 9-4.3 9-9.5 0-5-4.4-9.5-9-9.5z"/><circle cx="8" cy="9" r="1.1" fill="currentColor" stroke="none"/><circle cx="12" cy="6.6" r="1.1" fill="currentColor" stroke="none"/><circle cx="16" cy="9" r="1.1" fill="currentColor" stroke="none"/><circle cx="16.6" cy="13" r="1.1" fill="currentColor" stroke="none"/></svg><input class="field" type="color" value="#9c7078" data-brush-color></label><label title="Brush size"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3.5l6.5 6.5"/><path d="M16.5 6L9 13.5c-.7.7-.7 1.8 0 2.5s1.8.7 2.5 0L19 8.5"/><path d="M9 16c-1.2 0-2 1-2.5 2.2C6 19.5 4.5 20 3 20c1-1.8 1-3 .8-4.2C3.5 14.3 4.5 13 6 13"/></svg><input class="range" type="range" min="2" max="60" value="12" data-brush-size></label></div>
+              <button class="button primary" type="button" data-save-studio>Save to this post</button>
+            </div>
+          </div>
+        </dialog>
+      </section>
+      <button class="button sori-action" type="button" disabled>Animate with Sori &#10022;</button>
+      </div>
+      <dialog class="sticker-dialog" aria-labelledby="sticker-browser-title"><div class="studio-head"><div class="preview-title" id="sticker-browser-title">Choose a sticker</div><button type="button" class="close-x" data-close-stickers title="Close" aria-label="Close"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg></button></div><div class="sticker-grid">{% for sticker in sticker_assets %}<button class="sticker-choice" type="button" data-sticker-choice="/assets/{{ sticker.id }}" title="Use {{ sticker.display_name }}"><img src="/assets/{{ sticker.id }}" alt="{{ sticker.display_name }}"></button>{% else %}<div class="sticker-empty">No stickers yet. Choose Make to create one from a photo.</div>{% endfor %}</div></dialog>
+      </div>
+    </div>
+
+    <div class="capcol">
+      <div class="box cap-box ig-col">
+        <div class="box-title">Instagram</div>
+        <label>Caption</label>
+        <textarea class="field cap-grow" form="post-assign-form" name="instagram_caption" placeholder="Write the Instagram caption.">{{ ig.caption if ig else '' }}</textarea>
+        <label>Hashtags</label>
+        <textarea class="field" form="post-assign-form" name="instagram_hashtags" rows="3" placeholder="#beEvolued">{{ ig.hashtags if ig else '' }}</textarea>
+      </div>
+      <div class="box copywriter-box compact copywriter-row ig-copywriter">
+        <div class="box-title">Copywriter: captions &amp; hashtags</div>
+        <form method="post" action="/posts/{{ post.id }}/copywriter-corrections-toggle" id="copywriter-toggle-form">
+          <label class="toggle"><input type="checkbox" name="enabled" value="true" {% if post.copywriter_corrections_enabled %}checked{% endif %} onchange="document.getElementById('copywriter-toggle-form').requestSubmit()"> On</label>
+        </form>
+      </div>
+    </div>
+
+    <div class="capcol">
+      <div class="box cap-box tt-col">
+        <div class="box-title">TikTok</div>
+        <label>Caption</label>
+        <textarea class="field cap-grow" form="post-assign-form" name="tiktok_caption" placeholder="Write the TikTok caption.">{{ tt.caption if tt else '' }}</textarea>
+        <label>Hashtags</label>
+        <textarea class="field" form="post-assign-form" name="tiktok_hashtags" rows="3" placeholder="#skincare">{{ tt.hashtags if tt else '' }}</textarea>
+      </div>
+      <div class="box copywriter-box compact copywriter-row tt-copywriter">
+        <div class="box-title">Copywriter: captions &amp; hashtags</div>
+        <button class="button pink-btn copywriter-generate" type="submit" form="post-assign-form" formaction="/posts/{{ post.id }}/generate-copy" formnovalidate aria-label="Generate copy" title="Generate copy"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M20 11a8 8 0 0 0-14.7-4L3 9"/><path d="M3 4v5h5"/><path d="M4 13a8 8 0 0 0 14.7 4L21 15"/><path d="M21 20v-5h-5"/></svg></button>
+      </div>
+    </div>
+
+    <form id="post-assign-form" method="post" action="/posts/{{ post.id }}/assign" hidden>
+      <input type="hidden" name="content_version_id" value="{{ post.content_version_id or '' }}">
+      <input type="hidden" name="cover_version_id" value="{{ post.cover_version_id or '' }}">
+      <input type="hidden" name="audio_version_id" value="{{ post.audio_version_id or '' }}">
+      <input type="hidden" name="internal_title" value="{{ post.internal_title }}">
+      <textarea name="internal_notes">{{ post.internal_notes }}</textarea>
+    </form>
+  </div>
+
+</main>
+<dialog class="media-picker" data-media-picker data-picker-context="post" data-picker-id="{{ post.id }}" aria-labelledby="post-media-picker-title"><div class="media-picker-head"><span id="post-media-picker-title">Choose media</span><button type="button" class="close-x" data-close-media-picker title="Close" aria-label="Close"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg></button></div><div class="media-picker-body"><aside data-picker-folders></aside><div class="picker-assets" data-picker-assets></div></div></dialog>
+<footer><span>{{ brand.company_name }}</span></footer>
+</body>
+</html>

@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>SUBJECTS · {{ brand.company_name }}</title>
+<link rel="stylesheet" href="/static/ui-system.css">
+<link rel="stylesheet" href="/static/godzilla-companion.css">
+<script src="/static/ui-navigation.js" defer></script>
+<script src="/static/godzilla-companion.js" defer></script>
+<style>
+:root{--ink:#7A8084;--muted:#8B9195;--quiet:#A9AEB2;--line:#CDD1D4;--soft:#f5f7f7}*{box-sizing:border-box}html,body{margin:0;background:#fff;color:var(--ink);font-family:"Jost","Segoe UI",sans-serif}a{color:inherit;text-decoration:none}button,input{font:inherit}
+.header{border-bottom:1px solid var(--line);position:sticky;top:0;background:rgba(255,255,255,.96);z-index:10}.header-inner{max-width:1400px;height:74px;margin:auto;padding:0 44px;display:flex;align-items:center;justify-content:space-between;gap:32px}.brand{font-size:26px;font-weight:200}.brand img{height:38px;max-width:180px;object-fit:contain}.nav{display:flex;overflow:auto}.nav a{padding:10px 14px;color:#8f969b;font:500 11px "Archivo","Segoe UI",sans-serif;letter-spacing:.18em;text-transform:uppercase;white-space:nowrap}.nav .active{border-bottom:2px solid var(--ink);color:var(--ink)}
+main{max-width:1400px;margin:auto;padding:52px 44px}.eyebrow{font-family:"Archivo","Arial",sans-serif;text-transform:uppercase;letter-spacing:.15em;font-size:10px;color:var(--quiet)}h1{margin:12px 0 0;font-size:clamp(54px,6vw,76px);font-weight:200;line-height:1}.mission{margin:14px 0 0;max-width:70ch;color:var(--muted);font-size:16px;font-weight:300}.rule{height:2px;background:var(--ink);margin:32px 0}
+.notice{margin:0 0 20px;padding:12px 14px;background:var(--soft);font-size:14px}.notice.error{background:#fbe1e6;color:#9c4f5e}
+.groups{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:1px;background:var(--line);border:1px solid var(--line)}
+.group{background:#f7f8f9;padding:20px;display:flex;flex-direction:column;gap:8px;min-width:0}
+.group .kind{font-family:"Archivo","Arial",sans-serif;text-transform:uppercase;letter-spacing:.14em;font-size:9px;color:var(--quiet)}
+.group .name{font-size:18px;font-weight:300;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.group .count{font-family:"Archivo","Arial",sans-serif;text-transform:uppercase;letter-spacing:.14em;font-size:9px;color:#b4babe}
+.rename{display:flex;gap:6px;margin-top:6px}.rename input{flex:1;min-width:0;padding:8px 9px;border:1px solid var(--line);font-size:13px;font-weight:300}
+.btn{padding:8px 11px;border:1px solid var(--line);background:#ebedf0;font:600 9px "Archivo","Arial",sans-serif;letter-spacing:.12em;text-transform:uppercase;cursor:pointer}.btn:hover{border-color:var(--ink)}
+.open{margin-top:4px;font:600 9px "Archivo","Arial",sans-serif;letter-spacing:.12em;text-transform:uppercase}
+.empty{padding:48px 0;color:var(--quiet);font-weight:300}
+footer{max-width:1400px;margin:40px auto 0;padding:24px 44px;border-top:1px solid var(--line);display:flex;justify-content:space-between;color:#b4babe;font:600 9px "Archivo","Arial",sans-serif;letter-spacing:.15em;text-transform:uppercase}
+@media(max-width:1000px){.groups{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:760px){.header-inner{max-width:1400px;height:74px;margin:auto;padding:0 44px;display:flex;align-items:center;justify-content:space-between;gap:32px}.nav{width:100%}main{padding:36px 20px}.groups{grid-template-columns:1fr}footer{padding:22px 20px;flex-direction:column;gap:8px}}
+</style>
+</head>
+<body>
+{% include "_header.html" %}
+<main>
+<div class="eyebrow">Library / people &amp; pets</div>
+<h1>Subjects</h1>
+<p class="mission">Owner-named groups of people and pets, built from face recognition. Each image is scanned once; naming a group renames its collection everywhere. The original media is never copied.</p>
+<div class="rule"></div>
+{% if flash %}<div class="notice{% if flash.level == 'error' %} error{% endif %}">{{ flash.message }}</div>{% endif %}
+{% if subject_groups %}
+<section class="groups">
+{% for g in subject_groups %}
+<article class="group">
+<div class="kind">{{ g.subject_kind.value }}</div>
+<div class="name">{{ g.display_name or "Unnamed " ~ g.subject_kind.value }}</div>
+<div class="count">{{ g.media_count }} image{{ "" if g.media_count == 1 else "s" }}</div>
+<form class="rename" method="post" action="/library/subjects/{{ g.id }}/rename">
+<input name="display_name" value="{{ g.display_name }}" placeholder="Name this {{ g.subject_kind.value }}" required>
+<button class="btn" type="submit">Save</button>
+</form>
+<a class="open" href="{% if g.subject_kind.value == 'person' %}/library?person_group_id={{ g.id }}{% elif g.folder_id %}/library?folder={{ g.folder_id }}{% else %}/library{% endif %}">Open collection →</a>
+</article>
+{% endfor %}
+</section>
+{% else %}
+<div class="empty">No named groups yet. Face recognition surfaces a group once it appears in enough images.</div>
+{% endif %}
+</main>
+<footer><span>{{ brand.company_name }}</span><span>Image recognition</span></footer>
+</body>
+</html>

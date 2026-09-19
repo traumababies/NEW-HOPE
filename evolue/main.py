@@ -62,7 +62,6 @@ def create_app() -> FastAPI:
             app.router.routes.extend(mod.router.routes)
 
     register_router("evolue.web.routers.auth")
-    register_router("evolue.web.routers.calendar")
     register_router("evolue.web.routers.ai_team")
     register_router("evolue.web.routers.pages")
 

@@ -1,0 +1,1 @@
+/* visual-crop.js stub */

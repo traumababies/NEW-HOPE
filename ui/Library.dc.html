@@ -1,0 +1,251 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>{{ brand.company_name }}</title>
+<link rel="stylesheet" href="/static/ui-system.css">
+<link rel="stylesheet" href="/static/godzilla-companion.css">
+<script src="/static/ui-navigation.js" defer></script>
+<script src="/static/assistant-chat.js" defer></script>
+<script src="/static/godzilla-companion.js" defer></script>
+<script src="/static/library-search.js" defer></script>
+<style>
+:root{--ink:#7A8084;--muted:#8B9195;--quiet:#A9AEB2;--line:#CDD1D4;--soft:#fafbfb;--pink:#f9eff2;--rose:#fafbfb;--rose-strong:#7A8084;--rose-soft:#f5f7f7}*{box-sizing:border-box}html,body{margin:0;background:#fff;color:var(--ink);font-family:"Jost","Segoe UI",sans-serif;font-size:14px}a{color:inherit;text-decoration:none}button,input,select{font:inherit}.header{position:sticky;top:0;z-index:20;background:rgba(255,255,255,.95);backdrop-filter:blur(8px);border-bottom:1px solid #e0e7ec}.header-inner{max-width:1400px;height:74px;margin:auto;padding:0 44px;display:flex;align-items:center;justify-content:space-between;gap:32px}.brand{font-size:26px;font-weight:200;letter-spacing:.02em}.brand img{display:block;max-width:180px;height:38px;object-fit:contain}.nav{display:flex;align-items:center;gap:4px}.nav a{padding:10px 14px;color:#9ba9b7;font:500 11px "Archivo","Segoe UI",sans-serif;letter-spacing:.18em;text-transform:uppercase;white-space:nowrap}.nav a:hover{color:var(--ink)}.nav .active{border-bottom:2px solid var(--ink);color:var(--ink)}.nav .logout{margin-left:18px;padding-inline:0;color:#c0c8cf}main{max-width:1400px;margin:auto;padding:44px 44px 0}.hero{display:grid;grid-template-columns:1fr 1fr;gap:24px;align-items:start;padding-bottom:8px}.hero-copy{min-width:0}.hero-side{display:flex;flex-direction:column;gap:14px}.eyebrow,.section-title,.folder-meta,.asset-meta,.button,label,footer{font-family:"Arial",sans-serif;text-transform:uppercase;letter-spacing:.15em}.eyebrow{font-size:9px;color:var(--quiet)}h1{margin:10px 0 0;font-size:clamp(54px,6vw,76px);font-weight:200;line-height:1;letter-spacing:.02em}.mission{margin:12px 0 0;max-width:700px;color:var(--muted);font-size:14px;font-weight:300;line-height:1.6}.tools{display:flex;gap:8px;flex-wrap:wrap;margin-top:16px;align-items:center}.icon-tool{border:0;background:none;padding:6px;cursor:pointer;color:var(--ink);display:inline-flex;align-items:center}.icon-tool:hover{color:#2f373d}.pagination-nav a svg{display:block}.field{padding:10px 12px;border:1px solid var(--line);border-radius:0;background:#fff;color:var(--ink);font-size:9px}.button{padding:10px 12px;border:1px solid var(--line);border-radius:0;background:#ebedf0;color:var(--ink);font-size:9px}.search{min-width:200px;font-size:13px;text-transform:none;letter-spacing:0}.button{font-weight:600;cursor:pointer}.button.dark{border-color:#c3ddc9;background:#dfeee2;color:#3f6b4a}.upload input{display:none}.muse-panel{margin-top:0;align-self:stretch;height:100%;min-height:0;border:1px solid var(--line);background:#f7f8f9;box-shadow:0 12px 30px rgba(47,55,61,.06);display:flex}.muse-shell{display:flex;flex-direction:column;gap:8px;height:100%;width:100%;justify-content:space-between}.muse-topline{display:flex;justify-content:space-between;align-items:center;gap:12px}.muse-kicker{color:var(--rose-strong);font:600 8px "Archivo","Arial Narrow",sans-serif;letter-spacing:.18em;text-transform:uppercase}.preview-panel{padding:14px;display:flex;flex:1;flex-direction:column;justify-content:space-between}.preview-heading{margin-bottom:0}.preview-title{font-size:9px;color:var(--rose-strong);font-weight:700}.preview-badge{min-height:22px;padding:4px 7px;font-size:7px;letter-spacing:.12em;border-color:var(--line);background:var(--soft);color:var(--muted)}.preview-copy{font-size:12px;line-height:1.45;color:var(--muted);margin:0}.muse-metrics{display:none}.muse-tags{display:none}.preview-controls{display:grid;grid-template-columns:1fr;gap:6px;margin-top:8px}.preview-control{min-height:30px;padding:7px 10px;font-size:8px;letter-spacing:.12em;border-color:var(--line);color:var(--quiet);background:#ebedf0}.preview-control:disabled,.preview-field:disabled{opacity:.75}.preview-field{width:100%;min-height:46px;padding:8px 10px;font-size:12px;border-color:var(--line);background:#f7f8f9;resize:none;display:block}.preview-controls .preview-control:last-child{margin-top:0}.rule{height:2px;background:var(--ink);margin:28px 0}.layout{display:grid;grid-template-columns:220px 1fr;gap:28px}.sidebar{display:flex;flex-direction:column;gap:20px}.section-title{font-size:9px;font-weight:700}.folders{display:flex;flex-direction:column;margin-top:8px}.folder{padding:9px 10px;border-bottom:1px solid #f0f2f3;color:var(--muted);font-size:13px}.folder.active{background:var(--soft);color:var(--ink);font-weight:600}.new-folder{display:grid;gap:7px}.new-folder input{width:100%;padding:9px 10px;border:1px solid var(--line)}.share{padding:14px;background:var(--soft)}.share p{font-size:12px;color:var(--muted);line-height:1.45}.content-head{display:flex;justify-content:space-between;align-items:center;gap:16px;margin-bottom:14px}.filters{display:flex;gap:5px;flex-wrap:wrap}.filters a{padding:7px 9px;border:1px solid var(--line);font:600 8px "Arial",sans-serif;letter-spacing:.12em;text-transform:uppercase}.filters .active{background:var(--ink);color:#fff}.assets.grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:1px;background:var(--line);border:1px solid var(--line)}.asset{background:#f7f8f9;padding:10px;min-width:0}.preview{aspect-ratio:1;background:var(--soft);display:grid;place-items:center;overflow:hidden;color:var(--quiet)}.preview img,.preview video{width:100%;height:100%;object-fit:cover}.preview audio{width:90%}.asset-name{margin-top:9px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:12px}.asset-meta{margin-top:4px;color:#b4babe;font-size:7px}.asset-actions{display:flex;gap:5px;margin-top:8px;flex-wrap:wrap}.asset-actions a,.asset-actions button{padding:6px 7px;border:1px solid var(--line);background:#ebedf0;font:600 7px "Arial",sans-serif;letter-spacing:.08em;text-transform:uppercase;cursor:pointer}.assets.list{border-top:1px solid var(--line)}.assets.list .asset{display:grid;grid-template-columns:70px minmax(0,1fr) auto;gap:16px;align-items:center;border-bottom:1px solid var(--line)}.assets.list .preview{width:70px}.assets.list .asset-name{margin:0}.assistant-notes{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:7px}.assistant-notes li{color:var(--muted);font-size:13px;font-weight:300;line-height:1.5}.assistant-notes strong{color:var(--ink);font-weight:600;font-size:12px;letter-spacing:.03em}.hero-side .assistant-chat{margin-top:0;max-width:none;border:1.5px solid #c5cfd7}.assistants .assistant-chat{margin-top:0;border:1.5px solid #c5cfd7}.assistant-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}.assistant-card{background:#f7f7f7;border:1px solid var(--line);padding:14px;display:flex;flex-direction:column;gap:8px}.assistant-header{display:flex;justify-content:space-between;gap:12px;align-items:center}.assistant-name{font:700 11px "Arial",sans-serif;letter-spacing:.14em;text-transform:uppercase}.assistant-status{font:600 7px "Arial",sans-serif;letter-spacing:.12em;text-transform:uppercase;color:#6d7a81}.assistant-card p{margin:0;color:var(--muted);font-size:12px;line-height:1.45}.assistant-card button{padding:7px 9px;border:1px solid var(--ink);background:#ebedf0;font:600 8px "Arial",sans-serif;letter-spacing:.12em;text-transform:uppercase;cursor:pointer}.assistant-chat{margin-top:16px;max-width:640px;border:1px solid var(--line);background:#fbfbfb;display:block}.assistant-chat-header{display:flex;justify-content:space-between;align-items:center;padding:10px 12px;border-bottom:1px solid var(--line)}.assistant-tabs{display:flex;gap:8px;flex-wrap:wrap}.assistant-tab{padding:7px 9px;border:1px solid var(--line);background:#ebedf0;font:600 8px "Arial",sans-serif;letter-spacing:.12em;text-transform:uppercase;cursor:pointer}.assistant-tab.active{background:var(--ink);color:#fff;border-color:var(--ink)}.assistant-chat-body{display:grid;grid-template-columns:1fr 170px;gap:0}.chat-messages{height:210px;overflow:auto;padding:12px;background:#fff;border-right:1px solid var(--line)}.chat-message{padding:7px 9px;border-radius:8px;margin-bottom:7px;max-width:90%}.chat-message strong{display:block;margin-bottom:4px;font:700 8px "Arial",sans-serif;letter-spacing:.12em;text-transform:uppercase}.chat-message.user{margin-left:auto;background:#f0f2f2}.chat-message.assistant{background:var(--soft)}.empty-line{color:var(--muted);font-size:12px}.chat-input-wrap{padding:12px;display:flex;flex-direction:column;gap:10px}.chat-input-wrap textarea{width:100%;min-height:84px;border:1px solid var(--line);padding:9px;background:#fff;resize:vertical}.godzilla-treats{display:grid;grid-template-columns:repeat(2,1fr);gap:5px}.godzilla-treats button{padding:5px 6px;border:1px solid #7c9473;background:#eef4e6;color:#4a5c3a;font:600 7px "Arial",sans-serif;letter-spacing:.04em;cursor:pointer;border-radius:10px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.godzilla-treats button:hover{background:#dcead0}.assistant-chat[data-active-assistant="godzilla"]{border-color:#8a9a5b}.assistant-chat[data-active-assistant="godzilla"] .chat-messages{background:linear-gradient(135deg,#eef4e2,#f3ead9)}.assistant-chat[data-active-assistant="godzilla"] .chat-input-wrap textarea{border-color:#8a9a5b}.chat-actions{display:flex;justify-content:space-between;gap:10px}.chat-role{font:600 7px "Arial",sans-serif;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}.chat-actions button{padding:7px 9px;border:1px solid var(--ink);background:#ebedf0;font:600 8px "Arial",sans-serif;letter-spacing:.12em;text-transform:uppercase;cursor:pointer}.empty{padding:40px 0;color:var(--quiet)}footer{max-width:1400px;margin:30px auto 0;padding:20px 34px;border-top:1px solid var(--line);display:flex;justify-content:space-between;color:#b4babe;font-size:8px}@media(max-width:1000px){.hero{grid-template-columns:1fr}.assets.grid{grid-template-columns:repeat(3,1fr)}}@media(max-width:760px){.header-inner{max-width:1400px;height:74px;margin:auto;padding:0 44px;display:flex;align-items:center;justify-content:space-between;gap:32px}.nav{width:100%}main{padding:28px 20px}.layout{grid-template-columns:1fr}.assets.grid{grid-template-columns:repeat(2,1fr)}.assets.list .asset{grid-template-columns:54px minmax(0,1fr)}.assets.list .asset-actions{grid-column:1/-1}.tools>*{flex:1}.search{min-width:100%}.assistant-chat-body{grid-template-columns:1fr}.chat-messages{border-right:none;border-bottom:1px solid var(--line)}footer{padding:18px 20px;flex-direction:column;gap:8px}}
+.nav a,.eyebrow,.section-title,.folder-meta,.asset-meta,.button,label,footer{font-family:"Archivo","Segoe UI",sans-serif}
+</style>
+</head>
+<body>
+{% include "_header.html" %}
+<main>
+<section class="hero">
+  <div class="hero-copy">
+    <div class="eyebrow">Private living archive</div>
+    <h1>Library</h1>
+    <p class="mission">Memories, inspiration, creative play, collaboration, and publishing—with Creative Director, Copywriter, and Muse as guides.</p>
+    <form class="tools" action="/library" method="get"><input class="field search" type="search" name="query" value="{{ query }}" placeholder="SEARCH" autocomplete="off" data-library-search aria-label="Search the library"><select class="field" name="sort"><option value="captured" {% if sort=='captured' %}selected{% endif %}>Capture date</option><option value="newest" {% if sort=='newest' %}selected{% endif %}>Newest added</option><option value="oldest" {% if sort=='oldest' %}selected{% endif %}>Oldest added</option><option value="name" {% if sort=='name' %}selected{% endif %}>Name</option><option value="type" {% if sort=='type' %}selected{% endif %}>Type</option><option value="favorites" {% if sort=='favorites' %}selected{% endif %}>Favorites first</option></select><button type="submit" class="icon-action" title="Find" aria-label="Find"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg></button></form>
+  </div>
+  {% if assistant_panels %}
+  <div class="hero-side">
+    <ul class="assistant-notes">
+      {% for assistant in assistant_panels if assistant.kind != 'godzilla' %}
+      <li><strong>{{ assistant.name }}</strong> — {{ assistant.summary }}</li>
+      {% endfor %}
+    </ul>
+    <section class="assistant-chat" data-assistant-chat>
+      <div class="assistant-chat-header">
+        <div class="assistant-tabs" role="tablist" aria-label="Assistant chat tabs">
+          {% for assistant in assistant_panels %}
+          <button type="button" class="assistant-tab{% if loop.first %} active{% endif %}" data-assistant-tab="{{ assistant.kind }}" aria-selected="{{ 'true' if loop.first else 'false' }}">{{ assistant.name }}</button>
+          {% endfor %}
+        </div>
+        <!-- Activities. A bare SVG in the top right of the box, where the
+             "... ready" text used to sit. The panel never opens itself; it
+             opens when this is clicked, and only pages carrying the chat box
+             have it. -->
+        <button type="button" data-activity-open title="Assistant activity" aria-label="Assistant activity" style="border:0;background:none;padding:0;cursor:pointer;color:#7A8084;display:inline-flex"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12h3.5l2-6 3.5 12 2.5-8 1.8 4H21"/></svg></button>
+      </div>
+      <div class="assistant-chat-body">
+        <div class="chat-messages" data-chat-messages>
+          <div class="empty-line">Choose an assistant and ask a question.</div>
+        </div>
+        <div class="chat-input-wrap">
+          <textarea data-chat-input placeholder="Ask Creative Director, Copywriter, Muse, or Cataloger…"></textarea>
+          <div class="godzilla-treats" data-godzilla-treats hidden>
+            <button type="button" data-treat="bacon">🥓 Bacon</button>
+            <button type="button" data-treat="ice cream">🍦 Ice cream</button>
+            <button type="button" data-treat="rice pudding">🍚 Rice pudding</button>
+            <button type="button" data-treat="popcorn">🍿 Popcorn</button>
+            <button type="button" data-treat="McNuggets">🍗 McNuggets</button>
+            <button type="button" data-treat="hold hand">✋ Hold hand</button>
+          </div>
+          <div class="chat-actions">
+            <button type="button" data-chat-clear class="icon-action" title="Clear the conversation" aria-label="Clear the conversation"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M9 9l6 6M15 9l-6 6"/></svg></button>
+            <button type="button" data-chat-send class="icon-action" title="Send" aria-label="Send"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 3L10.5 13.5M21 3l-6.8 18-3.7-7.5L3 10l18-7z"/></svg></button>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+  {% endif %}
+</section>
+<div class="rule"></div>
+{% if flash %}<p role="status">{{ flash.message }}</p>{% endif %}
+<section class="layout"><aside class="sidebar"><div><div class="section-title">Collections</div><div class="folders"><a class="folder {% if not current_folder and not selected_person %}active{% endif %}" href="/library{% if pick_sticker_for_week %}?pick_sticker_for_week={{ pick_sticker_for_week }}{% endif %}">All media</a>{% for item in folders %}<a class="folder {% if current_folder and current_folder.id==item.id %}active{% endif %}" href="/library?folder={{ item.id }}{% if pick_sticker_for_week %}&pick_sticker_for_week={{ pick_sticker_for_week }}{% endif %}">{{ item.name }}</a>{% endfor %}<a class="folder" href="/library/subjects">People, pets &amp; subjects →</a></div></div>
+<form class="new-folder" method="post" action="/library/folders"><div class="section-title">New collection</div><input name="name" required placeholder="Collection name">{% if current_folder %}<input type="hidden" name="parent_id" value="{{ current_folder.id }}">{% endif %}<button type="submit" class="icon-action" title="Create collection" aria-label="Create collection"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg></button></form>
+{% if current_folder %}<form class="share" method="post" action="/library/folders/{{ current_folder.id }}/share"><div class="section-title">Guest pass</div><p>Create an expiring, read-only link to this collection.</p><select class="field" name="expires_days"><option value="1">24 hours</option><option value="7" selected>7 days</option><option value="30">30 days</option></select><label style="display:block;margin:12px 0"><input type="checkbox" name="allow_downloads" value="true" checked style="accent-color:#A9AEB2"> Allow downloads</label><button class="button" type="submit">Create pass</button></form>{% endif %}</aside>
+<div><div class="content-head"><div><div class="section-title">{% if selected_person %}{{ selected_person.display_name }}{% elif current_folder %}{{ current_folder.name }}{% elif trash %}Recycle bin{% else %}All media{% endif %}</div><small>{{ assets|length }} shown</small></div><div class="filters">{% for value,label in [('all','All'),('images','Images'),('videos','Videos'),('audio','Audio')] %}<a class="{% if kind==value %}active{% endif %}" href="/library?kind={{ value }}&view={{ view }}{% if current_folder %}&folder={{ current_folder.id }}{% endif %}">{{ label }}</a>{% endfor %}<a class="{% if view=='grid' %}active{% endif %}" href="/library?view=grid&kind={{ kind }}{% if current_folder %}&folder={{ current_folder.id }}{% endif %}">Grid</a><a class="{% if view=='list' %}active{% endif %}" href="/library?view=list&kind={{ kind }}{% if current_folder %}&folder={{ current_folder.id }}{% endif %}">List</a></div></div>
+<form class="tools" method="post" action="/library/upload" enctype="multipart/form-data" style="margin-bottom:18px" id="upload-form"><label class="icon-tool" for="file-input" title="Upload files, or drag a folder here" aria-label="Upload files, or drag a folder here"><svg viewBox="0 0 24 24" width="21" height="21" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 15V4m0 0l-4 4m4-4l4 4"/><path d="M4 15v3a2 2 0 002 2h12a2 2 0 002-2v-3"/></svg></label><input id="file-input" type="file" name="uploads" multiple accept="image/*,video/*,audio/*" style="display:none"><input id="folder-input" type="file" name="uploads" multiple webkitdirectory directory accept="image/*,video/*,audio/*" style="display:none">{% if current_folder %}<input type="hidden" name="folder_id" value="{{ current_folder.id }}">{% endif %}<label class="collection-picker"><input class="field" id="collection-name" name="source_collection" list="collection-options" placeholder="Name of Collection" autocomplete="off"><datalist id="collection-options">{% for item in all_collection_folders %}<option value="{{ item.name }}">{% endfor %}</datalist></label><button class="button" type="submit">Add to Collection</button>
+<!-- There is deliberately no submit button. The file input auto-submits this
+     form the moment files are chosen (see the change handler below), so a
+     submit control was unreachable dead code: by the time you could click it
+     the form had already gone, and clicking it with nothing chosen did nothing
+     because the input is required. "Upload files" above is the real control. -->
+{% if user and user.role.value == 'owner' %}<button class="icon-tool" type="button" data-recycle-bin-open title="Recycle bin" aria-label="Recycle bin"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M9 6V4h6v2m-9 0 1 15h10l1-15M10 10v7M14 10v7"/></svg></button>{% endif %}</form>
+<script>
+const fileInput = document.getElementById('file-input');
+const folderInput = document.getElementById('folder-input');
+function selectedUpload(e) {
+  if (e.target.files.length > 0) {
+    const first = e.target.files[0];
+    const relative = first.webkitRelativePath || '';
+    const folderName = relative.split('/')[0];
+    const collection = document.getElementById('collection-name');
+    if (e.target === folderInput && folderName) {
+      collection.value = folderName;
+    } else if (e.target === fileInput) {
+      collection.value = 'N/A';
+    }
+  }
+}
+fileInput.addEventListener('change', selectedUpload);
+folderInput.addEventListener('change', selectedUpload);
+
+// Drag and drop
+document.getElementById('upload-form').addEventListener('dragover', function(e) {
+  e.preventDefault();
+  e.currentTarget.style.opacity = '0.7';
+  e.currentTarget.style.background = '#f5f7f7';
+});
+
+document.getElementById('upload-form').addEventListener('dragleave', function(e) {
+  e.currentTarget.style.opacity = '1';
+  e.currentTarget.style.background = '';
+});
+
+document.getElementById('upload-form').addEventListener('drop', function(e) {
+  e.preventDefault();
+  e.currentTarget.style.opacity = '1';
+  e.currentTarget.style.background = '';
+  const files = e.dataTransfer.files;
+  if (files.length > 0) {
+    document.getElementById('file-input').files = files;
+    const first = files[0];
+    const relative = first.webkitRelativePath || '';
+    document.getElementById('collection-name').value = relative
+      ? relative.split('/')[0]
+      : 'N/A';
+  }
+});
+</script>
+<div class="assets {{ view }}">{% for asset in assets %}<article class="asset" data-asset-id="{{ asset.id }}"><div class="preview">{% if asset.media_kind.value=='image' %}<img src="/assets/{{ asset.id }}" alt="{{ asset.display_name }}" loading="lazy">{% elif asset.media_kind.value=='video' %}<video src="/assets/{{ asset.id }}" controls preload="metadata"></video>{% elif asset.media_kind.value=='audio' %}<audio src="/assets/{{ asset.id }}" controls preload="metadata"></audio>{% else %}<span>FILE</span>{% endif %}</div><div><div class="asset-name">{{ asset.display_name }}</div><div class="asset-meta">{{ asset.media_kind.value }}{% if asset.capture_date %} · {{ asset.capture_date.strftime('%b %d, %Y') }}{% endif %}{% if asset.source_collection %} · {{ asset.source_collection }}{% endif %}{% if asset.tags %} · tags: {{ asset.tags }}{% endif %}{% if asset.mood %} · {{ asset.mood }}{% endif %}{% if asset.usage_classification %} · {{ asset.usage_classification }}{% endif %}</div></div><div class="asset-actions"><a href="/assets/{{ asset.id }}" download class="ibtn" title="Download"><svg viewBox="0 0 24 24" fill="none" stroke="#7A8084" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v12m0 0l-4-4m4 4l4-4M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2"/></svg></a>{% if asset.tags or asset.mood or asset.author or asset.source or asset.themes or asset.usage_classification or asset.review_status %}<button class="ibtn metadata-btn" data-metadata-toggle="{{ asset.id }}" title="View metadata"><svg viewBox="0 0 24 24" fill="none" stroke="#7A8084" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg></button>{% endif %}{% if not trash %}<form method="post" action="/library/assets/{{ asset.id }}/trash" style="display:inline"><input type="hidden" name="return_to" value="{{ request.url.path }}?{{ request.url.query }}"><button type="submit" class="ibtn" title="Move to recycle bin"><svg viewBox="0 0 24 24" fill="none" stroke="#7A8084" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M9 6V4h6v2m-9 0 1 15h10l1-15M10 10v7M14 10v7"/></svg></button></form>{% endif %}{% if trash %}<form method="post" action="/library/assets/{{ asset.id }}/restore" style="display:inline"><input type="hidden" name="return_to" value="{{ request.url.path }}?{{ request.url.query }}"><button type="submit" class="ibtn" title="Restore"><svg viewBox="0 0 24 24" fill="none" stroke="#7A8084" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7v6h6M21 17v-6h-6"/><path d="M16 3a7 7 0 00-7 7M8 21a7 7 0 007-7"/></svg></button></form>{% endif %}{% if trash and user.role.value == 'owner' %}<form method="post" action="/library/assets/{{ asset.id }}/delete-permanently" style="display:inline" data-confirm-delete="{{ asset.display_name }}"><input type="hidden" name="confirm" value="DELETE PERMANENTLY"><input type="hidden" name="return_to" value="{{ request.url.path }}?{{ request.url.query }}"><button type="submit" class="ibtn" title="Delete permanently"><svg viewBox="0 0 24 24" fill="none" stroke="#7A8084" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg></button></form>{% endif %}</div></article>{% if asset.tags or asset.mood or asset.author or asset.source or asset.themes or asset.usage_classification or asset.review_status %}<div class="metadata-modal" id="metadata-{{ asset.id }}" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(122,128,132,0.55);z-index:1000;align-items:center;justify-content:center;padding:20px"><div style="background:#fff;padding:32px;border-radius:8px;max-width:500px;width:100%"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:24px"><h2 style="margin:0;font-size:18px">DAM/MAM Metadata</h2><button type="button" class="close-x" data-metadata-close="{{ asset.id }}" title="Close" aria-label="Close"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg></button></div><div style="font-size:14px;line-height:1.8;margin-bottom:24px">{% if asset.tags %}<div style="margin-bottom:16px"><strong>Tags:</strong><br>{{ asset.tags }}</div>{% endif %}{% if asset.author %}<div style="margin-bottom:16px"><strong>Author:</strong><br>{{ asset.author }}</div>{% endif %}{% if asset.source %}<div style="margin-bottom:16px"><strong>Source:</strong><br>{{ asset.source }}</div>{% endif %}{% if asset.mood %}<div style="margin-bottom:16px"><strong>Mood:</strong><br>{{ asset.mood }}</div>{% endif %}{% if asset.themes %}<div style="margin-bottom:16px"><strong>Themes:</strong><br>{{ asset.themes }}</div>{% endif %}{% if asset.usage_classification %}<div style="margin-bottom:16px"><strong>Usage Classification:</strong><br>{{ asset.usage_classification }}</div>{% endif %}{% if asset.review_status %}<div style="margin-bottom:16px"><strong>Review Status:</strong><br>{{ asset.review_status }}</div>{% endif %}</div><div style="display:flex;gap:12px"><a href="/library/reviews" class="button" style="flex:1;text-align:center;padding:10px 12px;border:1px solid #CDD1D4;background:#ebedf0;cursor:pointer;text-decoration:none;color:inherit">Go to Reviews</a><button class="button" data-metadata-close="{{ asset.id }}" style="flex:1;padding:10px 12px;border:1px solid #CDD1D4;background:#ebedf0;cursor:pointer">Close</button></div></div></div>{% endif %}{% else %}<p class="empty">Nothing here yet. The pleasure is not always knowing what will be found.</p>{% endfor %}</div>
+
+<script>
+document.querySelectorAll('.rename-btn').forEach(btn => {
+  btn.addEventListener('click', function(e) {
+    e.preventDefault();
+    const article = this.closest('.asset');
+    const displayName = article.querySelector('.display-name');
+    const form = article.querySelector('.rename-form');
+    displayName.style.display = 'none';
+    this.style.display = 'none';
+    form.style.display = 'flex';
+    form.querySelector('input').focus();
+  });
+});
+
+document.querySelectorAll('.cancel-btn').forEach(btn => {
+  btn.addEventListener('click', function(e) {
+    e.preventDefault();
+    const article = this.closest('.asset');
+    const form = article.querySelector('.rename-form');
+    const displayName = article.querySelector('.display-name');
+    const renameBtn = article.querySelector('.rename-btn');
+    form.style.display = 'none';
+    displayName.style.display = 'inline';
+    renameBtn.style.display = 'inline';
+  });
+});
+
+document.querySelectorAll('.rename-form').forEach(form => {
+  form.addEventListener('submit', async function(e) {
+    e.preventDefault();
+    const assetId = this.dataset.assetId;
+    const newName = this.querySelector('input').value;
+    try {
+      const response = await fetch(`/library/assets/${assetId}/rename`, {
+        method: 'POST',
+        headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+        body: `display_name=${encodeURIComponent(newName)}`
+      });
+      if (response.ok) {
+        const article = this.closest('.asset');
+        const displayName = article.querySelector('.display-name');
+        displayName.textContent = newName;
+        this.style.display = 'none';
+        displayName.style.display = 'inline';
+        article.querySelector('.rename-btn').style.display = 'inline';
+      }
+    } catch (err) {
+      console.error('Rename failed:', err);
+      alert('Could not rename file');
+    }
+  });
+});
+
+// Metadata modal handlers
+// Initialize: Close all modals on page load to prevent stuck state
+window.addEventListener('load', function() {
+  document.querySelectorAll('.metadata-modal').forEach(modal => {
+    modal.style.display = 'none';
+  });
+});
+
+document.querySelectorAll('[data-metadata-toggle]').forEach(btn => {
+  btn.addEventListener('click', function(e) {
+    e.preventDefault();
+    e.stopPropagation();
+    const assetId = this.dataset.metadataToggle;
+    const modal = document.getElementById(`metadata-${assetId}`);
+    if (modal) {
+      modal.style.display = 'flex';
+    }
+  });
+});
+
+document.querySelectorAll('[data-metadata-close]').forEach(btn => {
+  btn.addEventListener('click', function(e) {
+    e.preventDefault();
+    e.stopPropagation();
+    const assetId = this.dataset.metadataClose;
+    const modal = document.getElementById(`metadata-${assetId}`);
+    if (modal) {
+      modal.style.display = 'none';
+    }
+  });
+});
+
+// Close modal when clicking on the dark overlay background
+document.querySelectorAll('.metadata-modal').forEach(modal => {
+  modal.addEventListener('click', function(e) {
+    if (e.target === this) {
+      this.style.display = 'none';
+    }
+  });
+});
+
+// Allow Escape key to close any open modal
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape') {
+    document.querySelectorAll('.metadata-modal').forEach(modal => {
+      if (modal.style.display !== 'none') {
+        modal.style.display = 'none';
+      }
+    });
+  }
+});
+</script>
+  <script>
+  document.querySelectorAll('form[action$="/trash"]').forEach(form => {
+    form.addEventListener('submit', function(e) {
+      const assetName = this.closest('.asset')?.querySelector('.asset-name')?.textContent.trim() || 'this asset';
+      if (!window.confirm(`Move "${assetName}" to the recycle bin?`)) {
+        e.preventDefault();
+      }
+    });
+  });
+  </script>
+<style>
+.pagination-nav{display:flex;align-items:center;gap:16px;margin-top:20px}.pagination-nav a{padding:8px;border:none;background:none;color:var(--ink);font-size:24px;cursor:pointer;text-decoration:none;transition:opacity 0.2s}.pagination-nav a:hover{opacity:0.6}.pagination-nav .spacer{flex:1}.preview{position:relative}.preview img,.preview video{display:block;width:100%;height:100%;object-fit:cover}.asset-actions{justify-content:flex-start;align-self:end}.metadata-btn.ibtn{display:inline-flex;align-items:center;justify-content:center;padding:6px;border:none;background:none;cursor:pointer;transition:opacity 0.2s}.metadata-btn.ibtn:hover{opacity:1}.metadata-btn.ibtn svg{width:16px;height:16px;display:block}.asset-actions .ibtn{display:inline-flex;align-items:center;justify-content:center;padding:6px;border:none;background:none;cursor:pointer;transition:opacity 0.2s}.asset-actions .ibtn:hover{opacity:0.5}.asset-actions .ibtn svg{width:16px;height:16px;display:block;flex:none}
+</style>
+{% if page>1 or has_next %}<div class="pagination-nav">{% if page>1 %}<a href="/library?page={{ page-1 }}" title="Previous" aria-label="Previous"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg></a>{% else %}<span style="width:32px"></span>{% endif %}<span class="spacer"></span>{% if has_next %}<a href="/library?page={{ page+1 }}" title="Next" aria-label="Next"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5l7 7-7 7"/></svg></a>{% endif %}</div>{% endif %}</div></section>
+</main><footer><span>{{ brand.company_name }}</span><span>THE LIBRARY</span></footer>
+</body></html>

@@ -1,0 +1,343 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Private access · {{ brand.company_name }}</title>
+  <link rel="stylesheet" href="/static/ui-system.css">
+  <style>
+    :root {
+      color-scheme: light;
+      --ink: #7A8084;
+      --muted: #8B9195;
+      --quiet: #A9AEB2;
+      --line: #CDD1D4;
+      --accent: #8B9195;
+    }
+
+    * { box-sizing: border-box; }
+
+    html,
+    body {
+      min-height: 100%;
+      margin: 0;
+      background: #fff;
+      color: var(--ink);
+      font-family: "Jost", "Segoe UI", sans-serif;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    body {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    button,
+    input { font: inherit; }
+
+    input:focus-visible,
+    button:focus-visible {
+      outline: none;
+      outline-offset: 0;
+    }
+
+    .site-header {
+      min-height: 81px;
+      padding: 24px 44px;
+      border-bottom: 1px solid var(--line);
+      display: flex;
+      align-items: center;
+    }
+
+    .brand {
+      color: var(--ink);
+      font-size: 26px;
+      font-weight: 200;
+      letter-spacing: .02em;
+      text-decoration: none;
+    }
+
+    .brand-logo {
+      display: block;
+      width: auto;
+      max-width: 180px;
+      height: 38px;
+      object-fit: contain;
+    }
+
+    main {
+      width: 100%;
+      max-width: 1400px;
+      margin: auto;
+      padding: 70px 44px;
+      display: grid;
+      grid-template-columns: 1.4fr 1fr;
+      gap: clamp(48px, 8vw, 128px);
+      align-items: center;
+    }
+
+    .intro {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      gap: 22px;
+    }
+
+    .orbit {
+      width: 34px;
+      height: 34px;
+      border: 1px dashed #d4d9dc;
+      border-top-color: #8f969b;
+      border-radius: 50%;
+      animation: spin 1.4s linear infinite;
+    }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .wordmark {
+      margin: 0;
+      font-size: clamp(68px, 8vw, 104px);
+      font-weight: 200;
+      line-height: .95;
+      letter-spacing: -.01em;
+    }
+
+    .tagline {
+      margin: 0;
+      color: var(--muted);
+      font-size: 17px;
+      font-weight: 300;
+    }
+
+    .access-form {
+      width: 100%;
+      padding: 40px;
+      border: 1px solid var(--line);
+    }
+
+    .eyebrow,
+    label,
+    .submit,
+    footer {
+      font-family: "Archivo", "Segoe UI", sans-serif;
+      text-transform: uppercase;
+    }
+
+    .eyebrow {
+      color: var(--muted);
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: .22em;
+    }
+
+    label {
+      display: block;
+      margin: 22px 0 8px;
+      color: var(--quiet);
+      font-size: 10px;
+      font-weight: 500;
+      letter-spacing: .16em;
+    }
+
+    label:first-of-type { margin-top: 28px; }
+
+    .remember {
+      margin: 18px 0 0;
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      color: var(--muted);
+      cursor: pointer;
+    }
+
+    .remember input {
+      width: 16px;
+      height: 16px;
+      margin: 0;
+      accent-color: var(--ink);
+    }
+
+    input {
+      width: 100%;
+      padding: 13px 12px;
+      border: 1px solid var(--line);
+      border-radius: 0;
+      background: #fff;
+      color: var(--ink);
+      caret-color: var(--ink);
+      font-size: 15px;
+      font-weight: 300;
+    }
+
+    input:focus,
+    input:active,
+    input:-webkit-autofill,
+    input:-webkit-autofill:hover,
+    input:-webkit-autofill:focus,
+    input:-webkit-autofill:active {
+      color: var(--ink);
+      -webkit-text-fill-color: var(--ink);
+      background: #fff;
+      -webkit-box-shadow: 0 0 0 1000px #fff inset;
+      box-shadow: 0 0 0 1000px #fff inset;
+    }
+
+    .password-field { position: relative; }
+    .password-field input { padding-right: 48px; }
+
+    .reveal {
+      position: absolute;
+      top: 6px;
+      right: 6px;
+      width: 32px;
+      height: 32px;
+      padding: 0;
+      border: 0;
+      background: transparent;
+      color: #8f969b;
+      cursor: pointer;
+    }
+
+    .reveal::before {
+      content: "";
+      position: absolute;
+      top: 15px;
+      left: 7px;
+      width: 18px;
+      height: 1px;
+      background: currentColor;
+      transform: rotate(-20deg);
+    }
+
+    .reveal[aria-pressed="true"]::before {
+      top: 7px;
+      height: 16px;
+      border: 1.5px solid var(--ink);
+      border-radius: 50% 0 50% 0;
+      background: transparent;
+      transform: rotate(45deg);
+    }
+
+    .flash {
+      margin: 22px 0 0;
+      padding: 11px 12px;
+      border: 1px solid #c99ba4;
+      background: #fff0f2;
+      color: #842e3e;
+      font-size: 14px;
+    }
+
+    .submit {
+      width: 100%;
+      margin-top: 28px;
+      padding: 16px 18px;
+      border: 1px solid #c3ddc9;
+      border-radius: 0;
+      background: #dfeee2;
+      color: #3f6b4a;
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: .2em;
+      text-align: center;
+      cursor: pointer;
+    }
+
+    .submit:hover { background: #cfe6d5; }
+
+    footer {
+      padding: 22px 44px;
+      border-top: 1px solid var(--line);
+      display: flex;
+      justify-content: space-between;
+      gap: 18px;
+      color: #b4babe;
+      font-size: 10px;
+      font-weight: 500;
+      letter-spacing: .2em;
+    }
+
+    @media (max-width: 760px) {
+      .site-header { min-height: 68px; padding: 18px 22px; }
+      .brand { font-size: 23px; }
+      .brand-logo { max-width: 150px; height: 32px; }
+
+      main {
+        padding: 44px 22px;
+        grid-template-columns: 1fr;
+        gap: 44px;
+      }
+
+      .intro { gap: 16px; }
+      .orbit { width: 28px; height: 28px; }
+      .wordmark { font-size: clamp(58px, 20vw, 82px); }
+      .tagline { max-width: 300px; font-size: 15px; }
+      .access-form { padding: 28px 22px; }
+
+      footer {
+        padding: 18px 22px;
+        flex-direction: column;
+        line-height: 1.5;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .orbit { animation: none; }
+    }
+  </style>
+</head>
+<body>
+  <header class="site-header">
+    {% if brand.logo_url %}
+      <img class="brand-logo" src="{{ brand.logo_url }}" alt="{{ brand.company_name }}">
+    {% else %}
+      <span class="brand">{{ brand.company_name }}</span>
+    {% endif %}
+  </header>
+
+  <main>
+    <section class="intro" aria-labelledby="login-title">
+      <div class="orbit" aria-hidden="true"></div>
+      <h1 class="wordmark" id="login-title">évolué</h1>
+      <p class="tagline">Private creative archive and publishing system</p>
+    </section>
+
+    <form class="access-form" action="/login" method="post">
+      <div class="eyebrow">Private access</div>
+
+      {% if flash %}
+        <p class="flash" role="alert">{{ flash.message }}</p>
+      {% endif %}
+
+      <label for="email">Email</label>
+      <input id="email" name="email" type="email" autocomplete="username" required autofocus>
+
+      <label for="password">Password</label>
+      <div class="password-field">
+        <input id="password" name="password" type="password" autocomplete="current-password" required>
+        <button class="reveal" type="button" aria-label="Show password" aria-pressed="false"></button>
+      </div>
+
+      <label class="remember"><input name="remember_device" type="checkbox" value="true">Remember this device for 30 days</label>
+
+      <button class="submit" type="submit">Request Access</button>
+    </form>
+  </main>
+
+  <footer>
+    <span>{{ brand.company_name }}</span>
+    
+  </footer>
+
+  <script>
+    const reveal = document.querySelector(".reveal");
+    const password = document.querySelector("#password");
+    reveal.addEventListener("click", () => {
+      const visible = password.type === "text";
+      password.type = visible ? "password" : "text";
+      reveal.setAttribute("aria-pressed", String(!visible));
+      reveal.setAttribute("aria-label", visible ? "Show password" : "Hide password");
+    });
+  </script>
+</body>
+</html>

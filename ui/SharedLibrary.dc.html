@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>{{ folder.name if folder else "Shared collection" }} · {{ brand.company_name }}</title>
+<link rel="stylesheet" href="/static/ui-system.css">
+<style>
+:root{--ink:#7A8084;--muted:#8B9195;--quiet:#A9AEB2;--line:#CDD1D4;--soft:#f5f7f7}*{box-sizing:border-box}html,body{margin:0;background:#fff;color:var(--ink);font-family:"Jost","Segoe UI",sans-serif}a{color:inherit;text-decoration:none}
+.header{border-bottom:1px solid var(--line)}.header-in{max-width:1200px;min-height:74px;margin:auto;padding:0 44px;display:flex;align-items:center}.brand{font-size:26px;font-weight:200}.brand img{height:38px;max-width:180px;object-fit:contain}
+main{max-width:1200px;margin:auto;padding:52px 44px}.eyebrow{font-family:"Archivo","Arial",sans-serif;text-transform:uppercase;letter-spacing:.15em;font-size:10px;color:var(--quiet)}h1{margin:12px 0 0;font-size:clamp(40px,6vw,60px);font-weight:200;line-height:1}.mission{margin:14px 0 0;max-width:70ch;color:var(--muted);font-size:15px;font-weight:300}.rule{height:2px;background:var(--ink);margin:32px 0}
+.btn{display:inline-block;padding:13px 18px;border:1px solid #c3ddc9;background:#dfeee2;color:#3f6b4a;font:600 10px "Archivo","Arial",sans-serif;letter-spacing:.15em;text-transform:uppercase;cursor:pointer;margin-bottom:28px}.btn:hover{background:#cfe6d5}
+.assets{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:1px;background:var(--line);border:1px solid var(--line)}
+.asset{background:#f7f8f9;padding:14px;min-width:0}.preview{aspect-ratio:1;background:var(--soft);display:grid;place-items:center;overflow:hidden;color:var(--quiet)}.preview img,.preview video{width:100%;height:100%;object-fit:cover}.preview audio{width:92%}
+.asset-name{margin-top:11px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:14px;font-weight:300}.asset-meta{margin-top:5px;color:#b4babe;font:600 8px "Archivo","Arial",sans-serif;letter-spacing:.12em;text-transform:uppercase}
+.asset-dl{margin-top:9px;font:600 8px "Archivo","Arial",sans-serif;letter-spacing:.12em;text-transform:uppercase}
+.empty{padding:48px 0;color:var(--quiet);font-weight:300}
+footer{max-width:1200px;margin:40px auto 0;padding:24px 44px;border-top:1px solid var(--line);display:flex;justify-content:space-between;color:#b4babe;font:600 9px "Archivo","Arial",sans-serif;letter-spacing:.15em;text-transform:uppercase}
+@media(max-width:1000px){.assets{grid-template-columns:repeat(3,1fr)}}
+@media(max-width:760px){.header-in{padding:14px 20px}main{padding:36px 20px}.assets{grid-template-columns:repeat(2,1fr)}footer{padding:22px 20px;flex-direction:column;gap:8px}}
+</style>
+</head>
+<body>
+<header class="header"><div class="header-in">
+<span class="brand">{% if brand.logo_url %}<img src="{{ brand.logo_url }}" alt="{{ brand.company_name }}">{% else %}{{ brand.company_name }}{% endif %}</span>
+</div></header>
+<main>
+<div class="eyebrow">Read-only shared collection</div>
+<h1>{{ folder.name if folder else "Shared collection" }}</h1>
+<p class="mission">View{% if allow_downloads %} and download{% endif %} only. These are copies of Évolué Library assets; the originals cannot be changed from this link.</p>
+<div class="rule"></div>
+{% if allow_downloads and assets %}<a class="btn" href="/shared/library/{{ token }}/download">Download all ({{ assets|length }})</a>{% endif %}
+{% if assets %}
+<section class="assets">
+{% for asset in assets %}
+<article class="asset">
+<div class="preview">
+{% if asset.media_kind.value == 'image' %}<img src="/shared/library/{{ token }}/assets/{{ asset.id }}" alt="{{ asset.display_name }}" loading="lazy">
+{% elif asset.media_kind.value == 'video' %}<video src="/shared/library/{{ token }}/assets/{{ asset.id }}" controls preload="metadata"></video>
+{% elif asset.media_kind.value == 'audio' %}<audio src="/shared/library/{{ token }}/assets/{{ asset.id }}" controls preload="metadata"></audio>
+{% else %}<span>FILE</span>{% endif %}
+</div>
+<div class="asset-name">{{ asset.display_name }}</div>
+<div class="asset-meta">{{ asset.media_kind.value }}{% if asset.capture_date %} · {{ asset.capture_date.strftime('%b %d, %Y') }}{% endif %}</div>
+{% if allow_downloads %}<a class="asset-dl" href="/shared/library/{{ token }}/assets/{{ asset.id }}" download>Download →</a>{% endif %}
+</article>
+{% endfor %}
+</section>
+{% else %}
+<div class="empty">No media is available in this collection.</div>
+{% endif %}
+</main>
+<footer><span>{{ brand.company_name }}</span><span>Read only</span></footer>
+</body>
+</html>

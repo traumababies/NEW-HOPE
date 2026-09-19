@@ -1,0 +1,1 @@
+/* godzilla-companion.js stub */

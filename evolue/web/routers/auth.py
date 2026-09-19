@@ -65,25 +65,12 @@ def require_owner(request: Request):
 
 
 @router.get("/login", response_class=HTMLResponse)
-def login_page() -> str:
-    return """<!doctype html><html><head><meta charset="utf-8"><link rel="stylesheet" href="/static/ui.css"><title>Login · Évolué</title>
-<style>
-  :root{--ink:#7A8084;--muted:#8B9195;--line:#CDD1D4}
-  *{box-sizing:border-box}html,body{margin:0;height:100%}
-  body{background:#fff;color:var(--ink);font-family:"Jost","Segoe UI",sans-serif;display:flex;align-items:center;justify-content:center}
-  .box{width:360px;border:1px solid var(--line);padding:36px 32px;border-radius:10px;background:#fafbfb}
-  h1{margin:0 0 6px;font-weight:200;font-size:26px}
-  p{margin:0 0 22px;color:var(--muted);font-size:13px}
-  label{display:block;font:500 10px "Archivo",sans-serif;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-bottom:6px}
-  input{width:100%;padding:12px;border:1px solid var(--line);border-radius:6px;font-size:14px;margin-bottom:16px}
-  button{width:100%;padding:13px;border:0;background:#dfeee2;color:#3f6b4a;font:600 11px "Archivo",sans-serif;letter-spacing:.15em;text-transform:uppercase;border-radius:6px;cursor:pointer}
-  .msg{margin-top:14px;color:#842e3e;font-size:13px}
-</style></head><body>
-<div class="box"><h1>Évolué</h1><p>Owner sign-in</p>
-<form method="post" action="/login"><label>Email</label><input type="email" name="email" required autofocus><label>Password</label><input type="password" name="password" required><button type="submit">Sign in</button></form>
-<div class="msg">{msg}</div></div>
-</body></html>
-""".replace("{msg}", "")
+def login_page(request: Request):
+    from evolue.main import templates
+    brand = {"company_name": "Évolué", "logo_url": "/static/brand/logo.svg"}
+    return templates.TemplateResponse("Login.dc.html", {
+        "request": request, "brand": brand, "msg": "",
+    })
 
 
 @router.post("/login")

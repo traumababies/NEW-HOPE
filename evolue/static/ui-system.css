@@ -1,86 +1,120 @@
+/* ui-system.css — Évolué Media Team SINGLE SOURCE OF TRUTH */
 @import url("https://fonts.googleapis.com/css2?family=Jost:wght@200;300;400;500;600;700&display=swap");
 
 :root {
-  --ui-ink: #7a8084;
-  --ui-muted: #8b9195;
-  --ui-quiet: #a9aeb2;
-  --ui-line: #cdd1d4;
-  --ui-soft: #eef2f5;
-  --ui-white: #fff;
-  --ui-green: #dfeee2;
-  --ui-green-ink: #3f6b4a;
-  --ui-danger: #8c5a5a;
-  --ui-shadow: 0 10px 28px rgba(47, 55, 61, .12);
+  --ui-ink: #7A8084; --ui-muted: #8B9195; --ui-quiet: #A9AEB2;
+  --ui-line: #CDD1D4; --ui-soft: #eef2f5; --ui-white: #fff; --ui-bg: #fafbfb;
+  --ui-green: #dfece5; --ui-green-ink: #3f6b4a; --ui-pink: #f9eff2;
+  --ui-pink-x: #c96a7c; --ui-play: #e2a943;
+  --ui-rail: 1400px; --ui-rail-pad: 44px;
+  --ui-shadow: 0 10px 28px rgba(47,55,61,.12); --ui-radius: 7px;
 }
+*,*::before,*::after{box-sizing:border-box}
+html,body{margin:0;background:var(--ui-white);color:var(--ui-ink);font-family:"Jost","Segoe UI",sans-serif;-webkit-font-smoothing:antialiased}
+a{color:inherit;text-decoration:none}a:hover{color:var(--ui-ink)}
+button,input,textarea,select{font:inherit}button,a{-webkit-tap-highlight-color:transparent}
+:focus-visible{outline:2px solid var(--ui-ink);outline-offset:2px}
+[hidden]{display:none!important}
 
-*, *::before, *::after { box-sizing: border-box; }
-html, body { margin: 0; background: var(--ui-white); color: var(--ui-ink); font-family: "Jost", "Segoe UI", sans-serif; }
-button, input, textarea, select { font: inherit; }
-button, a { -webkit-tap-highlight-color: transparent; }
-:focus-visible { outline: 2px solid var(--ui-ink); outline-offset: 2px; }
+.header{position:sticky;top:0;z-index:20;border-bottom:1px solid #e0e7ec;background:rgba(255,255,255,.96);backdrop-filter:blur(8px);overflow:visible!important}
+.header-inner{max-width:var(--ui-rail);height:74px;margin:auto;padding:0 var(--ui-rail-pad);display:flex;align-items:center;justify-content:space-between;gap:32px;overflow:visible!important}
+.brand{display:inline-flex;align-items:center;color:var(--ui-ink);font-size:26px;font-weight:200;letter-spacing:.02em;text-decoration:none}
+.brand img{display:block;max-width:180px;height:38px;object-fit:contain}
+.nav{display:flex!important;overflow:visible!important;align-items:center!important;gap:2px!important}
+.nav a{border-bottom:0!important;background:none!important}
+.nav-group{position:relative!important;display:inline-flex!important}
+.nav-top{display:inline-flex!important;align-items:center!important;padding:10px 14px!important;color:#A9AEB2!important;font:500 11px "Jost","Segoe UI",sans-serif!important;letter-spacing:.18em!important;text-transform:uppercase!important;white-space:nowrap!important;border-bottom:0!important}
+.nav-top:hover,.nav-top.current{color:#7A8084!important;border-bottom:0!important}
+.nav-top.logout{margin-left:18px!important;padding-left:0!important;color:#b4babe!important}
+.nav-top.logout:hover{color:#7A8084!important}
+.nav-submenu{position:absolute!important;top:100%!important;left:50%!important;transform:translateX(-50%)!important;min-width:150px!important;background:transparent!important;box-shadow:none!important;border:0!important;padding:6px 0!important;flex-direction:column!important;z-index:70!important;display:none!important}
+.nav-group:hover .nav-submenu,.nav-group:focus-within .nav-submenu{display:flex!important}
+.nav-submenu a{font:500 10px "Jost","Segoe UI",sans-serif!important;letter-spacing:.14em!important;text-transform:uppercase!important;background:transparent!important;color:#A9AEB2!important;white-space:nowrap!important}
+.nav-submenu a:hover{color:#7A8084!important;background:transparent!important}
+.nav-submenu a.on{color:#4c525a!important;font-weight:600!important}
 
-/* Shared application header and headings. */
-.header { position: sticky; top: 0; z-index: 20; border-bottom: 1px solid #e0e7ec; background: rgba(255,255,255,.96); backdrop-filter: blur(8px); }
-.header-inner { max-width: 1400px; height: 74px; margin: auto; padding: 0 44px; display: flex; align-items: center; justify-content: space-between; gap: 32px; }
-.brand { display: inline-flex; align-items: center; color: var(--ui-ink); font-size: 26px; font-weight: 200; letter-spacing: .02em; text-decoration: none; }
-.brand img { display: block; max-width: 180px; height: 38px; object-fit: contain; }
-.nav { display: flex; align-items: center; gap: 4px; overflow: visible; }
-.nav a { padding: 10px 14px; color: #8f969b; font-size: 11px; font-weight: 500; letter-spacing: .18em; text-decoration: none; text-transform: uppercase; white-space: nowrap; }
-.nav a:hover, .nav a.current { color: var(--ui-ink); }
-.nav-group { position: relative; }
-.nav-submenu { position: absolute; top: 100%; left: 10px; display: none; min-width: 160px; padding: 6px 0; background: #fff; box-shadow: var(--ui-shadow); }
-.nav-group:hover .nav-submenu, .nav-group:focus-within .nav-submenu { display: flex; flex-direction: column; }
-.nav-submenu a { padding: 7px 16px; font-size: 10px; }
-.nav-submenu a:hover { background: var(--ui-soft); }
-main h1, .page-title { margin: 10px 0 0; color: #6b7480; font-size: clamp(44px, 5.5vw, 72px); font-weight: 200; line-height: 1; letter-spacing: .02em; }
-.eyebrow, .section-title, .label, .status { color: var(--ui-quiet); font-size: 10px; font-weight: 500; letter-spacing: .16em; text-transform: uppercase; }
+main{max-width:var(--ui-rail);margin:auto;padding:42px var(--ui-rail-pad) 0}
+footer{max-width:var(--ui-rail);margin:auto;padding:26px var(--ui-rail-pad);border-top:1px solid #dde2e6;display:flex;justify-content:space-between;font:500 9px "Jost","Segoe UI",sans-serif;letter-spacing:.16em;color:#a8afb6;text-transform:uppercase}
 
-/* One icon language for close, save, load, transport and decision actions. */
-.icon-only, .close-x, .icon-action { display: inline-flex; align-items: center; justify-content: center; min-width: 30px; min-height: 30px; padding: 6px; border: 0; background: transparent; color: var(--ui-ink); cursor: pointer; }
-.icon-only:hover, .close-x:hover, .icon-action:hover { background: var(--ui-soft); color: #2f373d; }
-.icon-only svg, .close-x svg, .icon-action svg { display: block; width: 18px; height: 18px; }
-.close-x svg { width: 14px; height: 14px; }
-.button, .save, .load, .accept, .reject, .replace, .play, .hold { display: inline-flex; align-items: center; justify-content: center; gap: 7px; min-height: 34px; padding: 8px 13px; border: 1px solid var(--ui-line); border-radius: 4px; background: var(--ui-soft); color: var(--ui-ink); cursor: pointer; font-size: 10px; font-weight: 600; letter-spacing: .12em; text-transform: uppercase; }
-.button:hover, .save:hover, .load:hover, .accept:hover, .reject:hover, .replace:hover, .play:hover, .hold:hover { border-color: var(--ui-ink); background: #fff; }
-.accept { border-color: #c3ddc9; background: var(--ui-green); color: var(--ui-green-ink); }
-.reject, .replace { background: #fff; color: var(--ui-danger); }
-.play, .hold { background: #fff; }
+main h1,.page-title{margin:10px 0 0;color:#6b7480;font-size:clamp(44px,5.5vw,72px);font-weight:200;line-height:1;letter-spacing:.02em}
+.eyebrow{color:var(--ui-quiet);font-size:10px;font-weight:500;letter-spacing:.16em;text-transform:uppercase}
+.label,.section-title,.status{color:var(--ui-quiet);font-size:10px;font-weight:500;letter-spacing:.16em;text-transform:uppercase}
+.rule{height:1px;margin:14px 0 16px;background:#dde2e6}
 
-/* Shared bubbles, AI Team chatbox, and activity panel. */
-.bubble, .chat-message, .godzilla-bubble { border: 1px solid #9aa2ab; border-radius: 8px; background: #fff; color: var(--ui-ink); }
-.assistant-chat { border: 1px solid #d8dee3; background: #fbfcfd; }
-.assistant-chat-header, .assistant-panel-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 10px 14px; border-bottom: 1px solid #e8ecef; }
-.assistant-tabs { display: flex; gap: 10px; }
-.assistant-tab { padding: 4px 0; border: 0; border-bottom: 1px solid transparent; background: transparent; color: var(--ui-quiet); cursor: pointer; font-size: 9px; font-weight: 600; letter-spacing: .12em; text-transform: uppercase; }
-.assistant-tab.active { border-bottom-color: var(--ui-ink); color: #4c525a; }
-.assistant-chat-body { display: grid; grid-template-columns: minmax(0, 1fr) 160px; }
-.chat-messages { min-height: 190px; padding: 10px; background: #fff; }
-.chat-message { max-width: 94%; margin: 0 0 8px; padding: 8px 10px; font-size: 11px; line-height: 1.4; }
-.chat-message.user { margin-left: auto; }
-.chat-input-wrap { display: flex; gap: 8px; padding: 10px; }
-.chat-input-wrap textarea, .assistant-panel-send textarea { min-height: 42px; flex: 1; resize: vertical; border: 1px solid var(--ui-line); padding: 8px 9px; color: var(--ui-ink); font-size: 11px; }
-.assistant-panel { width: min(640px, calc(100% - 32px)); padding: 0; border: 1px solid var(--ui-line); background: #fff; color: var(--ui-ink); box-shadow: var(--ui-shadow); }
-.assistant-panel::backdrop { background: rgba(47,55,61,.38); }
-.assistant-panel h2 { margin: 0; font-size: 11px; font-weight: 600; letter-spacing: .18em; text-transform: uppercase; }
-.assistant-row { display: flex; align-items: center; gap: 12px; padding: 8px 16px; border-top: 1px solid #f0f2f3; }
-.assistant-row-main { flex: 1; min-width: 0; }
-.assistant-row-name { font-size: 9px; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; }
-.assistant-row-status { float: right; color: var(--ui-muted); font-size: 9px; text-transform: uppercase; }
-.assistant-panel-send { display: flex; align-items: flex-end; gap: 8px; padding: 10px 16px 14px; }
-.assistant-panel-send button { min-height: 34px; padding: 8px 13px; border: 1px solid #838a93; background: #838a93; color: #fff; cursor: pointer; font-size: 9px; font-weight: 600; letter-spacing: .08em; }
+.icon-only,.close-x,.icon-action,.icon-act{display:inline-flex;align-items:center;justify-content:center;min-width:30px;min-height:30px;padding:6px;border:0;background:transparent;color:var(--ui-ink);cursor:pointer}
+.icon-only:hover,.close-x:hover,.icon-action:hover,.icon-act:hover{background:var(--ui-soft);color:#2f373d}
+.icon-only svg,.close-x svg,.icon-action svg,.icon-act svg{display:block;width:18px;height:18px}
+.close-x svg{width:14px;height:14px}
+.button,.save,.load,.accept,.reject,.replace,.play,.hold{display:inline-flex;align-items:center;justify-content:center;gap:7px;min-height:34px;padding:8px 13px;border:1px solid var(--ui-line);border-radius:4px;background:var(--ui-soft);color:var(--ui-ink);cursor:pointer;font-size:10px;font-weight:600;letter-spacing:.12em;text-transform:uppercase}
+.button:hover,.save:hover,.load:hover,.accept:hover,.reject:hover,.replace:hover,.play:hover,.hold:hover{border-color:var(--ui-ink);background:#fff}
+.accept{border-color:#c3ddc9;background:var(--ui-green);color:var(--ui-green-ink)}
+.reject,.replace{background:#fff;color:var(--ui-ink)}
+.play,.hold{background:#fff}
+.icon-group{display:inline-flex;gap:6px}
+.icon-group .icon-act[data-active="true"]{color:var(--ui-green-ink)}
+.icon-group.is-approved .icon-act:not([data-active="true"]),.icon-group.is-rejected .icon-act:not([data-active="true"]){display:none}
+.tt{position:relative}
+.tt::after{content:attr(data-tip);position:absolute;bottom:calc(100% + 8px);left:50%;transform:translateX(-50%);background:var(--ui-white);border:1px solid #7A8084;border-radius:var(--ui-radius);color:#7A8084;font:500 9px "Jost","Segoe UI",sans-serif;letter-spacing:.06em;line-height:1.5;padding:4px 9px;white-space:nowrap;opacity:0;pointer-events:none;transition:opacity .15s;z-index:9}
+.tt:hover::after{opacity:1}
+.bubble,.chat-message,.godzilla-bubble{border:1px solid #7A8084;border-radius:var(--ui-radius);background:var(--ui-white);color:var(--ui-ink)}
+.assistant-chat{border:1px solid #eef1f3;background:var(--ui-white)}
+.assistant-chat-header{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 14px;border-bottom:1px solid #e8ecef}
+.assistant-tabs{display:flex;gap:10px}
+.assistant-tab{padding:4px 0;border:0;border-bottom:1px solid transparent;background:transparent;color:var(--ui-quiet);cursor:pointer;font-size:9px;font-weight:600;letter-spacing:.12em;text-transform:uppercase}
+.assistant-tab.active{border-bottom-color:var(--ui-ink);color:#4c525a}
+.chat-messages{min-height:190px;padding:10px;background:var(--ui-white);overflow-y:auto}
+.chat-message{max-width:94%;margin:0 0 8px;padding:8px 10px;font-size:11px;line-height:1.4;border:1px solid #7A8084;border-radius:var(--ui-radius);background:var(--ui-white)}
+.chat-message.user{margin-left:auto}
+.chat-input-wrap{display:flex;gap:8px;padding:10px}
+.chat-input-wrap textarea{min-height:42px;flex:1;resize:vertical;border:1px solid var(--ui-line);padding:8px 9px;color:var(--ui-ink);font-size:11px}
 
-/* Book Room / Reader entry point. The action is deliberately named after the
-  destination so it is clear that the modal opens the standalone Reader room. */
-.book-room-modal { width: min(440px, calc(100% - 32px)); padding: 26px; border: 1px solid var(--ui-line); background: #fff; color: var(--ui-ink); box-shadow: var(--ui-shadow); }
-.book-room-modal::backdrop { background: rgba(47,55,61,.38); }
-.book-room-modal .close-x { position: absolute; top: 12px; right: 12px; }
-.book-room-modal h2 { margin: 8px 0 10px; font-size: 24px; font-weight: 300; }
-.book-room-modal p:not(.eyebrow) { margin: 0 0 20px; color: var(--ui-muted); font-size: 13px; line-height: 1.55; }
-.book-room-modal .button { text-decoration: none; }
-
-@media (max-width: 700px) {
-  .header-inner { height: auto; padding: 14px 20px; align-items: flex-start; flex-direction: column; gap: 8px; }
-  .nav { width: 100%; overflow-x: auto; }
-  .nav a { padding: 8px 9px; font-size: 9px; }
-  .assistant-chat-body { grid-template-columns: 1fr; }
+.field{margin-bottom:14px}
+.field label{display:block;font:500 10px "Jost",sans-serif;letter-spacing:.1em;text-transform:uppercase;color:var(--ui-muted);margin-bottom:5px}
+.field input,.field textarea,.field select{width:100%;padding:10px 12px;border:1px solid var(--ui-line);border-radius:6px;font-size:14px;background:var(--ui-white)}
+.field input:focus,.field textarea:focus,.field select:focus{border-color:var(--ui-ink)}
+.notice{position:fixed;right:24px;bottom:24px;z-index:100;max-width:min(420px,calc(100vw - 40px));padding:14px 17px;border:1px solid #b9cfc1;background:#edf6f0;color:#365844;font:600 10px "Jost",sans-serif;letter-spacing:.12em;text-transform:uppercase;box-shadow:0 14px 34px rgba(35,38,42,.12)}
+.notice.error{border-color:#c99ba4;background:#fff0f2;color:#842e3e}
+.panel{border:1px solid var(--ui-line);background:var(--ui-soft);padding:20px;margin-bottom:16px}
+.panel-title{font:600 10px "Jost",sans-serif;letter-spacing:.14em;text-transform:uppercase;color:var(--ui-muted);margin-bottom:12px}
+.panel .button,.panel .accept,.panel .reject{background:var(--ui-white)}
+.badge{display:inline-block;padding:3px 8px;border-radius:999px;font:600 9px "Jost",sans-serif;letter-spacing:.1em;text-transform:uppercase}
+.badge.ok{background:var(--ui-green);color:var(--ui-green-ink)}
+.badge.warn{background:#f4ecd6;color:#8a6b23}
+.badge.err{background:var(--ui-pink);color:#842e3e}
+.week-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
+.week-card{border:1px solid var(--ui-line);background:var(--ui-soft);min-width:0}
+.week-head{display:flex;align-items:center;justify-content:space-between;padding:12px 14px;border-bottom:1px solid var(--ui-line)}
+.week-head b{font:600 10px "Jost",sans-serif;letter-spacing:.14em;text-transform:uppercase}
+.week-title{padding:12px 14px;font-size:18px;font-weight:300;line-height:1.4;min-height:64px}
+.week-foot{padding:9px 14px;color:var(--ui-quiet);font:500 9px "Jost",sans-serif;letter-spacing:.12em;text-transform:uppercase}
+.tiles{display:grid;grid-template-columns:repeat(3,1fr);gap:0;border-top:1px solid var(--ui-line)}
+.tile{aspect-ratio:4/5;border-right:1px solid var(--ui-line);border-bottom:1px solid var(--ui-line);position:relative;display:flex;align-items:center;justify-content:center;font:600 8px "Jost",sans-serif;letter-spacing:.1em;cursor:default}
+.tile:nth-child(3n){border-right:0}
+.tile.approved{background:var(--ui-green);color:var(--ui-green-ink)}
+.tile.approved .check{position:absolute;top:6px;right:7px;width:16px;height:16px;border-radius:50%;background:#fff;display:flex;align-items:center;justify-content:center}
+.tile .no{position:absolute;bottom:6px;left:7px}
+.book-room-modal{width:min(440px,calc(100% - 32px));padding:26px;border:1px solid var(--ui-line);background:var(--ui-white);color:var(--ui-ink);box-shadow:var(--ui-shadow)}
+.book-room-modal::backdrop{background:rgba(47,55,61,.38)}
+.book-room-modal .close-x{position:absolute;top:12px;right:12px}
+.book-room-modal h2{margin:8px 0 10px;font-size:24px;font-weight:300}
+.book-room-modal p:not(.eyebrow){margin:0 0 20px;color:var(--ui-muted);font-size:13px;line-height:1.55}
+.media-picker{display:flex;flex-direction:column;width:min(1280px,calc(100vw - 40px));height:min(900px,86vh);padding:0;border:1px solid var(--ui-line);border-radius:10px;background:var(--ui-white);color:var(--ui-ink)}
+.media-picker:not([open]){display:none}
+.media-picker::backdrop{background:rgba(47,55,61,.42)}
+.media-picker-head{display:flex;align-items:center;justify-content:space-between;flex:none;padding:14px 18px;border-bottom:1px solid var(--ui-line);font:600 10px "Jost",sans-serif;letter-spacing:.16em;text-transform:uppercase}
+.media-picker-body{display:grid;grid-template-columns:190px 1fr;flex:1;min-height:0}
+.media-picker-body aside{padding:12px;overflow:auto;border-right:1px solid var(--ui-line);background:var(--ui-soft)}
+.picker-folder{display:block;width:100%;padding:9px 10px;border:0;background:transparent;color:var(--ui-muted);text-align:left;cursor:pointer;font:500 10px "Jost",sans-serif;letter-spacing:.08em;text-transform:uppercase}
+.picker-folder:hover,.picker-folder.active{background:#fff;color:var(--ui-ink)}
+.picker-assets{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:10px;padding:12px;overflow:auto}
+@media(max-width:760px){
+  .header-inner{padding:14px 20px;align-items:flex-start;flex-direction:column;gap:8px}
+  .nav{width:100%;max-width:100%!important;padding-bottom:5px;overflow-x:auto}
+  .nav-top{min-height:38px;padding:11px 15px!important}
+  .week-grid{grid-template-columns:1fr}
+  main{padding:30px 20px 0}
+  footer{padding:22px 20px;flex-direction:column;gap:10px}
 }
+@media(max-width:420px){:root{--ui-rail-pad:14px}}
+.button.pink,.button.pink-btn,.ibtn.pink,.pill.rejected,.pill.redo,.pill.skipped,.btn.reject,.actions .redo,.timeline-remove,.tray-foot button,.delete-history,.notice.error,.status.redo,.status.replace,.pill.replace,.pill.hold,.actions .replace{background:var(--ui-white)!important;color:var(--ui-ink)!important;border-color:#9AA2AB!important}
+.button.pink:hover,.button.pink-btn:hover,.ibtn.pink:hover,.pill.rejected:hover,.pill.redo:hover,.pill.skipped:hover,.btn.reject:hover,.actions .redo:hover,.timeline-remove:hover,.tray-foot button:hover,.delete-history:hover,.notice.error:hover,.status.redo:hover,.status.replace:hover,.pill.replace:hover,.pill.hold:hover,.actions .replace:hover{background:var(--ui-soft)!important;color:var(--ui-ink)!important}

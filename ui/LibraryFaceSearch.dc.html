@@ -1,0 +1,434 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Find My Photos · {{ brand.company_name }}</title>
+  <link rel="stylesheet" href="/static/ui-system.css">
+  <link rel="stylesheet" href="/static/workflow-pages.css">
+  <link rel="stylesheet" href="/static/godzilla-companion.css">
+  <script src="/static/ui-navigation.js" defer></script>
+  <script src="/static/godzilla-companion.js" defer></script>
+  <style>
+    .face-search-container {
+      max-width: 720px;
+      margin: 0 auto;
+      padding: 40px 20px;
+    }
+    .consent-form {
+      border: 1px solid var(--line);
+      padding: 24px;
+      background: #f7f8f9;
+      margin-bottom: 30px;
+    }
+    .consent-text {
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.6;
+      margin-bottom: 20px;
+      background: #fff;
+      padding: 14px;
+      border-left: 3px solid var(--quiet);
+    }
+    .form-section {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      margin-top: 20px;
+    }
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .form-group label {
+      font-family: "Archivo", sans-serif;
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: .15em;
+      text-transform: uppercase;
+      color: var(--quiet);
+    }
+    .form-group input {
+      padding: 10px 11px;
+      border: 1px solid var(--line);
+      border-radius: 4px;
+      font-size: 14px;
+      font-family: "Jost", sans-serif;
+    }
+    .form-group input:focus {
+      outline: 2px solid var(--ink);
+      outline-offset: 1px;
+    }
+    .validation-note {
+      font-size: 11px;
+      color: #c23030;
+      display: none;
+    }
+    .validation-note.show {
+      display: block;
+    }
+    .selfie-upload {
+      border: 2px dashed var(--line);
+      padding: 30px;
+      text-align: center;
+      border-radius: 4px;
+      background: #fff;
+      cursor: pointer;
+      transition: all .2s;
+    }
+    .selfie-upload:hover {
+      border-color: var(--ink);
+      background: var(--soft);
+    }
+    .selfie-upload.has-image {
+      border-style: solid;
+      padding: 0;
+    }
+    .selfie-preview {
+      width: 100%;
+      max-height: 300px;
+      object-fit: cover;
+      display: none;
+    }
+    .selfie-preview.show {
+      display: block;
+    }
+    .selfie-upload input {
+      display: none;
+    }
+    .upload-label {
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.5;
+    }
+    .upload-label strong {
+      color: var(--ink);
+      font-weight: 600;
+    }
+    .submit-btn {
+      padding: 10px 14px;
+      background: var(--ink);
+      color: #fff;
+      border: none;
+      border-radius: 4px;
+      font-family: "Archivo", sans-serif;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      cursor: pointer;
+      margin-top: 20px;
+    }
+    .submit-btn:hover:not(:disabled) {
+      background: #666B6E;
+    }
+    .submit-btn:disabled {
+      opacity: .5;
+      cursor: not-allowed;
+    }
+    .scanning {
+      display: none;
+      text-align: center;
+      padding: 40px 20px;
+    }
+    .scanning.show {
+      display: block;
+    }
+    .scanning-text {
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.6;
+      margin-bottom: 20px;
+      font-family: "Jost", sans-serif;
+    }
+    .scanning-dots {
+      display: inline-block;
+      margin-left: 4px;
+    }
+    .scanning-dots span {
+      display: inline-block;
+      width: 4px;
+      height: 4px;
+      background: var(--muted);
+      border-radius: 50%;
+      margin: 0 2px;
+      animation: bounce .6s infinite;
+    }
+    .scanning-dots span:nth-child(2) { animation-delay: .1s; }
+    .scanning-dots span:nth-child(3) { animation-delay: .2s; }
+    @keyframes bounce {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-8px); }
+    }
+    .results {
+      display: none;
+      margin-top: 30px;
+    }
+    .results.show {
+      display: block;
+    }
+    .result-summary {
+      padding: 14px;
+      background: #edf6f0;
+      border: 1px solid #b9cfc1;
+      border-radius: 4px;
+      margin-bottom: 14px;
+    }
+    .result-summary strong {
+      color: #365844;
+      font-weight: 600;
+    }
+    .download-links {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-top: 14px;
+    }
+    .download-link {
+      padding: 10px 14px;
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: 4px;
+      color: var(--ink);
+      text-decoration: none;
+      font-size: 12px;
+      font-weight: 500;
+      transition: all .2s;
+    }
+    .download-link:hover {
+      background: var(--soft);
+      border-color: var(--ink);
+    }
+    .error-message {
+      padding: 12px 14px;
+      background: #fff0f2;
+      border: 1px solid #c99ba4;
+      border-radius: 4px;
+      color: #842e3e;
+      font-size: 12px;
+      line-height: 1.5;
+      display: none;
+    }
+    .error-message.show {
+      display: block;
+    }
+  </style>
+</head>
+<body>
+{% include "_header.html" %}
+
+<main class="page narrow">
+  <div class="crumb">
+    <span>Library / Find My Photos</span>
+    <a href="/library">Back to Library</a>
+  </div>
+
+  <section class="hero">
+    <div class="eyebrow">Facial Recognition Search</div>
+    <h1>Find Your Photos</h1>
+    <p>Upload a photo of yourself. Cataloger will scan for matching faces across the library and prepare your photos for download.</p>
+  </section>
+
+  <div class="rule"></div>
+
+  <!-- Consent Form -->
+  <div class="face-search-container">
+    <form id="faceSearchForm" onsubmit="return handleSubmit(event)">
+      
+      <div class="consent-form">
+        <div class="consent-text">
+Your request requires the highest level of security clearance for your safety and ours, which involves converting the face into a mathematical vector and clustering it against thousands of others. The vector of your face is not kept in storage and we do not keep them after using it to verify your resemblance to your requested photos. Please sign and date here to confirm that you understand and agree.
+        </div>
+
+        <div class="form-section">
+          <div class="form-group">
+            <label for="personName">Your Name</label>
+            <input type="text" id="personName" name="person_name" placeholder="Jane Smith" required>
+          </div>
+
+          <div class="form-group">
+            <label for="personSignature">Signature (must match your name)</label>
+            <input type="text" id="personSignature" name="person_signature" placeholder="Jane Smith" required>
+            <div class="validation-note" id="signatureNote">Signature must match your name</div>
+          </div>
+
+          <div class="form-group">
+            <label for="agreeCheckbox">
+              <input type="checkbox" id="agreeCheckbox" name="agree" required> I understand and agree
+            </label>
+          </div>
+        </div>
+      </div>
+
+      <!-- Selfie Upload -->
+      <div class="form-section">
+        <label>Upload a clear photo of your face</label>
+        <div class="selfie-upload" id="selfieUpload" onclick="document.getElementById('selfieInput').click();">
+          <img class="selfie-preview" id="selfiePreview" alt="Preview">
+          <div id="uploadPrompt">
+            <div class="upload-label">
+              <strong>Click to upload</strong> or drag and drop<br>
+              PNG, JPG, MP4 up to 10MB
+            </div>
+          </div>
+        </div>
+        <input type="file" id="selfieInput" name="selfie" accept="image/*" onchange="handleSelfieUpload(event)" required>
+      </div>
+
+      <!-- Error Message -->
+      <div class="error-message" id="errorMessage"></div>
+
+      <!-- Submit -->
+      <button type="submit" class="submit-btn" id="submitBtn">Search My Face</button>
+    </form>
+
+    <!-- Scanning Animation -->
+    <div class="scanning" id="scanning">
+      <div class="scanning-text">
+        Cataloger is scanning vectors, cross-referencing clusters<span class="scanning-dots"><span></span><span></span><span></span></span>
+      </div>
+    </div>
+
+    <!-- Results -->
+    <div class="results" id="results">
+      <div class="result-summary" id="resultSummary"></div>
+      <div class="download-links" id="downloadLinks"></div>
+    </div>
+  </div>
+</main>
+
+<footer class="footer"><span>{{ brand.company_name }}</span></footer>
+
+<script>
+const form = document.getElementById('faceSearchForm');
+const personName = document.getElementById('personName');
+const personSignature = document.getElementById('personSignature');
+const signatureNote = document.getElementById('signatureNote');
+const selfieInput = document.getElementById('selfieInput');
+const selfiePreview = document.getElementById('selfiePreview');
+const selfieUpload = document.getElementById('selfieUpload');
+const uploadPrompt = document.getElementById('uploadPrompt');
+const scanning = document.getElementById('scanning');
+const results = document.getElementById('results');
+const errorMessage = document.getElementById('errorMessage');
+const submitBtn = document.getElementById('submitBtn');
+
+// Validate signature matches name in real-time
+personSignature.addEventListener('input', () => {
+  const matches = personName.value.trim() === personSignature.value.trim();
+  signatureNote.classList.toggle('show', personName.value.trim() && !matches);
+  submitBtn.disabled = !matches || !personName.value.trim() || !selfieInput.files.length;
+});
+
+personName.addEventListener('input', () => {
+  const matches = personName.value.trim() === personSignature.value.trim();
+  signatureNote.classList.toggle('show', personName.value.trim() && !matches);
+  submitBtn.disabled = !matches || !personName.value.trim() || !selfieInput.files.length;
+});
+
+// Handle selfie upload
+function handleSelfieUpload(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    selfiePreview.src = e.target.result;
+    selfiePreview.classList.add('show');
+    uploadPrompt.style.display = 'none';
+    selfieUpload.classList.add('has-image');
+    submitBtn.disabled = false;
+  };
+  reader.readAsDataURL(file);
+}
+
+// Handle form submission
+async function handleSubmit(event) {
+  event.preventDefault();
+  
+  errorMessage.classList.remove('show');
+  errorMessage.textContent = '';
+
+  // Validate
+  if (personName.value.trim() !== personSignature.value.trim()) {
+    showError('Name and signature must match');
+    return false;
+  }
+
+  if (!selfieInput.files.length) {
+    showError('Please upload a photo');
+    return false;
+  }
+
+  // Show scanning
+  form.style.display = 'none';
+  scanning.classList.add('show');
+
+  const formData = new FormData();
+  formData.append('person_name', personName.value.trim());
+  formData.append('person_signature', personSignature.value.trim());
+  formData.append('disclaimer', 'Consent acknowledged by user');
+  formData.append('selfie', selfieInput.files[0]);
+
+  try {
+    const response = await fetch('/library/face-search', {
+      method: 'POST',
+      body: formData,
+    });
+
+    const data = await response.json();
+
+    if (!response.ok || !data.ok) {
+      throw new Error(data.detail || 'Search failed');
+    }
+
+    // Show results
+    scanning.classList.remove('show');
+    results.classList.add('show');
+
+    const summary = document.getElementById('resultSummary');
+    summary.innerHTML = `<strong>${data.matches_found} photo${data.matches_found !== 1 ? 's' : ''} found</strong> and issued for download. Expires ${new Date(data.expires_at).toLocaleDateString()}`;
+
+    const links = document.getElementById('downloadLinks');
+    links.innerHTML = '';
+
+    if (data.zip_url) {
+      const link = document.createElement('a');
+      link.href = data.zip_url;
+      link.className = 'download-link';
+      link.textContent = `📦 Download all photos (${data.zip_filename})`;
+      links.appendChild(link);
+    } else if (data.direct_links && data.direct_links.length) {
+      const header = document.createElement('div');
+      header.style.fontSize = '11px';
+      header.style.color = 'var(--quiet)';
+      header.style.marginBottom = '8px';
+      header.textContent = `${data.matches_found} direct download links:`;
+      links.appendChild(header);
+
+      data.direct_links.forEach((key, idx) => {
+        const link = document.createElement('a');
+        link.href = `/media-versions/${key}`;
+        link.className = 'download-link';
+        link.textContent = `Photo ${idx + 1}`;
+        links.appendChild(link);
+      });
+    }
+
+  } catch (error) {
+    scanning.classList.remove('show');
+    form.style.display = 'block';
+    showError(error.message || 'An error occurred');
+  }
+
+  return false;
+}
+
+function showError(message) {
+  errorMessage.textContent = message;
+  errorMessage.classList.add('show');
+}
+</script>
+</body>
+</html>

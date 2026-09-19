@@ -1,0 +1,390 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Calendar · {{ brand.company_name }}</title>
+  <link rel="stylesheet" href="/static/ui-system.css?v=20260917">
+  <link rel="stylesheet" href="/static/godzilla-companion.css?v=20260917">
+  <script src="/static/ui-navigation.js" defer></script>
+  <script src="/static/assistant-chat.js" defer></script>
+  <script src="/static/godzilla-companion.js" defer></script>
+  <script src="/static/save-feedback.js" defer></script>
+  <style>
+    :root{--ink:#7A8084;--muted:#8B9195;--quiet:#A9AEB2;--line:#CDD1D4;--soft:#fafbfb;--pink:#f9eff2;--green:#dfece5;--pink-x:#c96a7c;--ok:#3f6b4a;--play:#e2a943}
+    *{box-sizing:border-box}html,body{margin:0;background:#fff;color:var(--ink);font-family:"Jost","Segoe UI",sans-serif;-webkit-font-smoothing:antialiased}a{color:inherit;text-decoration:none}a:hover{color:var(--ink)}
+    main{max-width:1400px;margin:auto;padding:42px 44px 0}
+    .hero{display:flex;align-items:stretch;justify-content:space-between;gap:28px;flex-wrap:nowrap;padding:18px 0 24px;border-bottom:1px solid #eef1f3}
+    /* Hero TYPE (eyebrow / title / lede) = ONE HERO TYPE LAW in ui-system.css.
+       Do NOT restate font, size, letter-spacing or color here — the law is the
+       single source and outranks both this block and _header.html. */
+    .notice{position:fixed;right:24px;bottom:24px;z-index:100;max-width:min(420px,calc(100vw - 40px));padding:14px 17px;border:1px solid #b9cfc1;background:#edf6f0;color:#365844;font:600 10px "Jost",sans-serif;letter-spacing:.12em;text-transform:uppercase;box-shadow:0 14px 34px rgba(35,38,42,.12)}.notice.error{border-color:#c99ba4;background:#fff0f2;color:#842e3e}.notice[hidden]{display:none}.rule{height:1px;margin-top:16px;background:#dde2e6}
+    .stats{padding:14px 0 30px;display:flex;gap:26px;flex-wrap:wrap;color:var(--quiet);font-size:10px;font-weight:500;letter-spacing:.16em;text-transform:uppercase}
+    /* Hero: title on the left, chatbox on the right, same row, never stacked. */
+    .hero .lede{min-width:0;flex:1 1 55%}
+    .hero-side{flex:0 0 48%;max-width:48%;display:flex;flex-direction:column;align-self:stretch}
+    .assistant-chat{width:100%;margin-top:0;border:1px solid #eef1f3;background:#fff}
+    .assistant-chat-header{display:flex;justify-content:space-between;align-items:center;min-height:22px;height:22px;padding:2px 8px;border-bottom:1px solid #eef1f3;gap:6px}
+     /* The nerdy-glasses picker is the only assistant selector. Keep the tab
+       buttons in the DOM for assistant-chat.js, but never render a second row
+       of assistant names underneath the picker. */
+     .assistant-tabs{display:none !important}
+    .assistant-tab{padding:4px 8px;border:1px solid var(--line);background:#f7f8f9;font:600 8px "Jost",sans-serif;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);cursor:pointer}
+    .assistant-tab.active{background:var(--ink);color:#fff;border-color:var(--ink)}
+     /* One fixed chat panel with two internal columns: AI replies on the left,
+       owner's controls on the right. Replies scroll inside their own column so
+       the Calendar page never grows as the conversation continues. */
+  .assistant-chat-body{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr) minmax(150px,1.15fr);gap:0;min-height:112px;height:112px}
+  .hero .assistant-chat-body{min-height:124px;height:124px;overflow:hidden}
+  .chat-messages{height:112px;min-height:112px;max-height:112px;overflow-y:auto;overflow-x:hidden;padding:6px 8px;flex:1;background:#fff;border-right:1px solid #eef1f3}
+  .hero .chat-messages{padding:4px 6px}
+  .hero .chat-messages .chat-message{padding:1px 0;margin-bottom:2px !important;font:300 9px/1.15 "Jost","Segoe UI",sans-serif !important;line-height:1.15 !important;max-width:100%;white-space:normal;overflow:visible;text-overflow:clip;background:transparent !important;color:#7d8590 !important;border:0 !important;border-radius:0 !important;box-shadow:none !important}
+  .hero .chat-messages .chat-message strong{font:500 7px/1 "Jost","Segoe UI",sans-serif !important;margin-right:4px}
+    .chat-message{padding:5px 8px;font-size:11px;line-height:1.35;max-width:100%;background:#fff;color:#8B9195;border:1px solid #dde2e6;border-radius:8px}
+    .chat-message,.chat-message.user,.chat-message.assistant{background:#fff !important;color:#7a8084 !important;border:1px solid #9aa2ab !important;border-radius:8px !important}
+    .chat-message strong{display:inline-block;margin-right:6px;font:600 8px "Jost",sans-serif;letter-spacing:.08em;text-transform:uppercase;color:var(--ink)}
+    .chat-messages .chat-message{margin-bottom:0}
+    .empty-line{color:var(--muted);font-size:11px}
+     /* Keep the chat compact on the right side of the hero: the message field
+       gets the main column and the actions live in a narrow right column. */
+    /* Owner's private composer sits above the Godzilla treats. */
+    .chat-input-wrap{display:contents}
+    .hero .chat-input-wrap textarea{grid-column:2;width:100%;min-width:0;min-height:0 !important;height:124px !important;max-height:124px !important;box-sizing:border-box;border:1px solid #eef1f3;outline:0;padding:4px 6px !important;font:300 10px "Jost",sans-serif;resize:none;overflow:auto;color:#3a3f43}
+    .hero .chat-bottom{height:124px;min-height:124px;overflow:hidden}
+      .chat-bottom{grid-column:3;display:grid;grid-template-columns:minmax(0,1fr) 28px;gap:5px;align-items:stretch;min-width:0;margin-top:0;padding-left:6px;border-left:1px solid #eef1f3;border-top:0}
+    .hero .godzilla-treats{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));grid-template-rows:repeat(3,minmax(0,1fr));gap:4px;flex:1;align-self:center;height:116px;min-height:116px;max-height:116px;padding:5px;background:#e2f0e6;border:1px solid #b9d4c0;border-radius:8px;box-sizing:border-box;overflow:hidden}
+    .hero .godzilla-treats button{min-width:0;padding:3px 4px;border:1px solid #a8b98f;border-radius:8px;background:#f7fcf8;color:#4a5c3a;font:500 11px/1.05 "Jost",sans-serif !important;cursor:pointer;text-align:center;white-space:normal;overflow:hidden;text-overflow:ellipsis;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px}
+    .hero .godzilla-treats .treat-emoji{font-size:14px;line-height:1;display:block}
+    .hero .godzilla-treats .treat-label{font-size:9px;line-height:1.05;display:block}
+    .godzilla-treats button:hover{background:#d5eadb;border-color:#7f9b6f}
+    .chat-actions{display:flex;flex-direction:column;justify-content:center;gap:10px;margin-top:0;border-left:1px solid #eef1f3;border-top:0 !important;padding-left:3px}
+      .chat-actions button{border:0;background:none;padding:4px;cursor:pointer;color:#c96a7c;display:inline-flex}
+      .chat-actions button:hover{color:#a94f63}
+      [data-activity-open]{color:#c96a7c !important}
+      [data-activity-open]:hover{color:#a94f63 !important}
+    .chat-actions .icon-btn{justify-content:center;width:100%}
+    /* Nerdy-glasses picker: a small icon that drops down your AI. */
+    .chat-pick{position:relative;flex:none}
+    .chat-pick-btn{border:0;background:none;color:#c96a7c;width:22px;height:22px;display:inline-flex;align-items:center;justify-content:center;cursor:pointer;padding:0}
+    .chat-pick-btn:hover{color:#a94f63}
+    .chat-pick-menu{position:absolute;left:0;top:calc(100% + 4px);z-index:60;display:flex;align-items:center;gap:2px;background:#fff;border:1px solid var(--line);box-shadow:0 10px 26px rgba(122,128,132,.18);padding:4px}
+    .chat-pick-menu[hidden]{display:none}
+    .chat-pick-menu button{border:0;background:none;padding:5px;color:var(--muted);cursor:pointer;display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px}
+    .chat-pick-menu button:hover{background:#f5f7f7;color:var(--ink)}
+    .chat-active{font:600 8px "Jost",sans-serif;letter-spacing:.14em;text-transform:uppercase;color:var(--quiet);padding:6px 12px;border-bottom:1px solid var(--line);background:#fbfcfd}
+    .chat-active-name{display:none}
+    .assistant-chat[data-active-assistant="godzilla"] .chat-messages{background:#f3f6ee}
+    .chat-messages .chat-message,
+    .chat-messages .chat-message.user,
+    .chat-messages .chat-message.assistant{background:#fff !important;color:#7a8084 !important;border:1px solid #9aa2ab !important;border-radius:8px !important}
+    /* Godzilla's face as the chat icon. Same sprite parts as everywhere else. */
+    .chat-godzilla{display:inline-flex;align-items:center;gap:8px;cursor:pointer;border:0;background:none;padding:4px 6px;position:relative}
+    .chat-godzilla:hover{background:#f5f7f7}
+    .chat-godzilla .minisprite{position:relative;width:26px;height:24px;flex:none}
+    .chat-godzilla .minisprite .g-body{left:2px;bottom:2px;width:22px;height:14px}
+    .chat-godzilla .minisprite .g-ear{top:-1px;border-left:5px solid transparent;border-right:5px solid transparent;border-bottom:8px solid #8a6248;width:0;height:0}
+    .chat-godzilla .minisprite .g-ear-l{left:2px;transform:rotate(-14deg)}
+    .chat-godzilla .minisprite .g-ear-r{left:17px;transform:rotate(14deg)}
+    .chat-godzilla .minisprite .g-eye{top:6px;width:4px;height:4px;border-radius:50%}
+    .chat-godzilla .minisprite .g-eye-l{left:6px;background:#29d64a}
+    .chat-godzilla .minisprite .g-eye-r{left:16px;background:#f2c116}
+    .chat-godzilla .minisprite .g-tail{right:-2px;bottom:3px;width:10px;height:5px;background:#8a6248}
+    /* Calendar navigation: bare arrows on the right, under the rule. */
+    .week-nav{display:flex;justify-content:flex-end;gap:18px;margin:26px 44px 0}
+    .week-nav a{display:inline-flex;align-items:center;justify-content:center;width:46px;height:38px;color:var(--muted);border:0;background:none}
+    .week-nav a svg{width:22px;height:22px}
+    .week-nav a:hover{color:var(--ink)}
+    /* The week board: one thin-line frame, 3x3 weeks, hairline gutters. */
+    .calendar-weeks{margin-top:34px}
+    .weeks{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:1px;border:1px solid var(--line);background:var(--line)}
+    .week{min-height:0;padding:20px;background:#f7f8f9;display:flex;flex-direction:column;gap:12px;overflow:hidden}
+    .week:hover{background:#eef0f2}
+    .month-label{color:var(--quiet);font:500 8px "Jost",sans-serif;letter-spacing:.18em;text-transform:uppercase}
+    .week-top{display:flex;justify-content:space-between;gap:12px;align-items:flex-start}
+    .week-top-left{min-width:0;display:flex;flex-direction:column;gap:2px}
+    .week-number{font:600 10px "Jost",sans-serif;letter-spacing:.18em;color:var(--ink);text-transform:uppercase}
+    .range{color:#9ba9b7;font-size:12px;font-weight:300}
+    .status{margin-top:4px;color:var(--muted);font:500 8px "Jost",sans-serif;letter-spacing:.12em;text-transform:uppercase}
+    .status.skipped{color:#9a6b6b}
+    .status.approved{color:var(--ok)}
+    .week-actions{display:flex;flex-direction:column;align-items:flex-end;gap:6px;flex:none}
+    /* Bare SVG controls: upload, save. Open week stays a text link. */
+    .icon-btn{border:0;background:none;padding:4px;cursor:pointer;color:var(--muted);display:inline-flex;align-items:center}
+    .icon-btn:hover{color:var(--ink)}
+    .upload-theme{position:relative;display:inline-flex}
+    .upload-theme input[type=file]{position:absolute;left:0;top:0;width:1px;height:1px;opacity:0;overflow:hidden}
+    .plan{display:flex;flex-direction:column;gap:8px;min-width:0}
+    .theme-input,.notes-input{display:block;width:100%;border:1px solid var(--line);outline:1px solid #c6cdd3;background:#fff;color:#3a3f43;font:300 12px "Jost",sans-serif;padding:3px 8px}
+    .theme-input{height:34px;line-height:26px;font:600 14px "Jost",sans-serif;letter-spacing:.04em;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+    .notes-input{height:44px;line-height:1.4;resize:vertical}
+    .plan-actions{display:flex;align-items:center;gap:10px;min-height:26px}
+    .open{color:var(--muted);font:500 9px "Jost",sans-serif;letter-spacing:.14em;text-transform:uppercase}
+    .open:hover{color:var(--ink)}
+    /* Tiles: 9x16 phone portrait, 3x3 per week, no outlines on the images. */
+    .tiles{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:1px;background:var(--line);border:1px solid var(--line)}
+    .tile{position:relative;display:block;aspect-ratio:9/16;background:#eceff1;min-width:0;overflow:hidden}
+    .tile:hover .tile-img{filter:brightness(.93)}
+    .tile-img{width:100%;height:100%;object-fit:cover;display:block}
+    .tile-no-media{display:grid;place-items:center;width:100%;height:100%;font:500 9px "Jost",sans-serif;letter-spacing:.1em;color:#a9aeb2;text-transform:uppercase}
+    .tile-link{position:absolute;inset:0;display:block}
+    .tile-link img,.tile-link video{width:100%;height:100%;object-fit:cover;display:block}
+    /* Subject badge: tiny square, top-right, two hairline rows. */
+    .tile-badge{position:absolute;top:3px;right:3px;z-index:4;display:flex;flex-direction:column;align-items:flex-end;border:1px solid #cdd1d4;background:rgba(255,255,255,.96);padding:2px 4px}
+    .tile-badge .b1{font:600 6px "Jost",sans-serif;letter-spacing:.06em;color:#6d7a81;text-transform:uppercase;white-space:nowrap}
+    .tile-badge .b2{font:600 7px "Jost",sans-serif;letter-spacing:.08em;color:#3a3f43;text-transform:uppercase;white-space:nowrap}
+    /* White strip across the bottom: one large status icon after a decision. */
+    .tile-strip{position:absolute;left:0;right:0;bottom:0;z-index:4;display:flex;align-items:center;justify-content:center;gap:6px;min-height:30px;background:#fff;border-top:1px solid #e8ecef}
+    .tile-strip .status-icon{width:15px;height:15px}
+    .tile-strip .is-ok{color:var(--ok)}
+    .tile-strip .is-no{color:var(--pink-x)}
+    .tile-strip .is-play{color:var(--play)}
+    .tile-strip .strip-act{border:0;background:none;padding:2px;cursor:pointer;color:var(--muted);display:inline-flex;align-items:center;order:2}
+    .tile-strip .strip-act:hover{color:var(--ink)}
+    .tile-strip .strip-act[data-tip]{position:relative}
+    .tile-strip .strip-act[data-tip]::after{content:attr(data-tip);position:absolute;left:50%;bottom:calc(100% + 7px);z-index:20;transform:translateX(-50%);padding:5px 8px;background:#fff;color:#7a8084;border:1px solid #9aa2ab;border-radius:8px;font:500 10px/1.2 "Jost","Segoe UI",sans-serif;white-space:nowrap;opacity:0;pointer-events:none;box-shadow:0 4px 10px rgba(122,128,132,.12);transition:opacity .12s ease}
+    .tile-strip .strip-act[data-tip]:hover::after,.tile-strip .strip-act[data-tip]:focus-visible::after{opacity:1}
+    .tile-strip .strip-act.ok{color:#8aab8f;order:1}
+    .tile-strip .strip-act.ok:hover{color:var(--ok)}
+    .tile-strip .strip-act.no{color:#c99ba4;order:3}
+    .tile-strip .strip-act.no:hover{color:var(--pink-x)}
+    .tile-strip .strip-act[data-playing] .is-play{display:none}
+    .tile-strip .strip-act[data-playing] .is-pause{display:inline}
+    /* Decided: one large icon floats over the tile; the media is muted but
+       still readable underneath it. */
+    .tile.decided .tile-link img,.tile.decided .tile-link video{filter:grayscale(.92) brightness(.55);opacity:.9}
+    .tile.decided .tile-strip{position:absolute;inset:0;border:0;background:rgba(255,255,255,.32);align-items:center;justify-content:center}
+    .tile.decided .tile-strip .status-icon{width:52px;height:52px}
+    .tile.decided .tile-strip .strip-act{display:none}
+    footer{max-width:1400px;margin:80px auto 0;padding:26px 44px;border-top:1px solid var(--line);display:flex;justify-content:space-between;color:#b4babe;font-size:10px;font-weight:500;letter-spacing:.2em}
+    @media(max-width:1100px){.weeks{grid-template-columns:repeat(2,minmax(0,1fr))}}
+    @media(max-width:820px){.hero{align-items:flex-start;gap:24px}.hero-side{flex-basis:100%;max-width:none}.weeks{grid-template-columns:1fr}}
+  </style>
+</head>
+<body>
+{% include "_header.html" %}
+<main>
+  <div class="notice{% if flash and flash.level == 'error' %} error{% endif %}" data-save-notice role="status" aria-live="polite" {% if not flash %}hidden{% endif %}>{% if flash %}{{ flash.message }}{% endif %}</div>
+  <section class="hero">
+    <div class="lede">
+      <div class="eyebrow">Calendar / nine weeks</div>
+      <h1>One year ahead</h1>
+      <p>{{ window_start.strftime('%B %d, %Y').replace(' 0', ' ') }} — {{ window_end.strftime('%B %d, %Y').replace(' 0', ' ') }}. Every week runs Monday through Sunday. Choose the theme now; build and approve each post whenever inspiration arrives.</p>
+    </div>
+    {% if assistant_panels %}
+    <div class="hero-side">
+      <section class="assistant-chat" data-assistant-chat>
+        <div class="assistant-chat-header">
+          <div style="display:flex;align-items:center;gap:8px">
+            <div class="chat-pick">
+              <button type="button" class="chat-pick-btn" data-chat-pick-toggle aria-haspopup="true" aria-expanded="false" aria-label="Choose an assistant" title="Choose an assistant"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="14" r="3"/><circle cx="18" cy="14" r="3"/><path d="M9 11V9h6v2M6 14h12"/></svg></button>
+              <div class="chat-pick-menu" data-chat-pick-menu hidden role="listbox" aria-label="Choose an assistant">
+                {% for assistant in assistant_panels %}
+                <button type="button" data-assistant-select="{{ assistant.kind }}" data-assistant-name="{{ assistant.name }}" role="option" title="{{ assistant.name }}" aria-label="{{ assistant.name }}"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18h6"/><path d="M10 21h4"/><path d="M12 3a6 6 0 0 1 4 10.5c-.8.7-1 1.5-1 2l8.5 8.5"/></svg></button>
+                {% endfor %}
+                <button type="button" data-assistant-select="godzilla" data-assistant-name="Godzilla" role="option" title="Godzilla" aria-label="Godzilla"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 15c1.5-5 12.5-5 14 0"/><circle cx="9" cy="12" r="1"/><circle cx="15" cy="12" r="1"/><path d="M8 17c2 2 6 2 8 0"/></svg></button>
+              </div>
+            </div>
+          </div>
+          <button type="button" data-activity-open title="Assistant activity" aria-label="Assistant activity" style="border:0;background:none;padding:0;cursor:pointer;color:#7A8084;display:inline-flex"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12h3.5l2-6 3.5 12 2.5-8 1.8 4H21"/></svg></button>
+        </div>
+        <!-- Hidden tabs keep assistant-chat.js wiring; the glasses dropdown drives them. -->
+        <div class="assistant-tabs" hidden role="tablist" aria-label="Assistant chat tabs">
+          {% for assistant in assistant_panels %}
+          <button type="button" class="assistant-tab{% if loop.first %} active{% endif %}" data-assistant-tab="{{ assistant.kind }}" aria-selected="{{ 'true' if loop.first else 'false' }}">{{ assistant.name }}</button>
+          {% endfor %}
+        </div>
+        <div class="assistant-chat-body">
+          <div class="chat-messages" data-chat-messages>
+          </div>
+          <div class="chat-input-wrap">
+            <textarea data-chat-input placeholder="Ask an assistant…"></textarea>
+            <div class="chat-bottom">
+              <div class="godzilla-treats" data-godzilla-treats hidden>
+                <button type="button" data-treat="bacon"><span class="treat-emoji">🥓</span><span class="treat-label">Bacon</span></button>
+                <button type="button" data-treat="ice cream"><span class="treat-emoji">🍦</span><span class="treat-label">Ice cream</span></button>
+                <button type="button" data-treat="rice pudding"><span class="treat-emoji">🍚</span><span class="treat-label">Rice pudding</span></button>
+                <button type="button" data-treat="popcorn"><span class="treat-emoji">🍿</span><span class="treat-label">Popcorn</span></button>
+                <button type="button" data-treat="McNuggets"><span class="treat-emoji">🍗</span><span class="treat-label">McNuggets</span></button>
+                <button type="button" data-treat="hold hand"><span class="treat-emoji">✋</span><span class="treat-label">Hold hand</span></button>
+              </div>
+              <div class="chat-actions">
+                <button type="button" data-chat-clear class="icon-btn" title="Clear the conversation" aria-label="Clear the conversation"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+                <button type="button" data-chat-send class="icon-btn" title="Send" aria-label="Send"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 3L10.5 13.5M21 3l-6.8 18-3.7-7.5L3 10l18-7z"/></svg></button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+    {% endif %}
+  </section>
+  <div class="rule"></div>
+  <div class="week-nav" aria-label="Calendar navigation">
+    <a href="/calendar?start={{ previous_start.isoformat() }}" title="Earlier" aria-label="Earlier"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6l-6 6 6 6"/></svg></a>
+    <a href="/calendar?start={{ next_start.isoformat() }}" title="Later" aria-label="Later"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg></a>
+  </div>
+  <section class="calendar-weeks" aria-label="Planning weeks">
+    <div class="weeks">
+      {% for group in month_groups %}{% for item in group.weeks %}{% set week = item.week %}
+      <article class="week" id="week-{{ week.id }}" data-week-id="{{ week.id }}">
+        <div class="week-top">
+          <div class="week-top-left">
+            <div class="month-label">{{ group.label }}</div>
+            <div class="week-number">Week {{ '%02d'|format(week.week_number) }}</div>
+            <div class="range">{{ week.week_start.strftime('%b %d') }}–{{ week.week_end.strftime('%b %d') }}</div>
+            <span class="status {% if week.status.value == 'skipped' %}skipped{% elif item.approved_count == 9 %}approved{% endif %}">{% if week.status.value == 'skipped' %}Skipped{% elif item.published_count == 9 %}Published{% elif item.approved_count == 9 %}Ready{% elif item.approved_count %}{{ item.approved_count }}/9{% else %}In progress{% endif %}</span>
+          </div>
+          <div class="week-actions">
+            <form method="post" action="/weeks/{{ week.id }}/theme-image-edit" enctype="multipart/form-data"><input type="hidden" name="return_to" value="{{ request.url.path }}{% if request.url.query %}?{{ request.url.query }}{% endif %}"><label class="upload-theme icon-btn" title="Upload theme image" aria-label="Upload theme image"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 16V4M7 9l5-5 5 5"/><path d="M4 16v3a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-3"/></svg><input type="file" name="theme_image" accept="image/*" required onchange="this.form.requestSubmit()"></label></form>
+          </div>
+        </div>
+        <form class="plan" data-save-in-place method="post" action="/weeks/{{ week.id }}/calendar-plan">
+          <input type="hidden" name="return_to" value="{{ request.url.path }}{% if request.url.query %}?{{ request.url.query }}{% endif %}">
+          <input class="theme-input" name="theme" value="{{ week.theme }}" placeholder="THEME" aria-label="Theme for week {{ week.week_number }}">
+          <textarea class="notes-input" name="thoughts" placeholder="Thoughts and planning notes…" aria-label="Notes for week {{ week.planning_week_number }}">{{ week.thoughts }}</textarea>
+          <div class="plan-actions">
+            <button class="icon-btn save" type="submit" title="Save" aria-label="Save theme and notes"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 3h11l4 4v14H5V3z"/><path d="M8 3v6h8V3M8 21v-7h8v7"/></svg></button>
+            <a class="open" href="/weeks/{{ week.id }}">Open week →</a>
+          </div>
+        </form>
+        <div class="tiles" aria-label="Nine posts">
+          {% for post in week.posts %}
+          {% set cv = version_map.get(post.cover_version_id) if post.cover_version_id else None %}
+          <div class="tile{% if post.creative_status.value == 'approved' %} decided{% elif post.creative_status.value in ('rejected', 'redo', 'replace') %} decided{% endif %}" data-tile data-post-id="{{ post.id }}" data-status="{{ post.creative_status.value }}" title="Post {{ post.visual_position }}">
+            <a class="tile-link" href="/posts/{{ post.id }}" aria-label="Post {{ post.visual_position }} — open editor">
+              {% if post.cover_version_id %}{% if cv and cv.mime_type and cv.mime_type.startswith('video/') %}
+              <video class="tile-img" data-tile-video muted playsinline preload="metadata" src="/media-versions/{{ post.cover_version_id }}?w=180&h=320"></video>
+              {% else %}
+              <img class="tile-img" loading="lazy" src="/media-versions/{{ post.cover_version_id }}?w=180&h=320" alt="Theme tile {{ post.visual_position }} for week {{ week.week_number }}">
+              {% endif %}{% else %}<span class="tile-no-media">{{ post.visual_position }}</span>{% endif %}
+            </a>
+            <span class="tile-badge" aria-hidden="true"><span class="b1">"IPTC-SUBJECT-CODES"</span><span class="b2">"SEQUENCE {{ '%02d'|format(post.visual_position) }}"</span></span>
+            <div class="tile-strip" data-tile-strip>
+              {% if post.creative_status.value == 'approved' %}
+              <svg class="status-icon is-ok" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 13l4 4L19 7"/></svg>
+              {% elif post.creative_status.value in ('rejected', 'redo', 'replace') %}
+              <svg class="status-icon is-no" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M6 6l12 12M18 6L6 18"/></svg>
+              {% else %}
+              <button type="button" class="strip-act ok" data-approve data-tip="Approve" aria-label="Approve"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 13l4 4L19 7"/></svg></button>
+              <button type="button" class="strip-act play-toggle" data-tip="Play / pause" aria-label="Toggle play"><svg class="status-icon is-play" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M7 5l12 7-12 7V5z"/></svg><svg class="status-icon is-pause" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" style="display:none"><rect x="6" y="5" width="4" height="14"/><rect x="14" y="5" width="4" height="14"/></svg></button>
+              <button type="button" class="strip-act no" data-reject data-tip="Reject" aria-label="Reject"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+              {% endif %}
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+      </article>
+      {% endfor %}{% endfor %}
+    </div>
+  </section>
+</main>
+<footer><span>{{ brand.company_name }}</span></footer>
+<script>
+(() => {
+  // Approve / reject straight from the strip. On success the tile swaps to one
+  // LARGE icon (green check / pink X) with the media muted under it.
+  document.querySelectorAll('[data-tile]').forEach((tile) => {
+    const OK_SVG = '<svg class="status-icon is-ok" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 13l4 4L19 7"/></svg>';
+    const NO_SVG = '<svg class="status-icon is-no" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M6 6l12 12M18 6L6 18"/></svg>';
+    const decide = async (action) => {
+      const postId = tile.dataset.postId;
+      const button = action === 'approve' ? tile.querySelector('[data-approve]') : tile.querySelector('[data-reject]');
+      if (button) button.disabled = true;
+      try {
+        const body = new FormData();
+        body.append('action', action);
+        const res = await fetch('/calendar/tiles/' + postId + '/decision', {
+          method: 'POST', body, credentials: 'same-origin', headers: { 'X-Requested-With': 'XMLHttpRequest' },
+        });
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok) throw new Error(data.detail || 'Decision failed.');
+        tile.dataset.status = action === 'approve' ? 'approved' : 'rejected';
+        const strip = tile.querySelector('[data-tile-strip]');
+        if (strip) strip.innerHTML = action === 'approve' ? OK_SVG : NO_SVG;
+        tile.classList.add('decided');
+        const notice = document.querySelector('[data-save-notice]');
+        if (notice) { notice.hidden = false; notice.className = 'notice'; notice.textContent = action === 'approve' ? 'Approved.' : 'Rejected — flagged for attention.'; }
+      } catch (error) {
+        const notice = document.querySelector('[data-save-notice]');
+        if (notice) { notice.hidden = false; notice.className = 'notice error'; notice.textContent = error.message; }
+      } finally {
+        const button2 = action === 'approve' ? tile.querySelector('[data-approve]') : tile.querySelector('[data-reject]');
+        if (button2) button2.disabled = false;
+      }
+    };
+    const approve = tile.querySelector('[data-approve]');
+    const reject = tile.querySelector('[data-reject]');
+    if (approve) approve.addEventListener('click', (e) => { e.preventDefault(); e.stopPropagation(); decide('approve'); });
+    if (reject) reject.addEventListener('click', (e) => { e.preventDefault(); e.stopPropagation(); decide('reject'); });
+    // Play triangle by default; becomes pause only while a video is running.
+    const play = tile.querySelector('.play-toggle');
+    const video = tile.querySelector('[data-tile-video]');
+    if (play && video) {
+      const pauseIcon = play.querySelector('.is-pause');
+      const playIcon = play.querySelector('.is-play');
+      video.addEventListener('play', () => { if (play) play.dataset.playing = '1'; });
+      video.addEventListener('pause', () => { if (play) delete play.dataset.playing; });
+      play.addEventListener('click', (e) => {
+        e.preventDefault(); e.stopPropagation();
+        if (video.paused) {
+          video.muted = true;
+          video.play().catch(() => {});
+          video.setAttribute('controls', '');
+        } else {
+          video.pause();
+          video.removeAttribute('controls');
+        }
+      });
+    } else if (play) {
+      play.addEventListener('click', (e) => { e.preventDefault(); e.stopPropagation(); });
+    }
+  });
+
+  // Nerdy-glasses dropdown: pick an AI, show its name underneath, wake it up.
+  const panel = document.querySelector('[data-assistant-chat]');
+  if (panel) {
+    const pickToggle = panel.querySelector('[data-chat-pick-toggle]');
+    const pickMenu = panel.querySelector('[data-chat-pick-menu]');
+    const messagesEl = panel.querySelector('[data-chat-messages]');
+    const greeted = new Set();
+    const GREETINGS = {
+      'creative_director': '*wakes up* All right, I am here. What is the brief?',
+      'copywriter': '*wakes up, yawns* Copy desk is open. What are we writing?',
+      'muse': '*yawns sleepily* ...a direction to follow?',
+      'cataloger': '*wakes up* Catalog mode on. What are we filing?',
+      'media_editor': '*wakes up* Editing bay is warm. Point me at media.',
+      'release_gate': '*wakes up* Gate check ready — show me what cleared.',
+      'publishing_worker': '*wakes up* Publishing desk on. What goes out?',
+    };
+    if (pickToggle && pickMenu) {
+      pickToggle.dataset.pickerWired = '1';
+      pickToggle.addEventListener('click', () => {
+        const closed = pickMenu.hidden;
+        pickMenu.hidden = !closed;
+        pickToggle.setAttribute('aria-expanded', String(closed));
+      });
+      document.addEventListener('click', (e) => {
+        if (!pickMenu.contains(e.target) && !pickToggle.contains(e.target)) pickMenu.hidden = true;
+      });
+      pickMenu.querySelectorAll('[data-assistant-select]').forEach((opt) => {
+        opt.addEventListener('click', () => {
+          pickMenu.hidden = true;
+          const kind = opt.dataset.assistantSelect;
+          const label = opt.dataset.assistantName || kind;
+          if (!greeted.has(kind) && messagesEl) {
+            greeted.add(kind);
+            const line = GREETINGS[kind] || '*wakes up* ' + label + ' is ready.';
+            const bubble = document.createElement('div');
+            bubble.className = 'chat-message assistant';
+            bubble.innerHTML = '<div>' + line + '</div>';
+            messagesEl.appendChild(bubble);
+            messagesEl.scrollTop = messagesEl.scrollHeight;
+          }
+        });
+      });
+    }
+  }
+})();
+</script>
+</body>
+</html>
