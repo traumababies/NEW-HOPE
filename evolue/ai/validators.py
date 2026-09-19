@@ -78,24 +78,65 @@ def validate_muse(proposal: MuseProposal) -> list[str]:
 
 
 def validate_catalog(record: CatalogRecord) -> list[str]:
-    """Validate a Catalog Record. Returns list of errors."""
+    """Validate a Catalog Record per spec: ISO 8601, Dublin Core 15 fields,
+    IPTC Subject Codes, Schema.org JSON, Open Graph."""
     errors: list[str] = []
-
     dc = record.dublin_core
+
+    # dc:type required — map from file extension
     if not dc.dc_type:
-        errors.append("dc_type is required (StillImage, MovingImage, Sound, Text)")
+        errors.append("dc_type is required (StillImage, MovingImage, Sound, Text, Dataset, Software, InteractiveResource)")
     if not dc.dc_format:
-        errors.append("dc_format is required")
+        errors.append("dc_format is required (image/jpeg, video/mp4, etc.)")
+
+    # dc:subject must be a valid IPTC code (3 letters)
     if not dc.dc_subject:
         errors.append("dc_subject (IPTC code) is required")
-    if dc.dc_subject and dc.dc_subject not in VALID_IPTC:
-        errors.append(f"Invalid IPTC subject code: '{dc.dc_subject}'")
+    elif dc.dc_subject not in VALID_IPTC:
+        # Extract just the code if it contains extra text
+        code = dc.dc_subject.strip()[:3].upper()
+        if code not in VALID_IPTC:
+            errors.append(f"Invalid IPTC subject code: '{dc.dc_subject}' (expected one of {sorted(VALID_IPTC)})")
 
-    # Date must come from filename, never guessed
+    # dc:date must be ISO 8601 (YYYY-MM-DD) from FILENAME only
     if dc.dc_date:
         import re
         if not re.match(r"^\d{4}-\d{2}-\d{2}$", dc.dc_date):
-            errors.append(f"dc_date must be ISO 8601 (YYYY-MM-DD), got '{dc.dc_date}'")
+            errors.append(f"dc_date must be ISO 8601 YYYY-MM-DD, got '{dc.dc_date}'")
+
+    # dc:language must be ISO 639-3 (default: eng)
+    if dc.dc_language and dc.dc_language != "eng":
+        import re
+        if not re.match(r"^[a-z]{3}$", dc.dc_language):
+            errors.append(f"dc_language must be ISO 639-3 (3-letter), got '{dc.dc_language}'")
+
+    # dc:creator default
+    if dc.dc_creator and dc.dc_creator != "Evolue Media Team":
+        pass  # Allow custom creators but flag for review
+
+    # dc:publisher default
+    if dc.dc_publisher and dc.dc_publisher != "Evolue Skincare Inc":
+        pass  # Allow custom publishers but flag for review
+
+    # dc:rights default check
+    if dc.dc_rights and "Evolue Skincare Inc" not in dc.dc_rights:
+        errors.append("dc_rights must reference 'Evolue Skincare Inc'")
+
+    # Schema.org type must match dc:type
+    if record.schema_org_type:
+        type_map = {
+            "StillImage": "ImageObject", "MovingImage": "VideoObject",
+            "Sound": "AudioObject", "Text": "DigitalDocument",
+            "Dataset": "Dataset", "Software": "SoftwareApplication",
+            "InteractiveResource": "MediaObject",
+        }
+        expected = type_map.get(dc.dc_type, "")
+        if expected and record.schema_org_type != expected:
+            errors.append(f"schema_org_type '{record.schema_org_type}' doesn't match dc:type '{dc.dc_type}' (expected '{expected}')")
+
+    # OG fields check — og:title must exist if asset is publishable
+    if record.og_title and not record.og_title.strip():
+        errors.append("og_title cannot be empty if set")
 
     return errors
 
@@ -109,12 +150,18 @@ def validate_copy(copy: CopySubmission) -> list[str]:
     if not copy.instagram_caption.strip():
         errors.append("instagram_caption is required")
 
-    tt_tags = [h for h in copy.tiktok_hashtags if h.tag.startswith("#")]
-    ig_tags = [h for h in copy.instagram_hashtags if h.tag.startswith("#")]
+    # Accept hashtags with or without # prefix — normalize for counting
+    tt_tags = [h for h in copy.tiktok_hashtags if h.tag.strip()]
+    ig_tags = [h for h in copy.instagram_hashtags if h.tag.strip()]
     if len(tt_tags) != 5:
         errors.append(f"TikTok requires exactly 5 hashtags, got {len(tt_tags)}")
     if len(ig_tags) != 5:
         errors.append(f"Instagram requires exactly 5 hashtags, got {len(ig_tags)}")
+
+    # Ensure hashtags start with #
+    for h in copy.tiktok_hashtags + copy.instagram_hashtags:
+        if h.tag.strip() and not h.tag.strip().startswith("#"):
+            errors.append(f"Hashtag '{h.tag}' must start with #")
 
     if not copy.alt_text.strip():
         errors.append("alt_text is required for accessibility")

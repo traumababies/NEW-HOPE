@@ -167,31 +167,91 @@ def step7_8_scout_fetch(scout_requests: list[dict], year: int, week_number: int)
     return all_results
 
 
-# ---- Step 9: Studio COMMIT — uuidv7, destroy unselected ---------------------
-def step9_studio_commit(brief_id: str, selected_tiles: list[str]) -> dict:
+# ---- Step 9: Studio COMMIT — uuidv7, destroy unselected, write metadata ------
+def step9_studio_commit(brief_id: str, selected_tiles: list[str],
+                        all_candidates: list[dict] | None = None) -> dict:
+    """Upon Jean's COMMIT:
+    1. Assign uuidv7 to selected originals
+    2. Create original (dcterms:hasVersion) + derivative (dcterms:isVersionof)
+    3. Write metadata for BOTH versions
+    4. Destroy all unselected items from Ephemera
+    5. Originals → Cataloger queue, Derivatives → Media Editor
+    """
+    from evolue.infrastructure.storage import delete_blob, BlobRef
+    from evolue.config import settings
+
     ident = brief_id.split("_")
     year = int(ident[0])
     week_number = int(ident[1].lstrip("W"))
     results = []
+    selected_labels = set(selected_tiles)
+
     for label in selected_tiles:
         parts = label.split("_")
         code = parts[0] if parts[0] in SUBJECTS else "TI"
         seq_str = parts[-1] if len(parts) > 1 else label[2:]
         seq = int(seq_str) if seq_str.isdigit() else 0
         u = uuid.uuid4().hex
+        orig = original_uuid_name(year, week_number, code, seq, u)
+        deriv = derivative_uuid_name(year, week_number, code, seq, u)
         results.append({
             "tile": label, "code": code, "sequence": seq, "uuid": u,
-            "original": original_uuid_name(year, week_number, code, seq, u),
-            "derivative": derivative_uuid_name(year, week_number, code, seq, u),
+            "original": orig, "derivative": deriv,
+            "original_meta": {
+                "dc:identifier": orig, "dcterms:hasVersion": f"v1-0_{u}",
+                "dc:subject": code, "state": "STEP_0_ORIGINAL",
+                "destination": "Cataloger queue",
+            },
+            "derivative_meta": {
+                "dc:identifier": deriv, "dcterms:isVersionof": f"v1-0_{u}",
+                "dc:identifier_url": orig, "dc:subject": code,
+                "state": "STEP_0_ORIGINAL", "destination": "Media Editor",
+            },
         })
-    return {"committed": results}
+
+    # Destroy unselected items from Ephemera
+    destroyed = 0
+    if all_candidates:
+        for cand in all_candidates:
+            cand_label = f"{cand.get('subject_code','TI')}_{cand.get('sequence',0):02d}"
+            if cand_label not in selected_labels:
+                key = cand.get("poster_key", "")
+                if key:
+                    try:
+                        delete_blob(BlobRef(settings.container_ephemera, key))
+                        destroyed += 1
+                    except Exception:
+                        pass
+
+    return {"committed": results, "destroyed": destroyed}
 
 
 # ---- Step 10: Cataloger catalogs originals (AI) -----------------------------
 def step10_catalog(original_asset: dict, context: str = "") -> dict:
     task = (
-        f"Catalog this asset with Dublin Core, Schema.org, Open Graph metadata.\n"
-        f"Use ISO 8601 dates (from filename only, never guess). Mark uncertain fields as needs_review.\n\n"
+        f"Catalog this asset following ALL of these standards:\n\n"
+        f"ISO 8601: dc:date must be YYYY-MM-DD from the FILENAME ONLY. If filename has no date, leave EMPTY.\n\n"
+        f"Dublin Core (15 fields):\n"
+        f"  dc:title = from filename: YYYY_W##_THEME_FILE-EXTENSION_SEQUENCE_for-HOST\n"
+        f"  dc:creator = 'Evolue Media Team' (default)\n"
+        f"  dc:subject = IPTC 3-letter code ONLY (CUL/ART/CIN/CHM/HLT/PRD/FIN/LIF/HUM)\n"
+        f"  dc:description = captions/hashtags after Copywriter approval\n"
+        f"  dc:publisher = 'Evolue Skincare Inc' (default)\n"
+        f"  dc:contributor = 'Original Creator via url of platform' (from scout)\n"
+        f"  dc:date = YYYY-MM-DD from filename only (never guess)\n"
+        f"  dc:type = StillImage|MovingImage|Sound|Text|Dataset|Software|InteractiveResource\n"
+        f"  dc:format = image/jpeg, video/mp4, etc.\n"
+        f"  dc:identifier = full filename\n"
+        f"  dc:source = URL of platform (e.g. www.pexels.com)\n"
+        f"  dc:language = 'eng' (ISO 639-3)\n"
+        f"  dc:relations = YYYY_IPTC-SUBJECT-CODE\n"
+        f"  dc:coverage = 'Global' (default)\n"
+        f"  dc:rights = '© 2026 Evolue Skincare Inc...' (default with platform name)\n\n"
+        f"IPTC Subject Codes: CUL ART CIN CHM HLT PRD FIN LIF HUM (3 letters only)\n\n"
+        f"Schema.org: Map dc:type to @type (StillImage->ImageObject, MovingImage->VideoObject, etc.)\n"
+        f"  Required: @context, @type, @id (uuidv7), name, description, contentUrl, encodingFormat\n\n"
+        f"Open Graph: og:title (<60 chars), og:type, og:image, og:description, og:url\n\n"
+        f"Mark uncertain fields as needs_review. Never invent dates, people, or claims.\n\n"
         f"Asset:\n{json.dumps(original_asset, indent=2)[:4000]}"
     )
     return run_role("cataloger", task, context)
@@ -250,14 +310,36 @@ def step15b_copy_grade(copy_output: dict, context: str = "") -> dict:
     return run_role("copy_grader", task, context)
 
 
-# ---- Step 16: Scheduler — 3 at a time Mon/Wed/Fri ---------------------------
-def step16_scheduler(*, platform: str, tile: int) -> int:
-    return tile if platform.lower() == "instagram" else 10 - tile
+# ---- Step 16: Scheduler — 3 at a time Mon/Wed/Fri, Phoenix MST ----------------
+def step16_scheduler(*, platform: str, tile: int) -> dict:
+    """Return the tile's posting schedule per the spec.
+
+    IG: tiles 1-9 forward. TT: tiles 9-1 reverse.
+    Mon: tiles 1,2,3 (IG) / 9,8,7 (TT) — 7am-9am MST
+    Wed: tiles 4,5,6 (IG) / 6,5,4 (TT) — 11am-1pm MST
+    Fri: tiles 7,8,9 (IG) / 3,2,1 (TT) — 3pm-5pm MST
+    Timezone: America/Phoenix (MST, no DST)
+    """
+    if platform.lower() == "instagram":
+        order = tile
+    else:
+        order = 10 - tile  # TikTok: 9→1
+
+    if order <= 3:
+        return {"tile": tile, "platform": platform, "order": order,
+                "day": "Monday", "window": "07:00-09:00", "timezone": "America/Phoenix"}
+    elif order <= 6:
+        return {"tile": tile, "platform": platform, "order": order,
+                "day": "Wednesday", "window": "11:00-13:00", "timezone": "America/Phoenix"}
+    else:
+        return {"tile": tile, "platform": platform, "order": order,
+                "day": "Friday", "window": "15:00-17:00", "timezone": "America/Phoenix"}
 
 
 # ---- Step 17: In-order enforcement ------------------------------------------
 def step17_in_order(*, platform: str, tile: int, approved_up_to: int) -> bool:
-    return step16_scheduler(platform=platform, tile=tile) <= approved_up_to
+    sched = step16_scheduler(platform=platform, tile=tile)
+    return sched["order"] <= approved_up_to
 
 
 # ---- Step 18/19: Published -> History; missed -> archive ---------------------
