@@ -1,14 +1,14 @@
-"""Pages router — serves the .dc.html templates."""
+"""Pages router — serves .dc.html templates with proper view models."""
 from __future__ import annotations
+from datetime import date, timedelta
 from fastapi import APIRouter, Request
 from fastapi.responses import HTMLResponse, RedirectResponse
-from evolue.domain.calendar import Week
 from evolue.infrastructure import planner_store
 from evolue.main import templates
+from evolue.ui.view_models import BRAND, CalendarWeek, StudioState, build_calendar_context, build_studio_context
 from evolue.web.routers.auth import login_redirect
 
 router = APIRouter(tags=["pages"])
-BRAND = {"company_name": "\u00c9volu\u00e9", "logo_url": "/static/brand/logo.svg"}
 
 
 def _auth(request):
@@ -17,123 +17,128 @@ def _auth(request):
     return None
 
 
-def _ctx(request, **kw):
-    base = {"request": request, "brand": BRAND}
-    base.update(kw)
-    return base
-
-
 @router.get("/calendar", response_class=HTMLResponse)
 def calendar_page(request: Request, offset: int = 0):
     r = _auth(request)
     if r: return r
-    from datetime import date
-    from evolue.domain.calendar import week_window
-    anchor = date.today()
+    today = date.today()
     store = {f"{w.year}-W{w.week_number:02d}": w for w in planner_store.list_weeks()}
     weeks = []
-    for w in week_window(anchor, count=9):
-        saved = store.get(f"{w.year}-W{w.week_number:02d}")
-        weeks.append(saved if saved else w)
-    return templates.TemplateResponse("Calendar.dc.html", _ctx(request, active_page="calendar", weeks=weeks))
+    for i in range(9):
+        d = today + timedelta(weeks=i + offset)
+        iso_d = d.isocalendar()
+        key = f"{iso_d.year}-W{iso_d.week:02d}"
+        saved = store.get(key)
+        week_start = d - timedelta(days=d.weekday())
+        weeks.append(CalendarWeek(
+            id=key, week_number=iso_d.week, year=iso_d.year,
+            theme=saved.theme if saved else "",
+            week_start=week_start, week_end=week_start + timedelta(days=6),
+            planning_week_number=iso_d.week,
+        ))
+    return templates.TemplateResponse("Calendar.dc.html", build_calendar_context(weeks, request))
+
+
+@router.get("/studio", response_class=HTMLResponse)
+def studio_page(request: Request, week: int = 0):
+    r = _auth(request)
+    if r: return r
+    today = date.today()
+    week_no = week or today.isocalendar().week
+    saved = planner_store.get_week(today.year, week_no)
+    return templates.TemplateResponse("Studio.dc.html",
+        build_studio_context(request, week_no=week_no, theme=saved.theme if saved else "", year=today.year))
 
 
 @router.get("/week", response_class=HTMLResponse)
 def week_page(request: Request):
     r = _auth(request)
     if r: return r
-    from datetime import date
+    from evolue.domain.calendar import Week
     today = date.today()
     week = planner_store.get_week(today.year, today.isocalendar().week) or Week(year=today.year, week_number=today.isocalendar().week)
-    return templates.TemplateResponse("Week.dc.html", _ctx(request, active_page="week", week=week))
+    return templates.TemplateResponse("Week.dc.html", {"request": request, "brand": BRAND, "week": week})
 
 
 @router.get("/post", response_class=HTMLResponse)
 def post_page(request: Request):
     r = _auth(request)
     if r: return r
-    return templates.TemplateResponse("Post.dc.html", _ctx(request, active_page="post"))
+    return templates.TemplateResponse("Post.dc.html", {"request": request, "brand": BRAND})
 
 
 @router.get("/media-editor", response_class=HTMLResponse)
 def media_editor_page(request: Request):
     r = _auth(request)
     if r: return r
-    return templates.TemplateResponse("MediaEditor.dc.html", _ctx(request, active_page="media_editor"))
-
-
-@router.get("/studio", response_class=HTMLResponse)
-def studio_page(request: Request):
-    r = _auth(request)
-    if r: return r
-    return templates.TemplateResponse("Studio.dc.html", _ctx(request, active_page="studio", state={}))
+    return templates.TemplateResponse("MediaEditor.dc.html", {"request": request, "brand": BRAND})
 
 
 @router.get("/library", response_class=HTMLResponse)
 def library_page(request: Request):
     r = _auth(request)
     if r: return r
-    return templates.TemplateResponse("Library.dc.html", _ctx(request, active_page="library"))
+    return templates.TemplateResponse("Library.dc.html", {"request": request, "brand": BRAND})
 
 
 @router.get("/library/reviews", response_class=HTMLResponse)
 def library_reviews_page(request: Request):
     r = _auth(request)
     if r: return r
-    return templates.TemplateResponse("LibraryReviews.dc.html", _ctx(request, active_page="reviews"))
+    return templates.TemplateResponse("LibraryReviews.dc.html", {"request": request, "brand": BRAND})
 
 
 @router.get("/approvals", response_class=HTMLResponse)
 def approvals_page(request: Request):
     r = _auth(request)
     if r: return r
-    return templates.TemplateResponse("Approvals.dc.html", _ctx(request, active_page="approvals"))
+    return templates.TemplateResponse("Approvals.dc.html", {"request": request, "brand": BRAND})
 
 
 @router.get("/publishing", response_class=HTMLResponse)
 def publishing_page(request: Request):
     r = _auth(request)
     if r: return r
-    return templates.TemplateResponse("Publishing.dc.html", _ctx(request, active_page="publishing"))
+    return templates.TemplateResponse("Publishing.dc.html", {"request": request, "brand": BRAND})
 
 
 @router.get("/history", response_class=HTMLResponse)
 def history_page(request: Request):
     r = _auth(request)
     if r: return r
-    return templates.TemplateResponse("History.dc.html", _ctx(request, active_page="history"))
+    return templates.TemplateResponse("History.dc.html", {"request": request, "brand": BRAND})
 
 
 @router.get("/history/{post_id}", response_class=HTMLResponse)
 def history_detail_page(request: Request, post_id: str):
     r = _auth(request)
     if r: return r
-    return templates.TemplateResponse("HistoryDetail.dc.html", _ctx(request, active_page="history", post_id=post_id))
+    return templates.TemplateResponse("HistoryDetail.dc.html", {"request": request, "brand": BRAND, "post_id": post_id})
 
 
 @router.get("/settings/brand", response_class=HTMLResponse)
 def brand_settings_page(request: Request):
     r = _auth(request)
     if r: return r
-    return templates.TemplateResponse("BrandSettings.dc.html", _ctx(request, active_page="brand_settings"))
+    return templates.TemplateResponse("BrandSettings.dc.html", {"request": request, "brand": BRAND})
 
 
 @router.get("/subjects", response_class=HTMLResponse)
 def subjects_page(request: Request):
     r = _auth(request)
     if r: return r
-    return templates.TemplateResponse("Subjects.dc.html", _ctx(request, active_page="subjects"))
+    return templates.TemplateResponse("Subjects.dc.html", {"request": request, "brand": BRAND})
 
 
 @router.get("/shared-room", response_class=HTMLResponse)
 def shared_room_page(request: Request):
     r = _auth(request)
     if r: return r
-    return templates.TemplateResponse("SharedRoom.dc.html", _ctx(request, active_page="shared_room"))
+    return templates.TemplateResponse("SharedRoom.dc.html", {"request": request, "brand": BRAND})
 
 
 @router.get("/shared-library", response_class=HTMLResponse)
 def shared_library_page(request: Request):
     r = _auth(request)
     if r: return r
-    return templates.TemplateResponse("SharedLibrary.dc.html", _ctx(request, active_page="shared_library"))
+    return templates.TemplateResponse("SharedLibrary.dc.html", {"request": request, "brand": BRAND})
