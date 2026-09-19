@@ -25,6 +25,10 @@ bunbuns/
 ephemera/
 data/
 
+# owner spec content (not code)
+"*Steps of Evolue*"
+"*Steps*"
+
 # IDE / caches
 .vscode/
 .pytest_cache/

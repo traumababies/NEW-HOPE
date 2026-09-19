@@ -14,6 +14,8 @@ from dataclasses import dataclass, field
 from datetime import date
 from typing import Literal
 
+from evolue.domain.naming import tile_label as _tile_label
+
 Approval = Literal["pending", "approved", "rejected", "replaced"]
 
 
@@ -27,8 +29,8 @@ class Tile:
     source: str = ""      # scout | muse | generated | owner_upload
 
     def label(self) -> str:
-        # Top-right corner format: IPTC-Subject-Code_Sequence##
-        return f"{self.iptc_code}_{self.sequence:02d}"
+        # Top-right corner format: IPTC-Subject-Code_Sequence## (TI01..TI09 for theme image)
+        return _tile_label(self.iptc_code, self.sequence)
 
 
 @dataclass
