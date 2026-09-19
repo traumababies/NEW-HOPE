@@ -38,7 +38,7 @@ ROLE_SUPPLEMENTARY: dict[str, list[tuple[str, str]]] = {
     ],
     "muse": [("", "OPERATING-CONTEXT.md")],
     "cataloger": [
-        ("Cataloging Detailed Instructions", "SCHEMA-ORG-JSON-LD-CATALOG-STANDARD.md"),
+        ("Cataloging Detailed Instructions/CATALOGING", "SCHEMA-ORG-JSON-LD-CATALOG-STANDARD.md"),
     ],
 }
 
