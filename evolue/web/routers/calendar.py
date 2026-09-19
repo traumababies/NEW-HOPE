@@ -12,6 +12,7 @@ from fastapi.responses import HTMLResponse, RedirectResponse
 
 from evolue.domain.calendar import Week, week_window
 from evolue.infrastructure import planner_store
+from evolue.main import templates
 from evolue.web.routers.auth import login_redirect
 
 router = APIRouter(prefix="", tags=["calendar"])
@@ -38,7 +39,11 @@ def calendar_page(request: Request, offset: int = 0):
         saved = store_by_key.get(f"{w.year}-W{w.week_number:02d}")
         window.append(saved if saved else w)
 
-    return HTMLResponse(render_calendar(window))
+    return templates.TemplateResponse("calendar.html", {
+        "request": request,
+        "weeks": window,
+        "active_nav": "calendar",
+    })
 
 
 def render_calendar(weeks: list[Week]) -> str:
@@ -69,6 +74,8 @@ def render_calendar(weeks: list[Week]) -> str:
     return f"""<!doctype html><html lang="en"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Calendar · Évolué</title>
+<link rel="stylesheet" href="/static/ui.css">
+<link rel="stylesheet" href="/static/godzilla.css">
 <style>
   :root{{--ink:#7A8084;--muted:#8B9195;--quiet:#A9AEB2;--line:#CDD1D4;--green:#dfeee2;--green-ink:#3f6b4a}}
   *{{box-sizing:border-box}}html,body{{margin:0;background:#fff;color:var(--ink);font-family:"Jost","Segoe UI",sans-serif}}
@@ -104,3 +111,15 @@ def save_week_theme(request: Request, year: int, week_number: int, theme: str = 
     week.theme = theme.strip()
     planner_store.save_week(week)
     return RedirectResponse("/calendar", status_code=303)
+
+
+@router.get("/weeks/{year}/{week_number}", response_class=HTMLResponse)
+def week_detail(request: Request, year: int, week_number: int):
+    if login_redirect(request):
+        return RedirectResponse("/login", status_code=303)
+    week = planner_store.get_week(year, week_number) or Week(year=year, week_number=week_number)
+    return templates.TemplateResponse("week.html", {
+        "request": request,
+        "week": week,
+        "active_nav": "calendar",
+    })

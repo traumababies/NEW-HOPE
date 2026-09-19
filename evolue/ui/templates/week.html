@@ -1,0 +1,80 @@
+{% extends "base.html" %}
+{% block title %}Week {{ week.week_number }} · Évolué{% endblock %}
+
+{% block content %}
+<div class="crumb">
+  <span>Week {{ week.week_number }} · {{ week.start }} – {{ week.end }}</span>
+  <a href="/calendar" class="btn sm">← Calendar</a>
+</div>
+
+<h1>{{ week.theme or 'Set Theme' }}</h1>
+<p class="sub">{{ week.start }} – {{ week.end }} · {{ week.status }}</p>
+
+<div class="panel">
+  <div class="panel-title">Theme</div>
+  <form method="post" action="/weeks/{{ week.year }}/{{ week.week_number }}/theme">
+    <div class="field">
+      <label>Weekly Theme</label>
+      <input type="text" name="theme" value="{{ week.theme }}" placeholder="e.g. Golden Hour" required>
+    </div>
+    <button type="submit" class="btn primary">Save Theme</button>
+  </form>
+</div>
+
+{% if week.theme %}
+<div class="panel">
+  <div class="panel-title">Creative Brief Pipeline</div>
+  <p style="margin:0 0 14px;font-size:13px;color:var(--muted)">
+    Run the AI pipeline: Creative Director → Current Events → Fact Check → Validator → Graders.
+  </p>
+  <button class="btn primary" id="btnRunPipeline" onclick="runPipeline()">
+    🎬 Generate Creative Brief
+  </button>
+  <div id="pipelineStatus" style="margin-top:14px;font-size:13px;"></div>
+</div>
+
+<div class="panel" id="briefPanel" style="display:none;">
+  <div class="panel-title">Creative Brief Result</div>
+  <pre id="briefOutput" style="white-space:pre-wrap;font-size:12px;max-height:400px;overflow:auto;background:#fff;padding:12px;border:1px solid var(--line);border-radius:6px;"></pre>
+</div>
+{% endif %}
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+async function runPipeline() {
+  const btn = document.getElementById('btnRunPipeline');
+  const status = document.getElementById('pipelineStatus');
+  const briefPanel = document.getElementById('briefPanel');
+  const briefOutput = document.getElementById('briefOutput');
+  btn.disabled = true;
+  btn.textContent = '⏳ Running...';
+  status.innerHTML = '<span class="badge warn">Creative Director thinking...</span>';
+
+  try {
+    const resp = await fetch('/api/ai/brief/compose', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({
+        year: {{ week.year }},
+        week_number: {{ week.week_number }},
+        theme: '{{ week.theme }}',
+      }),
+    });
+    if (!resp.ok) throw new Error(await resp.text());
+    const data = await resp.json();
+    status.innerHTML = '<span class="badge ok">Brief generated via ' + data.provider_used + '</span>';
+    briefPanel.style.display = 'block';
+    briefOutput.textContent = JSON.stringify(data.result, null, 2);
+  } catch (e) {
+    status.innerHTML = '<span class="badge err">Error: ' + e.message + '</span>';
+  } finally {
+    btn.disabled = false;
+    btn.textContent = '🎬 Generate Creative Brief';
+  }
+}
+</script>
+{% endblock %}
+
+{% block footer_right %}Week {{ week.week_number }}{% endblock %}

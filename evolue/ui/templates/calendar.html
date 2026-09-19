@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% block title %}Calendar · Évolué{% endblock %}
+
+{% block content %}
+<div class="crumb">
+  <span>Calendar · owned by Jean</span>
+</div>
+
+<h1>Calendar</h1>
+<p class="sub">Plan up to 52 weeks ahead. Green tiles = approved and queued for publishing.</p>
+
+<div class="week-grid">
+  {% for w in weeks %}
+  <div class="week-card">
+    <div class="week-head">
+      <b><a href="/weeks/{{ w.year }}/{{ w.week_number }}">WEEK {{ w.week_number }}</a></b>
+      <span class="badge {{ 'ok' if w.status == 'tiles_approved' else 'warn' }}">{{ w.status }}</span>
+    </div>
+    <div class="week-title">{{ w.theme or '—' }}</div>
+    <div class="tiles">
+      {% for i in range(1, 10) %}
+      <div class="tile {{ 'approved' if i in w.approved_tiles else '' }}" data-t="{{ i }}">
+        <span class="no">{{ i }}</span>
+        {% if i in w.approved_tiles %}
+        <span class="check">
+          <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="3">
+            <path d="M5 13l4 4L19 7"/>
+          </svg>
+        </span>
+        {% endif %}
+      </div>
+      {% endfor %}
+    </div>
+    <div class="week-foot">{{ w.approved_tiles | length }} of 9 tiles approved</div>
+  </div>
+  {% endfor %}
+</div>
+{% endblock %}
+
+{% block footer_right %}Calendar{% endblock %}

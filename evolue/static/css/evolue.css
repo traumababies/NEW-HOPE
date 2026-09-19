@@ -1,0 +1,122 @@
+/* Évolué Media Team — shared design system.
+   Fonts: Jost (body) + Archivo (labels).
+   Rail: 1080px, 24px gutters. All pages inherit via base.html.
+*/
+@import url("https://fonts.googleapis.com/css2?family=Jost:wght@200;300;400;500;600;700;800&family=Archivo:wght@500;600;700&display=swap");
+
+:root {
+  --ink: #7A8084;
+  --muted: #8B9195;
+  --quiet: #A9AEB2;
+  --line: #CDD1D4;
+  --soft: #eef2f5;
+  --white: #fff;
+  --green: #dfeee2;
+  --green-line: #c3ddc9;
+  --green-ink: #3f6b4a;
+  --pink: #f9eff2;
+  --pink-line: #f0d8df;
+  --pink-ink: #7b4d55;
+  --amber: #f4ecd6;
+  --amber-line: #ecdcae;
+  --amber-ink: #8a6b23;
+  --rail: 1080px;
+  --rail-pad: 24px;
+}
+
+
+/* ---- Header & Nav ---- */
+.header { position: sticky; top: 0; z-index: 20; border-bottom: 1px solid var(--line); background: rgba(255,255,255,.96); backdrop-filter: blur(8px); }
+.header-inner { max-width: var(--rail); height: 74px; margin: auto; padding: 0 var(--rail-pad); display: flex; align-items: center; justify-content: space-between; gap: 32px; }
+.brand { font-size: 26px; font-weight: 200; letter-spacing: .02em; }
+.brand img { display: block; max-width: 180px; height: 38px; object-fit: contain; }
+.nav { display: flex; overflow-x: auto; align-items: center; gap: 4px; }
+.nav a { padding: 10px 14px; color: #8f969b; font: 500 11px "Archivo", sans-serif; letter-spacing: .18em; text-transform: uppercase; white-space: nowrap; }
+.nav a:hover { color: var(--ink); }
+.nav .active { border-bottom: 2px solid var(--ink); color: var(--ink); }
+
+/* ---- Page Rail ---- */
+body > main, body > .page { max-width: var(--rail) !important; margin-left: auto !important; margin-right: auto !important; padding-left: var(--rail-pad) !important; padding-right: var(--rail-pad) !important; }
+body > footer { max-width: var(--rail) !important; margin: auto; padding: 26px var(--rail-pad); border-top: 1px solid var(--line); }
+
+/* ---- Typography ---- */
+h1 { font-weight: 200; font-size: clamp(40px, 5vw, 56px); line-height: 1.1; margin: 0 0 8px; }
+h2 { font-weight: 300; font-size: 28px; margin: 0 0 6px; }
+h3 { font-weight: 400; font-size: 20px; margin: 0 0 4px; }
+.sub { color: var(--muted); font-size: 13px; margin-bottom: 30px; }
+.eyebrow { font: 600 10px "Archivo", sans-serif; letter-spacing: .2em; text-transform: uppercase; color: var(--quiet); }
+.label { font: 500 10px "Archivo", sans-serif; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); }
+
+/* ---- Crumb bar ---- */
+.crumb { display: flex; justify-content: space-between; gap: 20px; padding-bottom: 18px; border-bottom: 1px solid var(--line); color: var(--quiet); font-size: 10px; letter-spacing: .18em; text-transform: uppercase; }
+
+/* ---- Week Grid (3-col) ---- */
+.week-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+.week-card { border: 1px solid var(--line); background: var(--soft); min-width: 0; }
+.week-head { display: flex; align-items: center; justify-content: space-between; padding: 12px 14px; border-bottom: 1px solid var(--line); }
+.week-head b { font: 600 10px "Archivo", sans-serif; letter-spacing: .14em; text-transform: uppercase; }
+.week-title { padding: 12px 14px; font-size: 18px; font-weight: 300; line-height: 1.4; min-height: 64px; }
+.week-foot { padding: 9px 14px; color: var(--quiet); font: 500 9px "Archivo", sans-serif; letter-spacing: .12em; text-transform: uppercase; }
+
+/* ---- Tiles (3×3 grid inside week cards) ---- */
+.tiles { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0; border-top: 1px solid var(--line); }
+.tile { aspect-ratio: 4/5; border-right: 1px solid var(--line); border-bottom: 1px solid var(--line); position: relative; display: flex; align-items: center; justify-content: center; font: 600 8px "Archivo", sans-serif; letter-spacing: .1em; cursor: default; }
+.tile:nth-child(3n) { border-right: 0; }
+.tile.approved { background: var(--green); color: var(--green-ink); }
+.tile.approved .check { position: absolute; top: 6px; right: 7px; width: 16px; height: 16px; border-radius: 50%; background: #fff; display: flex; align-items: center; justify-content: center; }
+.tile .no { position: absolute; bottom: 6px; left: 7px; }
+
+*, *::before, *::after { box-sizing: border-box; }
+html, body { margin: 0; background: #fff; color: var(--ink); font-family: "Jost", "Segoe UI", sans-serif; font-size: 14px; line-height: 1.5; }
+a { color: inherit; text-decoration: none; }
+button, input, textarea, select { font-family: inherit; font-size: inherit; }
+:focus-visible { outline: none; outline-offset: 0; }
+
+
+/* ---- Buttons ---- */
+.btn { display: inline-flex; align-items: center; justify-content: center; padding: 10px 13px; border: 1px solid var(--ink); background: #ebedf0; color: var(--ink); font: 600 11px "Archivo", sans-serif; letter-spacing: .15em; text-transform: uppercase; border-radius: 6px; cursor: pointer; transition: background .15s; }
+.btn:hover { background: #dfe2e6; }
+.btn.primary { background: var(--green); border-color: var(--green-line); color: var(--green-ink); }
+.btn.primary:hover { background: #c8e4cd; }
+.btn.danger { background: var(--pink); border-color: var(--pink-line); color: var(--pink-ink); }
+.btn:disabled { opacity: .5; cursor: not-allowed; }
+.btn.sm { padding: 7px 10px; font-size: 9px; }
+
+/* ---- Panels ---- */
+.panel { border: 1px solid var(--line); background: var(--soft); padding: 20px; margin-bottom: 16px; }
+.panel-title { font: 600 10px "Archivo", sans-serif; letter-spacing: .14em; text-transform: uppercase; color: var(--muted); margin-bottom: 12px; }
+
+/* ---- Status badges ---- */
+.badge { display: inline-block; padding: 3px 8px; border-radius: 999px; font: 600 9px "Archivo", sans-serif; letter-spacing: .1em; text-transform: uppercase; }
+.badge.ok { background: var(--green); color: var(--green-ink); }
+.badge.warn { background: var(--amber); color: var(--amber-ink); }
+.badge.err { background: var(--pink); color: var(--pink-ink); }
+
+/* ---- Forms ---- */
+.field { margin-bottom: 14px; }
+.field label { display: block; font: 500 10px "Archivo", sans-serif; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); margin-bottom: 5px; }
+.field input, .field textarea, .field select { width: 100%; padding: 10px 12px; border: 1px solid var(--line); border-radius: 6px; font-size: 14px; background: #fff; }
+.field input:focus, .field textarea:focus, .field select:focus { border-color: var(--ink); }
+
+/* ---- AI Team Panel (sidebar) ---- */
+.ai-panel { position: fixed; right: 0; top: 74px; bottom: 0; width: 320px; background: var(--soft); border-left: 1px solid var(--line); overflow-y: auto; padding: 16px; z-index: 15; transform: translateX(100%); transition: transform .25s ease; }
+.ai-panel.open { transform: translateX(0); }
+.ai-panel-toggle { position: fixed; right: 16px; bottom: 16px; z-index: 16; width: 44px; height: 44px; border-radius: 50%; border: 1px solid var(--line); background: #fff; font-size: 18px; cursor: pointer; box-shadow: 0 4px 12px rgba(0,0,0,.08); }
+.ai-panel h3 { font-size: 14px; font-weight: 500; margin: 0 0 10px; }
+.ai-item { padding: 8px 10px; border: 1px solid var(--line); background: #fff; margin-bottom: 6px; font-size: 12px; }
+.ai-item .ai-role { font: 600 9px "Archivo", sans-serif; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); }
+
+/* ---- Footer ---- */
+footer { display: flex; justify-content: space-between; color: #b4babe; font: 500 10px "Archivo", sans-serif; letter-spacing: .2em; text-transform: uppercase; }
+
+/* ---- Responsive ---- */
+@media (max-width: 760px) {
+  .header-inner { padding: 14px 20px; align-items: flex-start; flex-direction: column; gap: 8px; }
+  .nav { width: 100%; max-width: 100% !important; padding-bottom: 5px; overflow-x: auto; }
+  .nav a { padding: 8px 9px; font-size: 9px; }
+  .week-grid { grid-template-columns: 1fr; }
+  .ai-panel { width: 100%; }
+}
+@media (max-width: 420px) {
+  :root { --rail-pad: 14px; }
+}
