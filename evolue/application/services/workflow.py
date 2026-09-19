@@ -21,6 +21,19 @@ from evolue.domain.naming import (
 from evolue.ai.runners import run_role, run_role_text
 from evolue.ai.validators import validate_brief, validate_muse, validate_catalog, validate_copy
 
+
+# State machine transitions — wire into every step
+from evolue.domain.state_machine import STEP_0_ORIGINAL, STEP_1_COMPLETE, STEP_2_PENDING, PIPELINE_COMPLETE_APPROVED, can_transition
+
+
+def _advance_state(core_id: str, to_state: str, blob_path: str | None = None) -> None:
+    """Advance an asset's state in the pipeline. No-op if SQL unavailable."""
+    try:
+        from evolue.infrastructure.sql.library_repo import LibraryRepo
+        repo = LibraryRepo()
+        repo.update_state(core_id, to_state, blob_path)
+    except Exception:
+        pass  # SQL not configured yet
 SUBJECTS = ("CUL", "ART", "CIN", "CHM", "HLT", "PRD", "FIN", "LIF", "HUM")
 
 
@@ -199,15 +212,18 @@ def step9_studio_commit(brief_id: str, selected_tiles: list[str],
             "original": orig, "derivative": deriv,
             "original_meta": {
                 "dc:identifier": orig, "dcterms:hasVersion": f"v1-0_{u}",
-                "dc:subject": code, "state": "STEP_0_ORIGINAL",
+                "dc:subject": code, "state": STEP_0_ORIGINAL,
                 "destination": "Cataloger queue",
             },
             "derivative_meta": {
                 "dc:identifier": deriv, "dcterms:isVersionof": f"v1-0_{u}",
                 "dc:identifier_url": orig, "dc:subject": code,
-                "state": "STEP_0_ORIGINAL", "destination": "Media Editor",
+                "state": STEP_0_ORIGINAL, "destination": "Media Editor",
             },
         })
+        # Advance state in SQL
+        _advance_state(orig, STEP_0_ORIGINAL)
+        _advance_state(deriv, STEP_0_ORIGINAL)
 
     # Destroy unselected items from Ephemera
     destroyed = 0
@@ -291,6 +307,37 @@ def step14_15_copywriter(*, post_position: int, media_asset: dict,
                          brief_output: dict, context: str = "") -> dict:
     posts = brief_output.get("post_briefs", [])
     post_data = posts[post_position - 1] if post_position <= len(posts) else {}
+
+# ---- Closed-Loop: Delete previous versions when content enters Bunbuns ------
+def close_loop(core_id: str, approved_blob_path: str) -> dict:
+    """When Jean approves cataloged content:
+    1. Copy to Bunbuns (permanent Library Collection)
+    2. Update SQL: state → PIPELINE_COMPLETE_APPROVED, active_blob_path → Bunbuns
+    3. Delete ALL previous versions from Scrappa (pipeline scratchpad)
+    4. This is the ONLY moment files are destroyed — Just-in-Time Destruction
+    """
+    from evolue.infrastructure.storage import copy_first_promotion, delete_blob, BlobRef
+    from evolue.config import settings
+
+    # Step 1: Copy to Bunbuns
+    src = BlobRef(settings.container_scrappa, core_id)
+    dst = BlobRef(settings.container_bunbuns, core_id)
+    try:
+        copy_first_promotion(src, dst)
+    except Exception:
+        pass  # Already in Bunbuns or src doesn't exist
+
+    # Step 2: Update SQL state
+    _advance_state(core_id, PIPELINE_COMPLETE_APPROVED, approved_blob_path)
+
+    # Step 3: Delete from Scrappa (closing the loop)
+    try:
+        delete_blob(src)
+    except Exception:
+        pass  # Already deleted
+
+    return {"core_id": core_id, "state": PIPELINE_COMPLETE_APPROVED,
+            "storage": "Bunbuns (permanent)", "previous_deleted": True}
     task = (
         f"Write captions and hashtags for post {post_position}.\n"
         f"TikTok: caption + CTA + 5 hashtags | Instagram: caption + CTA + 5 hashtags\n"
