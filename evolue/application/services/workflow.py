@@ -234,9 +234,13 @@ def step9_studio_commit(brief: WeeklyBrief, selected_tiles: list[str]) -> dict:
     results = []
     SUBJECTS = ("ART", "CHM", "CIN", "CUL", "FIN", "HLT", "HUM", "LIF", "PRD")
     for label in selected_tiles:
-        code = label.split("_")[0] if label.split("_")[0] in SUBJECTS else "TI"
-        seq_str = label.split("_")[-1] if "_" in label else "0"
-        seq = int(seq_str or 0) if seq_str.isdigit() else 0
+        head = label.split("_")[0]
+        if head in SUBJECTS:
+            code, seq_str = head, label.split("_")[-1]
+        else:
+            # Theme-image tile: TI01..TI09 (no underscore)
+            code, seq_str = "TI", label[2:] if label.upper().startswith("TI") else label
+        seq = int(seq_str) if seq_str.isdigit() else 0
         u = uuid.uuid4().hex
         results.append({
             "tile": label,
