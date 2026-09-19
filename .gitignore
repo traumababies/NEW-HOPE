@@ -1,0 +1,36 @@
+# .gitignore
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+*.egg-info/
+
+# env / secrets
+.env
+.env.*
+!.env.example
+
+# logs / scratch
+*.log
+*.out2.*
+*.out3.*
+server.out2.log
+server.out3.log
+
+# storage & data
+storage/
+*.sqlite3
+scrappa/
+bunbuns/
+ephemera/
+
+# IDE / caches
+.vscode/
+.pytest_cache/
+.mypy_cache/
+.DS_Store
+
+# deployment scratch
+node_modules/
+dist/
+build/
