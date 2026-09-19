@@ -28,8 +28,15 @@ def _service():
     # Lazy import so the app can boot without Azure credentials installed.
     from azure.storage.blob import BlobServiceClient
 
+    if settings.azure_storage_connection_string:
+        return BlobServiceClient.from_connection_string(settings.azure_storage_connection_string)
     if settings.azure_blob_conn_str:
         return BlobServiceClient.from_connection_string(settings.azure_blob_conn_str)
+    if settings.azure_storage_account_url:
+        return BlobServiceClient(
+            account_url=settings.azure_storage_account_url,
+            credential=settings.azure_blob_key or None,
+        )
     return BlobServiceClient(
         account_url=f"https://{settings.azure_blob_account}.blob.core.windows.net",
         credential=settings.azure_blob_key or None,
@@ -44,10 +51,12 @@ def _ensure_container(service, container: str) -> None:
 
 
 def put_blob(blob: BlobRef, data: bytes, content_type: str = "application/octet-stream") -> None:
+    from azure.storage.blob import ContentSettings
+
     service = _service()
     _ensure_container(service, blob.container)
     service.get_blob_client(container=blob.container, blob=blob.key).upload_blob(
-        data, overwrite=True, content_settings={"content_type": content_type}
+        data, overwrite=True, content_settings=ContentSettings(content_type=content_type)
     )
 
 
@@ -71,21 +80,50 @@ def mirage_url(blob: BlobRef, ttl_minutes: int = 60) -> str:
     """Short-lived read-only SAS URL ("mirage") for streaming to a browser."""
     from datetime import datetime, timedelta, timezone
 
-    from azure.storage.blob import generate_blob_sas, BlobSasPermissions
+    from azure.storage.blob import BlobSasPermissions, generate_blob_sas
 
-    expiry = datetime.now(timezone.utc) + timedelta(minutes=ttl_minutes)
-    token = generate_blob_sas(
-        account_name=settings.azure_blob_account,
-        account_key=settings.azure_blob_key,
-        container_name=blob.container,
-        blob_name=blob.key,
-        permission=BlobSasPermissions(read=True),
-        expiry=expiry,
-    )
+    key = settings.azure_blob_key or _key_from_conn_str(settings.azure_storage_connection_string)
+    account = settings.azure_blob_account
+    if not key:
+        # Fall back to a user-delegation-key SAS when only a connection string is known.
+        from azure.storage.blob import BlobServiceClient
+
+        service = _service()
+        delegation_key = service.get_user_delegation_key(
+            datetime.now(timezone.utc) - timedelta(minutes=5),
+            datetime.now(timezone.utc) + timedelta(hours=1),
+        )
+        token = generate_blob_sas(
+            account_name=service.account_name,
+            container_name=blob.container,
+            blob_name=blob.key,
+            permission=BlobSasPermissions(read=True),
+            expiry=datetime.now(timezone.utc) + timedelta(minutes=ttl_minutes),
+            user_delegation_key=delegation_key,
+        )
+        account = service.account_name
+    else:
+        token = generate_blob_sas(
+            account_name=account,
+            account_key=key,
+            container_name=blob.container,
+            blob_name=blob.key,
+            permission=BlobSasPermissions(read=True),
+            expiry=datetime.now(timezone.utc) + timedelta(minutes=ttl_minutes),
+        )
     return (
-        f"https://{settings.azure_blob_account}.blob.core.windows.net/"
+        f"https://{account}.blob.core.windows.net/"
         f"{blob.container}/{blob.key}?{token}"
     )
+
+
+def _key_from_conn_str(conn_str: str) -> str:
+    if not conn_str:
+        return ""
+    for part in conn_str.split(";"):
+        if part.lower().startswith("accountkey="):
+            return part.split("=", 1)[1]
+    return ""
 
 
 def copy_first_promotion(src: BlobRef, dst: BlobRef) -> None:

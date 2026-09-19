@@ -31,6 +31,10 @@ class Settings(BaseSettings):
     azure_blob_account: str = "godzilla1126"
     azure_blob_key: str = ""
     azure_blob_conn_str: str = ""
+    azure_storage_account_url: str = ""          # from .env AZURE_STORAGE_ACCOUNT_URL
+    azure_storage_connection_string: str = ""    # from .env AZURE_STORAGE_CONNECTION_STRING
+    azure_storage_container: str = "bunbuns"     # from .env AZURE_STORAGE_CONTAINER
+    azure_storage_container_ephemera: str = "ephemera"
 
     # Containers (the three distinct roles from the spec) ------------------
     container_bunbuns: str = "bunbuns"      # permanent Library
