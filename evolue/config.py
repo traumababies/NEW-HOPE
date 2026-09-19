@@ -66,6 +66,14 @@ class Settings(BaseSettings):
     max_redo_attempts: int = 2
     timezone: str = "America/Phoenix"
 
+    # JAN override passwords (per phase; owner-set, never committed) ---------
+    jan_override_creative_brief: str = ""
+    jan_override_muse: str = ""
+    jan_override_scout: str = ""
+    jan_override_catalog: str = ""
+    jan_override_media_editor: str = ""
+    jan_override_copywriter: str = ""
+
 
 @lru_cache
 def get_settings() -> Settings:

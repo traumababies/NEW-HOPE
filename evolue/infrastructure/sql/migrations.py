@@ -28,21 +28,18 @@ _MIGRATIONS: dict[str, callable] = {
         """
         CREATE TABLE asset_index (
             id              BIGINT IDENTITY(1,1) PRIMARY KEY,
-            -- Core identifier until Studio COMMIT, then UUID-bearing (spec G.8.a.i)
-            core_identifier NVARCHAR(500) NOT NULL,          -- YYYY_W##_IPTC-Subject-Codes-Sequence
-            uuid7           NVARCHAR(64) NULL,               -- injected by UPDATE at Studio COMMIT
+            core_identifier NVARCHAR(500) NOT NULL,
+            uuid7           NVARCHAR(64) NULL,
             creation_year   INT NULL,
             week_number     INT NULL,
             iptc_code       NVARCHAR(3) NULL,
             theme           NVARCHAR(500) NULL,
             sequence_no     INT NULL,
-            host            NVARCHAR(20) NULL,               -- ig / tt / ig-tt
+            host            NVARCHAR(20) NULL,
             file_extension  NVARCHAR(20) NULL,
-            -- State machine (spec G.8.a.iii)
             current_state   NVARCHAR(40) NOT NULL DEFAULT 'STEP_0_ORIGINAL',
             active_blob_path NVARCHAR(1000) NULL,
             asset_version   NVARCHAR(20) NULL DEFAULT 'v1-0',
-            -- Dublin Core
             dc_title        NVARCHAR(500) NULL,
             dc_creator      NVARCHAR(200) NULL,
             dc_subject      NVARCHAR(3) NULL,
@@ -58,12 +55,39 @@ _MIGRATIONS: dict[str, callable] = {
             dc_relations    NVARCHAR(500) NULL,
             dc_coverage     NVARCHAR(50) NULL DEFAULT 'Global',
             dc_rights       NVARCHAR(1000) NULL,
-            -- DM Tookit
             date_created    DATETIME2 DEFAULT SYSDATETIME(),
             last_modified   DATETIME2 DEFAULT SYSDATETIME(),
             INDEX ix_asset_core (core_identifier),
             INDEX ix_asset_state (current_state),
-            INDEX ix_asset_week (id, week_number)
+            INDEX ix_asset_week (week_number)
+        )
+        """
+    ),
+    "002_catalog_queue.sql": lambda: execute(
+        """
+        CREATE TABLE catalog_queue (
+            id          BIGINT IDENTITY(1,1) PRIMARY KEY,
+            asset_id    BIGINT NOT NULL,
+            iptc_code   NVARCHAR(3) NOT NULL,
+            status      NVARCHAR(20) NOT NULL DEFAULT 'pending',  -- pending | reviewed
+            reviewed_by NVARCHAR(200) NULL,
+            reviewed_at DATETIME2 NULL,
+            created_at  DATETIME2 DEFAULT SYSDATETIME()
+        )
+        """
+    ),
+    "003_jan_requests.sql": lambda: execute(
+        """
+        CREATE TABLE jan_requests (
+            id          BIGINT IDENTITY(1,1) PRIMARY KEY,
+            phase       NVARCHAR(40) NOT NULL,           -- creative_brief | muse | scout | catalog | media_editor | copywriter
+            entity_type NVARCHAR(40) NULL,               -- week | post | asset | proposal
+            entity_id   NVARCHAR(64) NULL,
+            requested_by NVARCHAR(200) NULL,
+            status      NVARCHAR(20) NOT NULL DEFAULT 'pending',  -- pending | approved | rejected | replaced | overridden
+            decision_note NVARCHAR(MAX) NULL,
+            requested_at DATETIME2 DEFAULT SYSDATETIME(),
+            decided_at   DATETIME2 NULL
         )
         """
     ),
