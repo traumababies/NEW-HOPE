@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Approvals · {{ brand.company_name }}</title>
+  <link rel="stylesheet" href="/static/ui-system.css">
+  <link rel="stylesheet" href="/static/godzilla-companion.css">
+  <script src="/static/ui-navigation.js" defer></script>
+  <script src="/static/godzilla-companion.js" defer></script>
+  <style>
+    :root{--ink:#7A8084;--muted:#8B9195;--quiet:#A9AEB2;--line:#CDD1D4;--soft:#fafbfb;--pink:#f9eff2;--pink-line:#f0d8df;--pink-ink:#7b4d55;--green:#dfeee2;--green-line:#c3ddc9;--green-ink:#3f6b4a;--amber:#fbf1d5;--amber-line:#ecdcae;--amber-ink:#8a6b23}
+    *{box-sizing:border-box}html,body{margin:0;background:#fff;color:var(--ink);font-family:"Jost","Segoe UI",sans-serif}a{color:inherit;text-decoration:none}button,input,textarea{font:inherit}
+    .header{position:sticky;top:0;z-index:20;border-bottom:1px solid #e0e7ec;background:rgba(255,255,255,.96);backdrop-filter:blur(8px)}.header-inner{max-width:1400px;height:74px;margin:auto;padding:0 44px;display:flex;align-items:center;justify-content:space-between;gap:32px}.brand{font-size:26px;font-weight:200}.brand img{display:block;max-width:180px;height:38px;object-fit:contain}.nav{display:flex;overflow-x:auto}.nav a{padding:10px 14px;color:#8f969b;font:500 11px "Jost","Segoe UI",sans-serif;letter-spacing:.18em;text-transform:uppercase;white-space:nowrap}.nav .active{border-bottom:2px solid var(--ink);color:var(--ink)}
+    main{max-width:1080px;margin:0 auto;padding:24px 24px 0;font-size:13px}.crumb,.eyebrow,.count,.meta,.status,.label,.button,.open{font-family:"Jost",sans-serif;text-transform:uppercase}.crumb{display:flex;justify-content:space-between;gap:20px;padding-bottom:18px;border-bottom:1px solid var(--line);color:var(--quiet);font-size:10px;letter-spacing:.18em}.hero{padding:30px 0 34px;display:flex;align-items:flex-end;justify-content:space-between;gap:24px}.eyebrow{display:flex;align-items:center;gap:6px;font:font:500 9px "Jost","Segoe UI",sans-serif;letter-spacing:.14em;color:#838a93}.hero h1{margin:8px 0 0;font-family:"Jost","Segoe UI",sans-serif;font-size:76px;font-weight:200;line-height:.95;color:#6b7480}.hero p{margin:12px 0 0;max-width:64ch;color:#7d8590;font-size:12px;font-weight:300;line-height:1.7}.week-nav{display:flex;gap:6px}.button,.open{display:inline-flex;align-items:center;justify-content:center;padding:10px 13px;border:1px solid var(--ink);background:#ebedf0;color:var(--ink);font-size:9px;font-weight:600;letter-spacing:.13em;cursor:pointer}.button.primary{border-color:var(--green-line);background:var(--green);color:var(--green-ink)}.button.pink{border-color:var(--pink-ink);background:var(--pink);color:var(--pink-ink)}.button:disabled{border-color:var(--line);background:var(--soft);color:var(--quiet);cursor:not-allowed}
+    .notice{margin-bottom:20px;padding:12px 14px;border:1px solid #b9cfc1;background:#edf6f0;color:#365844}.notice.error{border-color:#c99ba4;background:#fff0f2;color:#842e3e}
+    .week-block{margin-bottom:54px}.week-head{display:flex;align-items:end;justify-content:space-between;gap:20px;padding:18px 0;border-top:2px solid var(--ink)}.week-head h2{margin:5px 0 0;font-size:30px;font-weight:600;text-transform:uppercase}.count{color:var(--quiet);font-size:10px;letter-spacing:.16em}.cards{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:18px}.card{border:1px solid var(--line);background:#f7f8f9;min-width:0}.card-head{display:flex;align-items:center;justify-content:space-between;padding:12px 14px;border-bottom:1px solid var(--line)}.meta{font-size:9px;font-weight:600;letter-spacing:.16em}.status{padding:5px 8px;background:var(--soft);color:var(--muted);font-size:8px;font-weight:600;letter-spacing:.12em}.status.approved{background:var(--green);color:var(--green-ink)}.status.redo{background:var(--pink);color:var(--pink-ink)}.status.replace{background:var(--amber)}
+    .media{position:relative;aspect-ratio:4/5;background:var(--soft);overflow:hidden}.media>img,.media>video{width:100%;height:100%;display:block;object-fit:cover}.empty{height:100%;display:grid;place-items:center;color:var(--quiet);font-size:12px}.cover{position:absolute;right:10px;bottom:10px;width:58px;aspect-ratio:1;border:2px solid #fff;background:var(--soft);box-shadow:0 4px 16px rgba(35,38,42,.15)}.cover img{width:100%;height:100%;object-fit:cover}
+    .copy{display:grid;grid-template-columns:1fr;gap:12px;padding:14px;border-top:1px solid var(--line)}.platform{min-width:0;min-height:160px;padding:15px;border:1px solid var(--line);background:#f7f8f9}.platform+.platform{border-left:1px solid var(--line)}.label{color:var(--quiet);font-size:9px;font-weight:600;letter-spacing:.15em}.platform p{margin:9px 0 0;color:var(--muted);font-size:14px;font-weight:300;line-height:1.65;overflow-wrap:anywhere;white-space:pre-wrap}.hashtags{color:var(--muted)!important;font-size:13px!important}
+    .decision{padding:14px;border-top:1px solid var(--line)}.redo-parts{display:flex;flex-wrap:wrap;gap:7px 10px;margin:10px 0}.redo-parts label{display:flex;align-items:center;gap:5px;color:var(--muted);font-size:10px}.reason{width:100%;min-height:70px;padding:10px;border:1px solid var(--line);resize:vertical;font-size:13px}.actions{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-top:8px}.actions .button{min-height:42px;padding-inline:6px}.actions .approve{border-color:var(--green-line);background:var(--green);color:var(--green-ink)}.actions .approve:hover{background:#cfe6d5}.actions .redo{border-color:var(--pink-line);background:var(--pink);color:var(--pink-ink)}.actions .redo:hover{background:#f6d3da}.actions .replace{border-color:var(--amber-line);background:var(--amber);color:var(--amber-ink)}.actions .replace:hover{background:#f6e8c3}.approved-lock{margin:14px;padding:14px;border:1px solid var(--green-line);background:var(--green);color:var(--green-ink);font-size:13px;font-weight:300;line-height:1.5}.approved-lock strong{display:block;margin-bottom:4px;font:600 9px "Jost",sans-serif;letter-spacing:.14em;text-transform:uppercase}.open{width:100%;margin-top:8px;border-color:var(--line);color:var(--muted)}
+    .empty-page{padding:60px 20px;border:1px solid var(--line);text-align:center;color:var(--quiet)}
+    footer{max-width:1400px;margin:auto;padding:26px 44px;border-top:1px solid var(--line);display:flex;justify-content:space-between;color:#b4babe;font:500 10px "Jost",sans-serif;letter-spacing:.2em;text-transform:uppercase}
+    @media(max-width:1050px){.cards{grid-template-columns:repeat(2,minmax(0,1fr))}}
+    @media(max-width:700px){.header-inner{max-width:1400px;height:74px;margin:auto;padding:0 44px;display:flex;align-items:center;justify-content:space-between;gap:32px}.nav{width:100%}.nav a{padding:10px 14px;color:#8f969b;font:500 11px "Jost","Segoe UI",sans-serif;letter-spacing:.18em;text-transform:uppercase;white-space:nowrap}main{padding:30px 20px 60px}.crumb,.hero,.week-head{align-items:flex-start;flex-direction:column}.hero h1{font-size:42px}.cards{grid-template-columns:1fr}.copy{grid-template-columns:1fr}.platform+.platform{border-left:0;border-top:1px solid var(--line)}.actions .button{min-height:42px}footer{padding:22px 20px;flex-direction:column;gap:10px}}
+  </style>
+</head>
+<body>
+{% include "_header.html" %}
+<main>
+  <div class="crumb"><span>Approvals / upcoming work</span><a class="return-cal" href="/calendar" title="Return to calendar" aria-label="Return to calendar"><svg viewBox="0 0 24 24" width="21" height="21" fill="#ffffff" stroke="#7A8084" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-8.5 8.5 8.5 8.5 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 8.5-8.5h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg></a></div>
+  <style>
+    /* Return-to-calendar as a white speech bubble; grey outline; hover tooltip
+       comes from the native title. Bubble scales on hover for a little life. */
+    .return-cal{display:inline-flex;padding:6px;border-radius:50%}
+    .return-cal:hover{background:#f5f7f7}
+    .return-cal svg{transition:transform .15s}
+    .return-cal:hover svg{transform:scale(1.12)}
+  </style>
+  <section class="hero"><div><div class="eyebrow">Final creative decisions</div><h1>Approvals</h1><p>Review the final media and platform copy together. Approve, ask Copywriter to redo selected parts, or hold the post for replacement.</p></div><button class="icon-action" disabled title="Approve each post individually" aria-label="Approve each post individually"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l4 4L19 6"/><path d="M3 3h18v18H3z"/></svg></button></section>
+  {% if flash %}<div class="notice{% if flash.level == 'error' %} error{% endif %}">{{ flash.message }}</div>{% endif %}
+  {% for week in weeks %}
+    {% set approved = namespace(value=0) %}{% for p in week.posts %}{% if p.creative_status.value == 'approved' %}{% set approved.value = approved.value + 1 %}{% endif %}{% endfor %}
+    <section class="week-block">
+      <div class="week-head"><div><div class="eyebrow">Week {{ '%02d'|format(week.week_number) }} / {{ week.week_start.strftime('%b %d') }}–{{ week.week_end.strftime('%b %d, %Y') }}</div><h2>{{ week.theme or 'Untitled week' }}</h2></div><span class="count">{{ approved.value }} of 9 approved</span></div>
+      <div class="cards">
+      {% for post in week.posts %}
+        {% set final = version_map.get(post.content_version_id) if post.content_version_id else None %}{% set cover = version_map.get(post.cover_version_id) if post.cover_version_id else None %}
+        {% set ig = post.platform_versions | selectattr('platform.value','equalto','instagram') | first %}{% set tt = post.platform_versions | selectattr('platform.value','equalto','tiktok') | first %}
+        <article class="card">
+          <div class="card-head"><span class="meta">Post {{ post.visual_position }} / Row {{ post.row_code }}</span><span class="status {{ post.creative_status.value }}">{{ post.creative_status.value }}</span></div>
+          <div class="media">{% if final and final.mime_type.startswith('image/') %}<img src="/media-versions/{{ final.id }}" alt="Final media for post {{ post.visual_position }}">{% elif final and final.mime_type.startswith('video/') %}<video src="/media-versions/{{ final.id }}" controls preload="metadata"></video>{% else %}<div class="empty">No final media</div>{% endif %}{% if cover %}<span class="cover"><img src="/media-versions/{{ cover.id }}" alt="Cover tile"></span>{% endif %}</div>
+          <div class="copy"><section class="platform"><div class="label">Instagram</div><p>{{ ig.caption if ig and ig.caption else 'Caption not written.' }}</p><p class="hashtags">{{ ig.hashtags if ig and ig.hashtags else 'Hashtags not written.' }}</p></section><section class="platform"><div class="label">TikTok</div><p>{{ tt.caption if tt and tt.caption else 'Caption not written.' }}</p><p class="hashtags">{{ tt.hashtags if tt and tt.hashtags else 'Hashtags not written.' }}</p></section></div>
+          {% if post.creative_status.value == 'approved' %}
+          <div class="approved-lock"><strong>✓ Approved</strong>This approval remains valid. No second approval is required unless the media or copy changes.</div>
+          <div class="decision"><a class="open" href="/posts/{{ post.id }}">Open post →</a></div>
+          {% else %}
+          <form class="decision" method="post" action="/approvals/posts/{{ post.id }}">
+            <div class="label">Ask Copywriter to redo</div><div class="redo-parts">{% for value,label in [('image_video','Image/video'),('audio','Audio'),('caption_text','Caption/text'),('hashtags','Hashtags'),('other','Other')] %}<label><input type="checkbox" name="redo_parts" value="{{ value }}">{{ label }}</label>{% endfor %}</div>
+            <textarea class="reason" name="reason" placeholder="Reason or instructions…">{{ post.requested_change or '' }}</textarea>
+            <div class="actions"><button class="button approve icon-only" name="action" value="approve" title="Approve" aria-label="Approve"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 13l4 4L19 7"/></svg></button><button class="button redo icon-only" name="action" value="reject" title="Redo with AI" aria-label="Redo with AI"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 0 1 15-6l3 3M21 9V3h-6"/></svg></button><button class="button replace icon-only" name="action" value="replace" title="Replace manually" aria-label="Replace manually"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20h4l10-10-4-4L4 16v4z"/><path d="M13.5 6.5l4 4"/></svg></button></div>
+            <a class="open" href="/posts/{{ post.id }}">Open post →</a>
+          </form>
+          {% endif %}
+        </article>
+      {% endfor %}
+      </div>
+    </section>
+  {% else %}<div class="empty-page">No upcoming weeks need review.</div>{% endfor %}
+</main>
+<footer><span>{{ brand.company_name }}</span></footer>
+</body>
+</html>

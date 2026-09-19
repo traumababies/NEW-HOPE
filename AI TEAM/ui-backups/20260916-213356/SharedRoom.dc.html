@@ -1,0 +1,187 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>The Shared Room · {{ brand.company_name }}</title>
+  <link rel="stylesheet" href="/static/ui-system.css">
+  <link rel="stylesheet" href="/static/shared-room.css">
+  <script src="/static/shared-room.js" defer></script>
+</head>
+<body class="shared-room">
+<header class="sr-header">
+  <a class="sr-brand" href="/library">← the Library</a>
+  <div class="sr-title">the Shared Room</div>
+  <div class="sr-right">
+    {% if vip %}
+    <form method="post" action="/shared/room/vip/leave"><button type="submit" class="sr-btn ghost">lock the cave</button></form>
+    {% else %}
+    <span class="sr-vip-badge">VIP?</span>
+    {% endif %}
+  </div>
+</header>
+
+<main class="sr-main">
+
+  {% if not vip %}
+  <section class="sr-hero">
+    <div class="sr-eyebrow">families &amp; friends of evolué</div>
+    <h1>The Shared Room</h1>
+    <p class="sr-mission">Seventeen years of photographs live in this archive. If you're in
+    them, they're yours. Sign the one-line consent below, and the Cataloger will look for
+    your face — only your face — and hand your photos back through a private, expiring link.
+    The original files never leave the library and nothing is published.</p>
+  </section>
+
+  <div class="sr-columns">
+    <section class="sr-card">
+      <div class="sr-card-title">1 · sign the consent</div>
+      <p>By signing, you allow scanning <em>only for photos that contain you</em>. Faces that
+      aren't yours are never matched, stored, or shared. This is a right, not a favor.</p>
+      <form method="post" action="/shared/room/scan-request" class="sr-form">
+        <label>Your name<input name="name" required placeholder="First and last"></label>
+        <label>Email or phone<input name="contact" required placeholder="How we send your photos"></label>
+        <label class="sr-consent">
+          <input type="checkbox" name="consent" required>
+          <span>I consent to a face scan of the archive limited to photos containing me. I can withdraw this anytime.</span>
+        </label>
+        <button class="sr-btn primary" type="submit">Sign &amp; request my scan</button>
+      </form>
+      {% if scan_received %}<p class="sr-note ok">✓ Request received. The Cataloger queues it — you'll hear back with your private photo link.</p>{% endif %}
+      {% if wrong_password %}<p class="sr-note bad">✗ That password didn't open the cave. Try again.</p>{% endif %}
+    </section>
+
+    <section class="sr-card">
+      <div class="sr-card-title">2 · what happens next</div>
+      <ol class="sr-steps">
+        <li>The Cataloger queues your scan behind the archive's own work.</li>
+        <li>Only photos containing your face are gathered — never anyone else's.</li>
+        <li>You get a private, expiring link to download your own copies.</li>
+        <li>Nothing is published. Ever.</li>
+      </ol>
+      <div class="sr-popcorn" title="Fresh popcorn for the wait">
+        <div class="sr-popcorn-machine">
+          <div class="sr-glass"><span class="sr-kernel k1">🍿</span><span class="sr-kernel k2">🍿</span><span class="sr-kernel k3">🍿</span></div>
+          <div class="sr-bin"><span class="sr-pop p1">🍿</span><span class="sr-pop p2">🍿</span><span class="sr-pop p3">🍿</span><span class="sr-pop p4">🍿</span></div>
+          <div class="sr-red-top"></div>
+        </div>
+        <div class="sr-caption">popcorn while you wait — it's a whole production</div>
+      </div>
+    </section>
+
+    <section class="sr-card vip">
+      <div class="sr-card-title">3 · the cave (VIP)</div>
+      {% if wrong_password %}<p class="sr-note bad">Wrong password — the kittens are judging you.</p>{% endif %}
+      <p>Behind this door: the kittens, the popcorn's big sibling, endless candy,
+      a pool table that plays real pool, and the 80s arcade (yes, the dinosaur
+      and its cacti). Family prices apply: free.</p>
+      <form method="post" action="/shared/room/vip" class="sr-form">
+        <label>VIP password<input type="password" name="password" placeholder="meow meow meow"></label>
+        <button class="sr-btn primary" type="submit">Knock knock</button>
+      </form>
+      <div class="sr-vending" title="The candy machine always takes your invented currency">
+        <div class="sr-window">
+          <span class="sr-candy">🍬</span><span class="sr-candy">🍭</span><span class="sr-candy">🍫</span>
+          <span class="sr-candy">🍬</span><span class="sr-candy">🍭</span><span class="sr-candy">🍫</span>
+          <span class="sr-candy">🍬</span><span class="sr-candy">🍭</span><span class="sr-candy">🍫</span>
+        </div>
+        <div class="sr-slot"></div>
+      </div>
+    </section>
+  </div>
+  {% else %}
+
+  <section class="sr-cave">
+    <div class="sr-cave-head">
+      <div class="sr-eyebrow">welcome to the cave</div>
+      <h1>Make yourselves at home.</h1>
+      <p class="sr-mission">Kittens included. Pizza endless. Candy medicinal. The pool table has real physics and
+      questionable sportsmanship. The arcade takes no quarters, only mouses.</p>
+      <div class="sr-cave-controls">
+        <button class="sr-btn" type="button" data-kittens-toggle>🐾 let the kittens loose</button>
+        <button class="sr-btn" type="button" data-pizza-more>🍕 order another pizza</button>
+      </div>
+    </div>
+
+    <div class="sr-kittens" data-kittens aria-hidden="true">
+      <div class="sr-kitten" data-kitten="mochi"><div class="k-ear k-l"></div><div class="k-ear k-r"></div><div class="k-body"></div><div class="k-eye k-l"></div><div class="k-eye k-r"></div><div class="k-tail"></div><span class="k-name">Mochi</span></div>
+      <div class="sr-kitten" data-kitten="sesame"><div class="k-ear k-l"></div><div class="k-ear k-r"></div><div class="k-body"></div><div class="k-eye k-l"></div><div class="k-eye k-r"></div><div class="k-tail"></div><span class="k-name">Sesame</span></div>
+      <div class="sr-kitten" data-kitten="waffle"><div class="k-ear k-l"></div><div class="k-ear k-r"></div><div class="k-body"></div><div class="k-eye k-l"></div><div class="k-eye k-r"></div><div class="k-tail"></div><span class="k-name">Waffle</span></div>
+    </div>
+    <p class="sr-hint" data-laser-hint>tip: hold your mouse down anywhere — the kittens will lose their minds</p>
+
+    <div class="sr-cave-grid">
+      <div class="sr-zone">
+        <div class="sr-zone-title">🍕 the pizza table</div>
+        <div class="sr-pizza" data-pizza>
+          <button class="sr-slice" type="button" title="take a slice">🍕</button>
+          <button class="sr-slice" type="button">🍕</button>
+          <button class="sr-slice" type="button">🍕</button>
+          <button class="sr-slice" type="button">🍕</button>
+          <button class="sr-slice" type="button">🍕</button>
+          <button class="sr-slice" type="button">🍕</button>
+          <button class="sr-slice" type="button">🍕</button>
+          <button class="sr-slice" type="button">🍕</button>
+        </div>
+        <p class="sr-caption" data-pizza-note>8 slices. Each click eats one. "Order another pizza" refills it — the box is bottomless.</p>
+      </div>
+
+      <div class="sr-zone">
+        <div class="sr-zone-title">🍬 the vending machines</div>
+        <div class="sr-vending big">
+          <div class="sr-window">
+            <span class="sr-candy">🍬</span><span class="sr-candy">🍭</span><span class="sr-candy">🍫</span>
+            <span class="sr-candy">🧁</span><span class="sr-candy">🍪</span><span class="sr-candy">🍩</span>
+            <span class="sr-candy">🍬</span><span class="sr-candy">🍭</span><span class="sr-candy">🍫</span>
+            <span class="sr-candy">🧁</span><span class="sr-candy">🍪</span><span class="sr-candy">🍩</span>
+          </div>
+          <div class="sr-pad">
+            <button class="sr-pad-btn" type="button" data-candy="🍬">A1</button>
+            <button class="sr-pad-btn" type="button" data-candy="🍭">B2</button>
+            <button class="sr-pad-btn" type="button" data-candy="🍫">C3</button>
+            <button class="sr-pad-btn" type="button" data-candy="🧁">D4</button>
+            <button class="sr-pad-btn" type="button" data-candy="🍪">E5</button>
+            <button class="sr-pad-btn" type="button" data-candy="🍩">F6</button>
+          </div>
+          <div class="sr-drop" data-candy-drop></div>
+        </div>
+        <p class="sr-caption">press a button — candy falls. machines never run out. this is the promise.</p>
+      </div>
+    </div>
+
+    <div class="sr-zone pool-zone">
+      <div class="sr-zone-title">🎱 the pool table (two players, real-ish physics)</div>
+      <div class="sr-pool-wrap">
+        <canvas data-pool width="880" height="440"></canvas>
+      </div>
+      <p class="sr-caption" data-pool-status>Player 1 — stripes. Drag from the cue ball to aim and shoot. 8-ball last, or the table wins.</p>
+    </div>
+
+    <div class="sr-zone arcade-zone">
+      <div class="sr-zone-title">🕹️ the 80s arcade — no quarters</div>
+      <div class="sr-arcade">
+        <div class="sr-cabinet">
+          <div class="sr-marquee">KITTEN&nbsp;JUMPER</div>
+          <canvas data-game-jumper width="420" height="240"></canvas>
+          <div class="sr-cab-controls"><button type="button" data-game-start="jumper" class="sr-btn">insert no coins</button><span class="sr-cab-hint">SPACE / tap top half = jump</span></div>
+        </div>
+        <div class="sr-cabinet">
+          <div class="sr-marquee">LASER&nbsp;BREAKOUT</div>
+          <canvas data-game-breakout width="420" height="240"></canvas>
+          <div class="sr-cab-controls"><button type="button" data-game-start="breakout" class="sr-btn">insert no coins</button><span class="sr-cab-hint">mouse = paddle</span></div>
+        </div>
+        <div class="sr-cabinet">
+          <div class="sr-marquee">KITTEN&nbsp;POOL</div>
+          <canvas data-game-pong width="420" height="240"></canvas>
+          <div class="sr-cab-controls"><button type="button" data-game-start="pong" class="sr-btn">insert no coins</button><span class="sr-cab-hint">mouse = both paddles · first to 5</span></div>
+        </div>
+      </div>
+      <p class="sr-caption">the dinosaur that jumps over cacti lives here now — he's a kitten, and the cacti are catnip. he's thriving.</p>
+    </div>
+  </section>
+<!--CAVE-END-->
+  {% endif %}
+
+</main>
+<footer class="sr-footer"><span>évolué · the shared room</span><span>your photos are your photos</span></footer>
+</body>
+</html>

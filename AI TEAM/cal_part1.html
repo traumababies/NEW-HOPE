@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Calendar · {{ brand.company_name }}</title>
+  <link rel="stylesheet" href="/static/ui-system.css">
+  <link rel="stylesheet" href="/static/godzilla-companion.css">
+  <script src="/static/ui-navigation.js" defer></script>
+  <script src="/static/assistant-chat.js" defer></script>
+  <script src="/static/godzilla-companion.js" defer></script>
+  <script src="/static/save-feedback.js" defer></script>
+  <style>
+    :root{--ink:#7A8084;--muted:#8B9195;--quiet:#A9AEB2;--line:#CDD1D4;--soft:#fafbfb;--pink:#f9eff2;--green:#dfece5;--pink-x:#c96a7c;--ok:#3f6b4a;--play:#e2a943}
+    *{box-sizing:border-box}html,body{margin:0;background:#fff;color:var(--ink);font-family:"Jost","Segoe UI",sans-serif;-webkit-font-smoothing:antialiased}a{color:inherit;text-decoration:none}a:hover{color:var(--ink)}
+    main{max-width:1400px;margin:auto;padding:56px 44px 0}
+    .hero{display:flex;align-items:flex-end;justify-content:space-between;gap:40px;flex-wrap:wrap}
+    .eyebrow{color:var(--quiet);font-size:11px;font-weight:500;letter-spacing:.22em;text-transform:uppercase}
+    .hero h1{margin:14px 0 0;font-size:clamp(54px,6vw,76px);font-weight:200;line-height:1}
+    .hero p{max-width:650px;margin:16px 0 0;color:var(--muted);font-size:16px;font-weight:300}
+    .notice{position:fixed;right:24px;bottom:24px;z-index:100;max-width:min(420px,calc(100vw - 40px));padding:14px 17px;border:1px solid #b9cfc1;background:#edf6f0;color:#365844;font:600 10px "Jost",sans-serif;letter-spacing:.12em;text-transform:uppercase;box-shadow:0 14px 34px rgba(35,38,42,.12)}.notice.error{border-color:#c99ba4;background:#fff0f2;color:#842e3e}.notice[hidden]{display:none}.rule{height:2px;margin-top:36px;background:var(--ink)}
+    .stats{padding:14px 0 30px;display:flex;gap:26px;flex-wrap:wrap;color:var(--quiet);font-size:10px;font-weight:500;letter-spacing:.16em;text-transform:uppercase}
+    /* Hero: title on the left, chatbox on the right, same row, never stacked. */
+    .hero .lede{min-width:0;flex:1 1 520px}
+    .hero-side{flex:1 1 380px;max-width:560px;display:flex;flex-direction:column}
+    .assistant-chat{margin-top:0;border:1px solid var(--line);background:#fff}
+    .assistant-chat-header{display:flex;justify-content:space-between;align-items:center;padding:8px 12px;border-bottom:1px solid var(--line);gap:10px}
+    .assistant-tabs{display:flex;gap:4px;flex-wrap:wrap}
+    .assistant-tab{padding:4px 8px;border:1px solid var(--line);background:#f7f8f9;font:600 8px "Jost",sans-serif;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);cursor:pointer}
+    .assistant-tab.active{background:var(--ink);color:#fff;border-color:var(--ink)}
+    .assistant-chat-body{display:flex;gap:0}
+    .chat-messages{height:150px;overflow:auto;padding:8px 10px;flex:1;background:#fff}
+    .chat-message{padding:3px 6px;font-size:11px;line-height:1.35;max-width:100%}
+    .chat-message strong{display:inline-block;margin-right:6px;font:600 8px "Jost",sans-serif;letter-spacing:.08em;text-transform:uppercase;color:var(--ink)}
+    .chat-messages .chat-message{margin-bottom:0}
+    .empty-line{color:var(--muted);font-size:11px}
+    .chat-input-wrap{padding:6px 10px;display:flex;flex-direction:column;gap:6px;border-top:1px solid var(--line)}
+    .chat-input-wrap textarea{width:100%;min-height:44px;border:1px solid var(--line);padding:7px 9px;font:300 11px "Jost",sans-serif;resize:vertical;color:#3a3f43}
+    .godzilla-treats{display:flex;flex-wrap:wrap;gap:4px}
+    .godzilla-treats button{padding:3px 6px;border:1px solid #a8b98f;background:#f0f5e8;color:#4a5c3a;font:500 8px "Jost",sans-serif;cursor:pointer}
+    .chat-actions{display:flex;justify-content:flex-end;gap:6px}
+    .chat-actions button{border:0;background:none;padding:4px;cursor:pointer;color:var(--muted);display:inline-flex}
+    .chat-actions button:hover{color:var(--ink)}
+    .assistant-chat[data-active-assistant="godzilla"] .chat-messages{background:#f3f6ee}

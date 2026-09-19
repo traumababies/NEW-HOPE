@@ -1,0 +1,86 @@
+@import url("https://fonts.googleapis.com/css2?family=Jost:wght@200;300;400;500;600;700&display=swap");
+
+:root {
+  --ui-ink: #7a8084;
+  --ui-muted: #8b9195;
+  --ui-quiet: #a9aeb2;
+  --ui-line: #cdd1d4;
+  --ui-soft: #eef2f5;
+  --ui-white: #fff;
+  --ui-green: #dfeee2;
+  --ui-green-ink: #3f6b4a;
+  --ui-danger: #8c5a5a;
+  --ui-shadow: 0 10px 28px rgba(47, 55, 61, .12);
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+html, body { margin: 0; background: var(--ui-white); color: var(--ui-ink); font-family: "Jost", "Segoe UI", sans-serif; }
+button, input, textarea, select { font: inherit; }
+button, a { -webkit-tap-highlight-color: transparent; }
+:focus-visible { outline: 2px solid var(--ui-ink); outline-offset: 2px; }
+
+/* Shared application header and headings. */
+.header { position: sticky; top: 0; z-index: 20; border-bottom: 1px solid #e0e7ec; background: rgba(255,255,255,.96); backdrop-filter: blur(8px); }
+.header-inner { max-width: 1400px; height: 74px; margin: auto; padding: 0 44px; display: flex; align-items: center; justify-content: space-between; gap: 32px; }
+.brand { display: inline-flex; align-items: center; color: var(--ui-ink); font-size: 26px; font-weight: 200; letter-spacing: .02em; text-decoration: none; }
+.brand img { display: block; max-width: 180px; height: 38px; object-fit: contain; }
+.nav { display: flex; align-items: center; gap: 4px; overflow: visible; }
+.nav a { padding: 10px 14px; color: #8f969b; font-size: 11px; font-weight: 500; letter-spacing: .18em; text-decoration: none; text-transform: uppercase; white-space: nowrap; }
+.nav a:hover, .nav a.current { color: var(--ui-ink); }
+.nav-group { position: relative; }
+.nav-submenu { position: absolute; top: 100%; left: 10px; display: none; min-width: 160px; padding: 6px 0; background: #fff; box-shadow: var(--ui-shadow); }
+.nav-group:hover .nav-submenu, .nav-group:focus-within .nav-submenu { display: flex; flex-direction: column; }
+.nav-submenu a { padding: 7px 16px; font-size: 10px; }
+.nav-submenu a:hover { background: var(--ui-soft); }
+main h1, .page-title { margin: 10px 0 0; color: #6b7480; font-size: clamp(44px, 5.5vw, 72px); font-weight: 200; line-height: 1; letter-spacing: .02em; }
+.eyebrow, .section-title, .label, .status { color: var(--ui-quiet); font-size: 10px; font-weight: 500; letter-spacing: .16em; text-transform: uppercase; }
+
+/* One icon language for close, save, load, transport and decision actions. */
+.icon-only, .close-x, .icon-action { display: inline-flex; align-items: center; justify-content: center; min-width: 30px; min-height: 30px; padding: 6px; border: 0; background: transparent; color: var(--ui-ink); cursor: pointer; }
+.icon-only:hover, .close-x:hover, .icon-action:hover { background: var(--ui-soft); color: #2f373d; }
+.icon-only svg, .close-x svg, .icon-action svg { display: block; width: 18px; height: 18px; }
+.close-x svg { width: 14px; height: 14px; }
+.button, .save, .load, .accept, .reject, .replace, .play, .hold { display: inline-flex; align-items: center; justify-content: center; gap: 7px; min-height: 34px; padding: 8px 13px; border: 1px solid var(--ui-line); border-radius: 4px; background: var(--ui-soft); color: var(--ui-ink); cursor: pointer; font-size: 10px; font-weight: 600; letter-spacing: .12em; text-transform: uppercase; }
+.button:hover, .save:hover, .load:hover, .accept:hover, .reject:hover, .replace:hover, .play:hover, .hold:hover { border-color: var(--ui-ink); background: #fff; }
+.accept { border-color: #c3ddc9; background: var(--ui-green); color: var(--ui-green-ink); }
+.reject, .replace { background: #fff; color: var(--ui-danger); }
+.play, .hold { background: #fff; }
+
+/* Shared bubbles, AI Team chatbox, and activity panel. */
+.bubble, .chat-message, .godzilla-bubble { border: 1px solid #9aa2ab; border-radius: 8px; background: #fff; color: var(--ui-ink); }
+.assistant-chat { border: 1px solid #d8dee3; background: #fbfcfd; }
+.assistant-chat-header, .assistant-panel-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 10px 14px; border-bottom: 1px solid #e8ecef; }
+.assistant-tabs { display: flex; gap: 10px; }
+.assistant-tab { padding: 4px 0; border: 0; border-bottom: 1px solid transparent; background: transparent; color: var(--ui-quiet); cursor: pointer; font-size: 9px; font-weight: 600; letter-spacing: .12em; text-transform: uppercase; }
+.assistant-tab.active { border-bottom-color: var(--ui-ink); color: #4c525a; }
+.assistant-chat-body { display: grid; grid-template-columns: minmax(0, 1fr) 160px; }
+.chat-messages { min-height: 190px; padding: 10px; background: #fff; }
+.chat-message { max-width: 94%; margin: 0 0 8px; padding: 8px 10px; font-size: 11px; line-height: 1.4; }
+.chat-message.user { margin-left: auto; }
+.chat-input-wrap { display: flex; gap: 8px; padding: 10px; }
+.chat-input-wrap textarea, .assistant-panel-send textarea { min-height: 42px; flex: 1; resize: vertical; border: 1px solid var(--ui-line); padding: 8px 9px; color: var(--ui-ink); font-size: 11px; }
+.assistant-panel { width: min(640px, calc(100% - 32px)); padding: 0; border: 1px solid var(--ui-line); background: #fff; color: var(--ui-ink); box-shadow: var(--ui-shadow); }
+.assistant-panel::backdrop { background: rgba(47,55,61,.38); }
+.assistant-panel h2 { margin: 0; font-size: 11px; font-weight: 600; letter-spacing: .18em; text-transform: uppercase; }
+.assistant-row { display: flex; align-items: center; gap: 12px; padding: 8px 16px; border-top: 1px solid #f0f2f3; }
+.assistant-row-main { flex: 1; min-width: 0; }
+.assistant-row-name { font-size: 9px; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; }
+.assistant-row-status { float: right; color: var(--ui-muted); font-size: 9px; text-transform: uppercase; }
+.assistant-panel-send { display: flex; align-items: flex-end; gap: 8px; padding: 10px 16px 14px; }
+.assistant-panel-send button { min-height: 34px; padding: 8px 13px; border: 1px solid #838a93; background: #838a93; color: #fff; cursor: pointer; font-size: 9px; font-weight: 600; letter-spacing: .08em; }
+
+/* Book Room / Reader entry point. The action is deliberately named after the
+  destination so it is clear that the modal opens the standalone Reader room. */
+.book-room-modal { width: min(440px, calc(100% - 32px)); padding: 26px; border: 1px solid var(--ui-line); background: #fff; color: var(--ui-ink); box-shadow: var(--ui-shadow); }
+.book-room-modal::backdrop { background: rgba(47,55,61,.38); }
+.book-room-modal .close-x { position: absolute; top: 12px; right: 12px; }
+.book-room-modal h2 { margin: 8px 0 10px; font-size: 24px; font-weight: 300; }
+.book-room-modal p:not(.eyebrow) { margin: 0 0 20px; color: var(--ui-muted); font-size: 13px; line-height: 1.55; }
+.book-room-modal .button { text-decoration: none; }
+
+@media (max-width: 700px) {
+  .header-inner { height: auto; padding: 14px 20px; align-items: flex-start; flex-direction: column; gap: 8px; }
+  .nav { width: 100%; overflow-x: auto; }
+  .nav a { padding: 8px 9px; font-size: 9px; }
+  .assistant-chat-body { grid-template-columns: 1fr; }
+}

@@ -1,0 +1,375 @@
+<!doctype html>
+<!-- ⚠ LOCKED FILE — owner canon. See CLAUDE.md at project root.
+     Never edit for any reason. Propose changes in chat and wait for the owner.
+     Guarded by lock-verify.ps1 + LOCK-MANIFEST.sha256. -->
+<html lang="en">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Media Editor · {{ brand.company_name }}</title>
+  <link rel="stylesheet" href="/static/ui-system.css">
+  <style>
+    /* Media Editor — évolué design (Media Editor HTML Design.html, owner-approved) */
+    [hidden]{display:none !important}
+    main{max-width:1080px;margin:0 auto;padding:20px 24px 0;font-size:13px}
+    .me-eyebrow{display:flex;align-items:center;gap:6px;font:500 9px 'Archivo','Segoe UI',sans-serif;letter-spacing:.14em;color:#838a93}
+    main h1{margin:8px 0 0;font-family:'Jost','Segoe UI',sans-serif;font-weight:200;font-size:76px;line-height:1;color:#6b7480}
+    .me-sub{margin:6px 0 0;max-width:64ch;font-size:12px;font-weight:300;color:#7d8590}
+    .me-rule{height:1px;background:#dde2e6;margin:16px 0 18px}
+    .me-grid{display:grid;grid-template-columns:1.3fr 1fr;gap:16px;align-items:start}
+    .me-col{display:flex;flex-direction:column;gap:14px}
+    .me-card{border:1px solid #dde2e6;padding:14px;background:#fff}
+    .me-card.create{border-top:3px solid #f0c8d1}
+    .me-card.review{border-top:3px solid #c3ddc9}
+    .me-card.inpaint{border-top:3px solid #ecdcae}
+    .me-card-title{font:600 9px 'Archivo','Segoe UI',sans-serif;letter-spacing:.14em;color:#6b7480}
+    .me-card-sub{margin:6px 0 10px;font-size:10px;font-weight:300;color:#a8afb6}
+    .fld label{display:block;font:500 8px 'Archivo','Segoe UI',sans-serif;letter-spacing:.1em;color:#838a93;margin-bottom:5px}
+    .fld input,.fld select,.fld textarea{width:100%;padding:6px 2px;border:0;border-bottom:1px solid #dde2e6;font-size:11px;font-weight:300;background:transparent;font-family:inherit;color:#4c525a}
+    .fld textarea{resize:vertical;line-height:1.5}
+    .dd{position:relative}
+    .dd-btn{display:flex;align-items:center;gap:6px;background:transparent;border:0;padding:5px 8px;font:500 8px 'Archivo','Segoe UI',sans-serif;letter-spacing:.08em;color:#6b7480;cursor:pointer;text-transform:uppercase}
+    .dd-menu{position:absolute;top:100%;right:0;z-index:10;min-width:200px;background:transparent;border:0;box-shadow:none;text-align:center}
+    .dd-menu>div{padding:4px 8px;font-size:9px;font-weight:300;color:#6b7480;cursor:pointer;white-space:nowrap;text-align:center}
+    .dd-menu>div:hover{color:#4c525a}
+    .dd-menu>div.picked{color:#4c525a;font-weight:500}
+    .me-checkbox{width:12px;height:12px;background:#fff;border:1px solid #dde2e6;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+    .me-checkbox.on{background:#a8afb6;border-color:#a8afb6}
+    .me-check-row{display:flex;align-items:center;gap:6px;cursor:pointer;user-select:none}
+    .me-check-row span{font-size:11px;font-weight:300;color:#a8afb6}
+    .dd-backdrop{position:fixed;inset:0;z-index:9;background:transparent}
+    .me-modal{position:fixed;inset:0;background:rgba(131,138,147,.35);z-index:50;display:flex;align-items:center;justify-content:center;padding:24px}
+    .me-modal-box{background:#fff;width:100%;max-width:420px;border:1px solid #dde2e6}
+    .me-modal-head{display:flex;align-items:center;justify-content:space-between;padding:14px 16px;border-bottom:1px solid #dde2e6}
+    .me-modal-title{font:600 9px 'Archivo','Segoe UI',sans-serif;letter-spacing:.14em;color:#6b7480}
+    .me-modal-body{padding:16px;display:flex;flex-direction:column;gap:8px}
+    .me-modal-box .field{width:100%;padding:6px 7px;border:1px solid #dde2e6;font-size:11px;font-weight:300;background:#fff;color:#4c525a;font-family:inherit}
+    .ace-wave{position:absolute;inset:0;background-image:repeating-linear-gradient(90deg, currentColor 0 2px, transparent 2px 7px);background-size:200% 100%}
+    @keyframes acewave{from{background-position:0 0}to{background-position:-100% 0}}
+    @keyframes acewave-rev{from{background-position:-100% 0}to{background-position:0 0}}
+    .me-range{flex:1;height:10px;transform:scaleY(.55);cursor:pointer;accent-color:#6b7480}
+    .me-range-val{font-size:10px;font-weight:600;color:#4c525a;width:26px;text-align:right}
+    .me-review-preview{aspect-ratio:1;background:#eef1f3;display:grid;place-items:center;position:relative;overflow:hidden}
+    .me-review-preview .placeholder{font-size:11px;font-weight:300;color:#a8afb6;max-width:22ch;text-align:center}
+    .me-review-preview>img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain}
+    .me-review-preview>video{max-width:100%;max-height:100%}
+    [data-mask-canvas]{position:absolute;inset:0;width:100%;height:100%;cursor:crosshair;touch-action:none}
+    .me-transport{display:flex;gap:12px;flex-wrap:wrap;align-items:center}
+    .me-transport button{border:0;background:transparent;padding:4px;cursor:pointer;color:#7d8590;display:flex;align-items:center}
+    .me-transport button:hover{color:#4c525a}
+    .me-transport button.active{color:#6b7480;background:#eef1f3;border-radius:50%}
+    .me-save-foot{margin:8px 0 0;font-size:10px;font-weight:400;color:#7d8590;text-align:center;line-height:1.5}
+    .me-status{min-height:16px;margin-top:8px;font-size:10px;font-weight:300;color:#8b9195;text-align:center}
+    .me-status.error{color:#9c5568}
+    .me-status.success{color:#3f6b4a}
+    .me-progress{height:2px;background:#eef1f3;margin-top:6px;overflow:hidden;position:relative}
+    .me-progress::after{content:'';position:absolute;inset:0;background:#9dc7a7;transform-origin:left;animation:meprog 1.2s ease-in-out infinite}
+    @keyframes meprog{0%{transform:scaleX(0)}50%{transform:scaleX(.7)}100%{transform:scaleX(1)}}
+    @media(max-width:900px){main h1{font-size:52px}.me-grid{grid-template-columns:1fr}}
+  </style>
+</head>
+<body data-page="media-editor">
+{% include '_header.html' %}
+<main>
+  <div class="me-eyebrow">
+    <svg width="9" height="9" viewBox="0 0 24 24" fill="#f0c8d1"><path d="M12 2l1.6 6.4L20 10l-6.4 1.6L12 18l-1.6-6.4L4 10l6.4-1.6z"></path></svg>
+    ADD A LITTLE MAGIC
+    <svg width="7" height="7" viewBox="0 0 24 24" fill="#ecdcae"><path d="M12 2l1.6 6.4L20 10l-6.4 1.6L12 18l-1.6-6.4L4 10l6.4-1.6z"></path></svg>
+    <svg width="6" height="6" viewBox="0 0 24 24" fill="#c3ddc9"><path d="M12 2l1.6 6.4L20 10l-6.4 1.6L12 18l-1.6-6.4L4 10l6.4-1.6z"></path></svg>
+  </div>
+  <h1>Media Editor</h1>
+  <p class="me-sub">Build images, motion, and sound in one calm workspace. Queue every idea as a review-only proposal; your originals remain untouched until you approve the result.</p>
+  <div class="me-rule"></div>
+
+  <div class="me-grid">
+    <div class="me-col">
+
+    <div class="me-card create" data-media-editor data-week-id="{{ week.id }}" data-week-number="{{ week.week_number }}" data-week-theme="{{ week.theme or '' }}" data-week-start="{{ week.week_start.strftime('%Y-%m-%d') if week.week_start else '' }}">
+      <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap">
+        <div class="me-card-title">CREATE</div>
+        <div class="dd">
+          <button type="button" class="dd-btn" data-model-select>MODEL SELECTOR / CHECKPOINT: <span data-model-label>Select model</span>
+            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"></polyline></svg>
+          </button>
+          <div class="dd-menu" data-model-menu hidden></div>
+        </div>
+      </div>
+      <p class="me-card-sub">Set the provider, direction, and safe render controls.</p>
+
+      <div style="border:1px solid #dde2e6;padding:10px;margin-bottom:10px">
+        <div style="display:flex;align-items:baseline;justify-content:space-between;gap:10px;margin-bottom:6px">
+          <div style="font:500 8px 'Archivo','Segoe UI',sans-serif;letter-spacing:.1em;color:#838a93">PROMPT — Whisper your thoughts into the universe…</div>
+          <div style="font-size:9px;font-weight:300;color:#a8afb6;white-space:nowrap" data-source-label>{{ source_label or '' }}</div>
+        </div>
+        <div style="display:flex;gap:0;align-items:stretch">
+          <textarea data-media-prompt rows="6" placeholder="A rose blooming in soft morning light, slow motion…" style="flex:1;padding:7px;border:1px solid #dde2e6;border-right:0;font-size:11px;font-weight:300;line-height:1.5;font-family:inherit;color:#4c525a;resize:vertical"></textarea>
+          <div style="display:flex;flex-direction:column;justify-content:center;align-items:center;gap:10px;width:36px;border:1px solid #dde2e6;border-left:1px dashed #dde2e6">
+            <button type="button" data-mode-icon="image" title="Make image" style="display:flex;align-items:center;justify-content:center;border:0;background:transparent;color:#c9ccd1;padding:4px;cursor:pointer"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><path d="M21 15l-5-5L5 21"></path></svg></button>
+            <button type="button" data-mode-icon="video" title="Make video" style="display:flex;align-items:center;justify-content:center;border:0;background:transparent;color:#c9ccd1;padding:4px;cursor:pointer"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polygon points="23 7 16 12 23 17 23 7"></polygon><rect x="1" y="5" width="15" height="14" rx="2" ry="2"></rect></svg></button>
+            <button type="button" data-mode-icon="audio" title="Make audio" style="display:flex;align-items:center;justify-content:center;border:0;background:transparent;color:#c9ccd1;padding:4px;cursor:pointer"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V5l12-2v13"></path><circle cx="6" cy="18" r="3"></circle><circle cx="18" cy="16" r="3"></circle></svg></button>
+          </div>
+        </div>
+      </div>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px 12px">
+          <div class="me-check-row" data-media-standalone>
+            <div class="me-checkbox"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" data-check-mark hidden><polyline points="20 6 9 17 4 12"></polyline></svg></div>
+            <span>Standalone Project</span>
+          </div>
+          <div class="me-check-row" data-media-scratch>
+            <div class="me-checkbox"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" data-check-mark hidden><polyline points="20 6 9 17 4 12"></polyline></svg></div>
+            <span>Create from Scratch</span>
+          </div>
+        </div>
+
+        <div style="margin-top:10px" class="fld">
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+            <div style="display:flex;align-items:flex-end;gap:8px">
+              <label title="Upload source media" class="me-check-row" style="color:#7d8590;padding-bottom:6px" data-source-open>
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
+              </label>
+              <div style="display:grid;grid-template-columns:1fr 1fr 1.2fr;gap:8px;flex:1">
+                <label>WEEK NO.<input data-week-no value="{{ week.week_number }}" placeholder="e.g. 37"></label>
+                <label>POST NO.<input data-post-no placeholder="1 – 9"></label>
+                <label class="dd" style="position:relative;min-width:0">SUBJECT
+                  <button type="button" data-subject-select style="width:100%;display:flex;align-items:center;justify-content:space-between;text-align:left;background:transparent;border:0;padding:6px 2px;font-size:11px;font-weight:300;color:#4c525a;cursor:pointer;font-family:inherit"><span data-subject-label>ART</span><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"></polyline></svg></button>
+                  <div class="dd-menu" data-subject-menu hidden style="left:0;right:0">{% for code in subject_codes %}<div data-subject-option="{{ code }}">{{ code }}</div>{% endfor %}</div>
+                </label>
+              </div>
+            </div>
+            <label style="position:relative" class="dd">PROVIDER
+              <button type="button" data-provider-button style="width:100%;display:flex;align-items:center;justify-content:space-between;text-align:left;background:transparent;border:0;padding:6px 2px;font-size:11px;font-weight:300;color:#4c525a;cursor:pointer;font-family:inherit"><span data-provider-label>ComfyUI · SD 1.5</span><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"></polyline></svg></button>
+              <div class="dd-menu" data-provider-menu hidden style="left:0;right:0"></div>
+            </label>
+          </div>
+          <label style="margin-top:8px">NEGATIVE PROMPT
+            <textarea data-media-negative rows="3">worst quality, low quality, normal quality, blurry, low-res, artifact, cropped, out of frame</textarea>
+          </label>
+          <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-top:8px">
+            <div></div><div></div><div></div>
+            <div class="me-check-row" data-seed-reset style="grid-column:4/6;justify-content:center">
+              <div class="me-checkbox"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" data-check-mark hidden><polyline points="20 6 9 17 4 12"></polyline></svg></div>
+              <span style="font-size:9px;white-space:nowrap">Random Seed/Reset</span>
+            </div>
+          </div>
+          <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-top:4px" data-size-grid>
+            <label>WIDTH<input type="number" min="256" max="768" step="64" value="512" data-media-width></label>
+            <label>HEIGHT<input type="number" min="256" max="768" step="64" value="512" data-media-height></label>
+            <label title="Denoising iterations — Light: 1–8, Fast: 9–19, Sweet spot: 20–30">STEPS<input type="number" min="1" max="30" value="20" data-media-steps></label>
+            <label title="Creative freedom — Low 1–4, Optimal 5–8, Strict 12–20">GUIDANCE/CFG<input type="number" min="1" max="20" value="7" data-media-cfg></label>
+            <label>SEED<input value="0" data-media-seed></label>
+            <label data-frames-label hidden>FRAMES<input type="number" min="4" max="24" value="6" data-media-frames></label>
+          </div>
+          <label style="margin-top:8px">STORYBOARD / OWNER NOTES
+            <textarea data-media-storyboard rows="2"></textarea>
+          </label>
+        </div>
+
+        <div style="display:flex;gap:26px;margin-top:10px;justify-content:center">
+          <button type="button" data-create-now title="Create now — one click, owner approval" style="display:flex;align-items:center;justify-content:center;border:0;background:transparent;padding:6px;cursor:pointer"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M15 4V2" stroke="#e0625f"></path><path d="M15 16v-2" stroke="#e0a15a"></path><path d="M8 9h2" stroke="#dbc45a"></path><path d="M20 9h2" stroke="#6fae7a"></path><path d="M17.8 11.8L19 13" stroke="#5f9fc7"></path><path d="M17.8 6.2L19 5" stroke="#7a8fd6"></path><path d="M3 21l9-9" stroke="#a778c9"></path><path d="M12.2 6.2L11 5" stroke="#c96fa0"></path></svg></button>
+          <button type="button" data-media-propose title="Ready for review — queue as a review-only proposal" style="display:flex;align-items:center;justify-content:center;border:0;background:transparent;color:#9dc7a7;padding:6px;cursor:pointer"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"></path><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path></svg></button>
+        </div>
+        <div class="me-status" data-media-message role="status" aria-live="polite"></div>
+        <div class="me-progress" data-media-progress hidden></div>
+      </div>
+
+    <div style="border:1px solid #dde2e6;padding:14px" data-ace-studio>
+      <div style="font-size:9px;font-weight:300;color:#a8afb6;margin-bottom:3px" data-ace-uploaded-label></div>
+      <div style="height:22px;background:#f6f8f9;border:1px solid #dde2e6;overflow:hidden;position:relative;margin-bottom:10px;color:#c7ccd1" data-ace-wave-box>
+        <div style="animation:acewave 2.4s linear infinite;animation-play-state:paused" class="ace-wave" data-ace-wave></div>
+      </div>
+      <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px">
+        <div style="font:600 9px 'Archivo','Segoe UI',sans-serif;letter-spacing:.14em;color:#6b7480">ACE STUDIO</div>
+        <div class="me-transport">
+          <button type="button" data-ace-action="rewind" title="Rewind"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 19 2 12 11 5 11 19"></polygon><polygon points="22 19 13 12 22 5 22 19"></polygon></svg></button>
+          <button type="button" data-ace-action="play" title="Play"><svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor" stroke="none" data-ace-play-icon><polygon points="6 4 20 12 6 20"></polygon></svg></button>
+          <button type="button" data-ace-action="ff" title="Fast forward"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 19 22 12 13 5 13 19"></polygon><polygon points="2 19 11 12 2 5 2 19"></polygon></svg></button>
+          <button type="button" data-ace-action="stop" title="Stop"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="5" y="5" width="14" height="14" rx="3"></rect></svg></button>
+          <button type="button" data-ace-action="loop" title="Loop"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M17 2.1l4 4-4 4"></path><path d="M3 12.2v-2a4 4 0 0 1 4-4h12.8"></path><path d="M7 21.9l-4-4 4-4"></path><path d="M21 11.8v2a4 4 0 0 1-4 4H4.2"></path></svg></button>
+          <label title="Upload a track to play" style="cursor:pointer"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg><input type="file" accept="audio/*,video/*" data-ace-upload style="display:none"></label>
+          <button type="button" data-ace-inspire title="Inspire Me — make a track from one line" style="display:flex;align-items:center;gap:6px;border:0;background:transparent;padding:7px 6px;cursor:pointer;font:700 10px 'Archivo','Segoe UI',sans-serif;letter-spacing:.08em;color:#9c5568"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#ecdcae" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18h6"></path><path d="M10 21h4"></path><path d="M12 3a6 6 0 0 0-4 10.5c.6.6 1 1.4 1 2.5h6c0-1.1.4-1.9 1-2.5A6 6 0 0 0 12 3z"></path></svg>INSPIRE ME</button>
+        </div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:.25fr 1fr;gap:12px;margin-top:10px">
+        <div>
+          <div style="background:#f6f8f9;padding:7px 9px">
+            <div style="font-size:10px;font-weight:400;color:#6b7480">BPM</div>
+            <div style="display:flex;align-items:center;gap:6px;margin-top:5px">
+              <button type="button" data-bpm-down style="border:0;background:#eef1f3;width:16px;height:16px;cursor:pointer;font:600 9px 'Archivo',sans-serif;color:#7d8590;line-height:1">–</button>
+              <span style="font:600 9px 'Archivo',sans-serif;color:#4c525a;width:26px;text-align:center" data-bpm>120</span>
+              <button type="button" data-bpm-up style="border:0;background:#eef1f3;width:16px;height:16px;cursor:pointer;font:600 9px 'Archivo',sans-serif;color:#7d8590;line-height:1">+</button>
+            </div>
+          </div>
+        </div>
+        <div style="display:flex;gap:10px">
+          <div style="width:40%;display:flex;flex-direction:column;gap:6px">
+            <textarea data-media-lyrics placeholder="Lyrics…" style="flex:1;border:1px solid #dde2e6;padding:7px 9px;font-size:10px;font-weight:300;line-height:1.5;color:#a8afb6;resize:none;font-family:inherit"></textarea>
+            <div class="me-check-row" data-ace-instrumental>
+              <div class="me-checkbox"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" data-check-mark hidden><polyline points="20 6 9 17 4 12"></polyline></svg></div>
+              <span>Instrumental only</span>
+            </div>
+          </div>
+          <textarea data-ace-prompt placeholder="Genre, mood &amp; vibe, instruments/sound sources, tempo &amp; pace, vocal style &amp; era… Abracadabra…" style="flex:1;border:1px solid #dde2e6;padding:8px;font-size:11px;font-weight:300;line-height:1.5;resize:none;font-family:inherit;color:#4c525a"></textarea>
+        </div>
+      </div>
+      <button type="button" data-ace-generate title="Generate music" style="display:flex;align-items:center;justify-content:center;width:100%;margin-top:20px;border:0;background:transparent;padding:6px;cursor:pointer;color:#9dc7a7"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 17V4"></path><ellipse cx="6.5" cy="18" rx="2.5" ry="1.8" transform="rotate(-15 6.5 18)"></ellipse><ellipse cx="16.5" cy="16" rx="2.5" ry="1.8" transform="rotate(-15 16.5 16)"></ellipse><path d="M19 15V6"></path><path d="M9 4c3 .3 7 1 10 2"></path><path d="M9 7.5c3 .3 7 1 10 2"></path></svg></button>
+      <div class="me-status" data-ace-status role="status" aria-live="polite"></div>
+      <audio data-post-audio preload="metadata" style="width:100%;margin-top:8px"></audio>
+      <div data-ace-inspire-dialog hidden style="position:fixed;inset:0;z-index:60;background:rgba(131,138,147,.35);display:flex;align-items:center;justify-content:center;padding:24px">
+        <form data-media-ace-form style="background:#fff;width:100%;max-width:480px;border:1px solid #dde2e6;padding:16px;display:flex;flex-direction:column;gap:10px">
+          <div style="display:flex;align-items:center;justify-content:space-between"><div class="me-card-title">INSPIRE ME</div><button type="button" data-ace-inspire-close style="border:0;background:none;cursor:pointer;color:#a8afb6;font-size:16px">×</button></div>
+          <label>Style prompt<textarea class="field" name="prompt" rows="3" placeholder="Describe genre, mood, instruments, tempo, and vocal style"></textarea></label>
+          <label>Lyrics / vocal direction<textarea class="field" name="lyrics" rows="4" placeholder="Optional lyrics or instrumental direction"></textarea></label>
+          <label>Duration (5–10s recommended on the 4 GB card)<input class="field" type="number" name="duration" min="5" max="60" value="10"></label>
+          <label>Engine<select class="field" name="engine" data-ace-engine><option value="ace_step">ACE-Step · vocals and lyrics (ComfyUI 8188)</option><option value="musicgen">MusicGen · instrumental (port 8002)</option></select></label>
+          <p style="margin:0;font-size:10px;font-weight:300;color:#a8afb6">“Make it now” generates immediately and lands it in the Review Desk. “Queue audio idea” loads it into the Create box for the review-first flow.</p>
+          <div style="display:flex;gap:8px;flex-wrap:wrap">
+            <button type="button" data-ace-make style="flex:1;border:1px solid #838a93;background:#838a93;color:#fff;padding:8px;cursor:pointer;font:600 9px 'Archivo',sans-serif;letter-spacing:.06em">✨ MAKE IT NOW</button>
+            <button type="submit" style="border:1px solid #dde2e6;background:#fff;padding:8px;cursor:pointer;font:600 9px 'Archivo',sans-serif;letter-spacing:.06em;color:#6b7480">QUEUE AUDIO IDEA</button>
+          </div>
+          <div data-ace-make-result hidden style="display:flex;flex-direction:column;gap:8px"><audio controls data-ace-make-audio style="width:100%"></audio><a data-ace-make-open target="_blank" rel="noopener" style="font-size:12px">Open audio ↗</a><p style="margin:0;font-size:10px;color:#8b9195" data-ace-make-status></p></div>
+        </form>
+      </div>
+    </div>
+
+    </div>
+
+    <div class="me-col">
+
+    <div class="me-card review" data-media-review>
+      <div style="display:flex;align-items:baseline;justify-content:space-between">
+        <div class="me-card-title">REVIEW DESK</div>
+        <div style="display:flex;flex-direction:column;align-items:center;gap:6px">
+          <div style="font:500 8px 'Archivo',sans-serif;letter-spacing:.08em;color:#a8afb6;border:1px solid #dde2e6;padding:3px 7px">SAFE LOW VRAM CONTROLS</div>
+          <div style="display:flex;gap:22px;justify-content:center">
+            <button type="button" data-comfy-interrupt title="INTERRUPT: freezes the GPU instantly" style="border:1.5px solid #9c5568;background:#fbe1e6;padding:5px;cursor:pointer;color:#9c5568;display:flex;align-items:center;border-radius:50%"><svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor" stroke="none"><rect x="6" y="6" width="12" height="12"></rect></svg></button>
+            <button type="button" data-comfy-clear-queue title="CLEAR QUEUE: clears pending generations" style="border:1.5px solid #9c5568;background:#fbe1e6;padding:5px;cursor:pointer;color:#9c5568;display:flex;align-items:center;border-radius:50%"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
+          </div>
+        </div>
+      </div>
+      <p class="me-card-sub">Preview, approve, redo, or finalize without overwriting source media.</p>
+      <div class="me-review-preview" data-mask-stage>
+        <span class="placeholder" data-media-preview-placeholder>Generated preview will appear here after owner approval.</span>
+        <img data-media-preview src="" alt="" hidden>
+        <video data-media-preview-video controls style="max-width:100%;max-height:100%" hidden></video>
+        <canvas data-mask-canvas hidden></canvas>
+      </div>
+      <div style="display:flex;align-items:center;gap:10px;margin-top:8px">
+        <div style="display:flex;align-items:center;gap:6px" class="me-check-row" data-mask-mode-row title="Brush mode: paint the area to change">
+          <div class="me-checkbox on" data-mask-mode-box><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg></div>
+          <span style="font-size:9px;white-space:nowrap">Brush mode</span>
+        </div>
+        <label title="Upload a mask image (white = change, black = keep)" style="cursor:pointer;color:#7d8590;font-size:9px">…or upload mask<input type="file" accept="image/*" data-mask-upload style="display:none"></label>
+        <span style="margin-left:auto;font-size:9px;font-weight:300;color:#a8afb6" data-mask-state hidden>Mask painted ✓</span>
+      </div>
+
+      <div style="display:flex;flex-direction:column;align-items:center;gap:6px;margin-top:10px">
+        <div style="display:flex;align-items:center;gap:20px">
+          <button type="button" data-review-preview title="Preview the last version" style="border:0;background:transparent;padding:4px;cursor:pointer;color:#7d8590;display:flex;align-items:center"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z"></path><circle cx="12" cy="12" r="3"></circle></svg></button>
+          <button type="button" data-save-open title="Save" style="border:0;background:transparent;padding:4px;cursor:pointer;color:#7d8590;display:flex;align-items:center"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path><polyline points="17 21 17 13 7 13 7 21"></polyline></svg></button>
+        </div>
+        <span style="font-size:10px;font-weight:400;color:#7d8590;text-align:center" data-saved-name></span>
+      </div>
+      <p class="me-save-foot">ISO 8601 — YYYY-MM-DD_W##(week00)_IPTC-SUBJECT-CODE_THEME_SEQUENCE_HOST.FILE-EXTENSION</p>
+      <p class="me-save-foot" style="display:flex;align-items:center;justify-content:center;gap:5px"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#7d8590" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg><span data-name-example>{{ today_iso }}_W{{ '%02d' % week.week_number }}_{{ subject_codes[0] }}_{{ (week.theme or 'EXFOLIANT')[:20]|upper|replace(' ','-') }}_01_ig-tt.mp4</span></p>
+      <div style="display:flex;align-items:center;justify-content:center;gap:26px;margin-top:12px">
+        <button type="button" data-media-approve title="Approve — render the preview" style="border:0;background:transparent;padding:4px;cursor:pointer;color:#c3ddc9;display:flex;align-items:center"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg></button>
+        <button type="button" data-media-redo title="Redo — reroll with your notes" style="border:0;background:transparent;padding:4px;cursor:pointer;color:#f0c8d1;display:flex;align-items:center"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="1 4 1 10 7 10"></polyline><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"></path></svg></button>
+        <button type="button" data-media-finalize title="Finalize — create the immutable saved version" style="border:0;background:transparent;padding:4px;cursor:pointer;color:#ecdcae;display:flex;align-items:center"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"></path><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"></path></svg></button>
+      </div>
+      <div style="display:flex;justify-content:center;margin-top:6px"><textarea data-media-reason rows="2" placeholder="Notes for a redo (optional)" style="width:80%;border:1px solid #dde2e6;padding:6px 8px;font-size:10px;font-weight:300;font-family:inherit;color:#4c525a;resize:none"></textarea></div>
+      <div class="me-status" data-media-review-message role="status" aria-live="polite"></div>
+      <div class="me-progress" data-media-review-progress hidden></div>
+
+    </div>
+
+    <div class="me-card inpaint" data-inpaint-console>
+      <div style="display:flex;align-items:baseline;justify-content:space-between">
+        <div class="me-card-title">INPAINTING · THE MASKEDITOR AI VIDEO EDITOR CONTROL CONSOLE</div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr auto 1fr;align-items:center;margin-top:12px">
+        <div></div>
+        <label title="Upload the image to brush (videos are image-per-frame, too heavy for a 4 GB card)" style="display:flex;align-items:center;justify-content:center;cursor:pointer;color:#7d8590"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg><input type="file" accept="image/*" data-inpaint-upload style="display:none"></label>
+        <div style="display:flex;gap:12px;justify-content:flex-end">
+          <button type="button" data-mask-clear title="Clear the mask" style="border:0;background:transparent;padding:4px;cursor:pointer;color:#7d8590;display:flex;align-items:center"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 20H8l-6-6 10-10a2 2 0 0 1 3 0l6 6a2 2 0 0 1 0 3l-7 7"></path><line x1="8" y1="20" x2="20" y2="20"></line></svg></button>
+          <button type="button" data-mask-undo title="Undo the last brush stroke" style="border:0;background:transparent;padding:4px;cursor:pointer;color:#7d8590;display:flex;align-items:center"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="1 4 1 10 7 10"></polyline><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"></path></svg></button>
+        </div>
+      </div>
+      <div style="margin-top:28px;display:flex;gap:16px">
+        <div style="display:flex;align-items:center;gap:6px;width:50%" title="Brush Size: how wide the paint stroke is. Large brush masks a whole background; hair-thin brush targets eyes or fingers. Default 20–30.">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#7d8590" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0"><path d="M12 19l7-7 3 3-7 7-3-3z"></path><path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z"></path><path d="M2 2l7.586 7.586"></path><circle cx="11" cy="11" r="2"></circle></svg>
+          <input type="range" min="1" max="250" value="24" data-brush-size class="me-range">
+          <span class="me-range-val" data-brush-size-val>24</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:6px;width:50%" title="Opacity / Softness: how sharp the stroke edge is. Soft edges blend the edit seamlessly. Default 100 (solid).">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#7d8590" stroke-width="1.8" style="flex-shrink:0"><circle cx="12" cy="12" r="9"></circle><path d="M12 3a9 9 0 0 0 0 18z" fill="#7d8590" stroke="none"></path></svg>
+          <input type="range" min="0" max="100" value="100" data-softness class="me-range">
+          <span class="me-range-val" data-softness-val>100</span>
+        </div>
+      </div>
+
+      <div style="margin-top:14px;display:flex;align-items:center;gap:8px" title="DENOISE 0.0–1.0 — 0.1–0.3 subtle fix · 0.4–0.6 variation · 0.7–0.9 full replace (0.75 recommended) · 1.0 total recreation">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#7d8590" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0"><path d="M2 15l2-6 2 9 2-13 2 15 2-9 2 5 2-7 2 6h2"></path></svg>
+        <span style="font-size:9px;font-weight:500;letter-spacing:.06em;color:#7d8590;white-space:nowrap">DENOISE</span>
+        <input type="range" min="0" max="1" step="0.05" value="0.75" data-denoise class="me-range">
+        <span class="me-range-val" data-denoise-val>0.75</span>
+      </div>
+      <div style="margin-top:14px;display:flex;align-items:center;gap:8px" title="GROW MASK / PADDING 0–64px — expands the painted mask outward for seamless blending. Weird eye or hand: 4 · change a shirt: 10 · add an object in empty space: 12.">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#7d8590" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0"><path d="M3 6c2 0 3-1.5 5-1.5S11 6 11 9s-1 5-4 5-4-3-4-3.5V6z"></path><circle cx="5.2" cy="8" r=".6" fill="#7d8590" stroke="none"></circle><circle cx="8.2" cy="8" r=".6" fill="#7d8590" stroke="none"></circle><path d="M4.5 11c.8.6 2.2.6 3 0"></path><path d="M21 6c-2 0-3-1.5-5-1.5S13 6 13 9s1 5 4 5 4-3 4-3.5V6z"></path><circle cx="15.8" cy="8" r=".6" fill="#7d8590" stroke="none"></circle><circle cx="18.8" cy="8" r=".6" fill="#7d8590" stroke="none"></circle><path d="M15.5 12c.8-.6 2.2-.6 3 0"></path></svg>
+        <span style="font-size:9px;font-weight:500;letter-spacing:.06em;color:#7d8590;white-space:nowrap">GROW MASK BY / PADDING</span>
+        <input type="range" min="0" max="64" value="4" data-grow-mask class="me-range">
+        <span class="me-range-val" data-grow-mask-val>4</span>
+      </div>
+      <div style="margin-top:14px;display:flex;align-items:center;gap:24px">
+        <div class="me-check-row" data-inpaint-seed-reset>
+          <div class="me-checkbox"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" data-check-mark hidden><polyline points="20 6 9 17 4 12"></polyline></svg></div>
+          <span>Random Seed/Reset</span>
+        </div>
+        <label style="display:flex;align-items:center;gap:6px">
+          <span style="font-size:10px;font-weight:500;letter-spacing:.06em;color:#7d8590">SEED</span>
+          <input value="0" maxlength="5" data-inpaint-seed style="width:36px;text-align:center;border:0;border-bottom:1px solid #dde2e6;padding:4px 2px;font-size:11px;font-weight:300;color:#4c525a;background:transparent;font-family:inherit">
+        </label>
+        <button type="button" data-inpaint-generate title="Generate inpainted image" style="display:flex;align-items:center;justify-content:center;margin-left:auto;border:0;background:transparent;padding:4px;cursor:pointer;color:#9dc7a7"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="14" height="12" rx="1"></rect><path d="M16 10l6-3v10l-6-3"></path></svg></button>
+      </div>
+      <div class="me-status" data-inpaint-status role="status" aria-live="polite"></div>
+      <div class="me-progress" data-inpaint-progress hidden></div>
+    </div>
+    </div>
+  </div>
+
+  <footer style="max-width:1080px;margin:44px auto 0;padding:16px 24px;border-top:1px solid #dde2e6;display:flex;justify-content:space-between;font:500 9px 'Archivo','Segoe UI',sans-serif;letter-spacing:.16em;color:#a8afb6">
+    <span>ÉVOLUÉ MEDIA LIBRARY</span><span>PHOENIX, USA</span>
+  </footer>
+
+  <div data-save-modal hidden class="me-modal">
+    <div class="me-modal-box" data-stop>
+      <div class="me-modal-head">
+        <div class="me-modal-title">SAVE AS</div>
+        <button type="button" data-save-close style="border:0;background:transparent;cursor:pointer;color:#a8afb6;padding:2px;font-size:14px">×</button>
+      </div>
+      <div class="me-modal-body">
+        <input class="field" data-save-name placeholder="{{ today_iso }}_W{{ '%02d' % week.week_number }}_{{ subject_codes[0] }}_{{ (week.theme or 'EXFOLIANT')[:20]|upper|replace(' ','-') }}_01_ig-tt.mp4">
+        <p style="margin:0;font-size:10px;font-weight:300;color:#a8afb6">Auto-composed from today + Week No. + IPTC subject + theme + Post No. — always editable before saving. ISO 8601, date first, sequence 01–09, host ig-tt.</p>
+        <div style="display:flex;gap:6px;margin-top:8px">
+          <button type="button" data-save-confirm style="flex:1;border:1px solid #838a93;background:#838a93;color:#fff;padding:6px;cursor:pointer;font:600 8px 'Archivo',sans-serif;letter-spacing:.06em">SAVE</button>
+          <button type="button" data-save-cancel style="border:1px solid #dde2e6;background:#fff;padding:6px;cursor:pointer;font:600 8px 'Archivo',sans-serif;letter-spacing:.06em;color:#6b7480">CANCEL</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div data-source-modal hidden class="me-modal">
+    <div class="me-modal-box" data-stop>
+      <div class="me-modal-head">
+        <div class="me-modal-title">CHOOSE SOURCE MEDIA</div>
+        <button type="button" data-source-close style="border:0;background:transparent;cursor:pointer;color:#a8afb6;padding:2px;font-size:14px">×</button>
+      </div>
+      <div class="me-modal-body">
+        <p style="margin:0 0 4px;font-size:11px;font-weight:300;color:#7d8590">Pick the version to load into this workspace.</p>
+        <select class="field" data-media-source><option value="">Select source</option>{% for asset in assets %}{% if asset.active_version_id in version_map %}<option value="{{ asset.active_version_id }}" data-kind="{{ asset.media_kind.value if asset.media_kind is defined else '' }}">{{ asset.display_name }}</option>{% endif %}{% endfor %}</select>
+      </div>
+    </div>
+  </div>
+<script src="/static/media-editor.js?v=20260913-1" defer></script>
+
+</body>
+</html>

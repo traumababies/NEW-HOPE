@@ -1,0 +1,41 @@
+#!/bin/sh
+#
+# New Hope — style-lock guard (owner directive, 2026-09-17).
+# Runs AI TEAM\lock-verify.ps1 on every commit. If a locked file changed,
+# it prints a loud warning so nobody can slip a bubble/alignment edit into
+# a commit silently. WARNING ONLY — the commit proceeds, because the owner
+# is the one authority allowed to re-bless canon (by regenerating the
+# manifest), and a hard block would trap them mid-session.
+#
+# To make it a hard block, change the final "exit 0" to "exit $rc".
+#
+# Versioned copy kept at: AI TEAM/pre-commit.hook (reinstall by copying
+# that file to .git/hooks/pre-commit).
+
+if command -v pwsh >/dev/null 2>&1; then
+  POWERSHELL="pwsh"
+else
+  POWERSHELL="powershell.exe"
+fi
+SCRIPT="C:/Users/Bunbunz/Documents/New Hope/AI TEAM/lock-verify.ps1"
+
+if [ ! -f "$SCRIPT" ]; then
+  exit 0
+fi
+
+"$POWERSHELL" -NoProfile -ExecutionPolicy Bypass -File "$SCRIPT"
+rc=$?
+
+if [ "$rc" -ne 0 ]; then
+  echo ""
+  echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+  echo "!!  LOCKED FILE CHANGED — see the lines above.              !!"
+  echo "!!  If that was the owner on purpose, regenerate the         !!"
+  echo "!!  manifest with the owner's OK. Otherwise: STOP, don't     !!"
+  echo "!!  mix this change into the commit.                         !!!"
+  echo "!!  WARNING ONLY — this commit continues.                    !!"
+  echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+  echo ""
+fi
+
+exit 0

@@ -1,0 +1,39 @@
+-- 1. Catalog for Raw Stock Assets (Pexels, Unsplash, etc.)
+CREATE TABLE dbo.RawAssets (
+    RawAssetID INT IDENTITY(1,1) PRIMARY KEY,
+    dc_identifier VARCHAR(250) NOT NULL UNIQUE,       -- e.g., PEXELS_RAW_123456.jpg
+    dc_title NVARCHAR(250) NULL,                      -- Original stock title
+    dc_creator NVARCHAR(250) NULL,                    -- Stock photographer
+    dc_publisher NVARCHAR(100) DEFAULT 'Pexels',      -- Platform origin
+    dc_source NVARCHAR(2083) NOT NULL,                -- Original web URL
+    dc_type VARCHAR(50) DEFAULT 'StillImage',         -- StillImage, Sound, MovingImage
+    dc_format VARCHAR(100) DEFAULT 'image/jpeg',      -- MIME type
+    dc_rights NVARCHAR(250) DEFAULT 'Pexels License', -- License terms
+    CreatedUtc DATETIME2 DEFAULT SYSUTCDATETIME()
+);
+
+-- 2. Catalog for Final Derivative Posts (Your Edited Media)
+CREATE TABLE dbo.DerivativePosts (
+    PostID INT IDENTITY(1,1) PRIMARY KEY,
+    RawAssetID INT NULL,                             -- Foreign Key linking to RawAssets
+    dc_identifier VARCHAR(250) NOT NULL UNIQUE,      -- File name: 2026-09-12_W37_BEA_EXFOLIANT_3100_ig.mp4
+    dc_title NVARCHAR(250) NOT NULL,                 -- Post title
+    dc_creator NVARCHAR(100) DEFAULT 'Your Brand',   -- You/Brand
+    dc_publisher NVARCHAR(100) DEFAULT 'Your Brand', -- Publishing brand entity
+    dc_subject_iptc VARCHAR(10) NOT NULL,            -- 3-letter IPTC code (e.g., BEA)
+    dc_subject_theme VARCHAR(100) NOT NULL,          -- Theme (e.g., EXFOLIANT)
+    dc_description NVARCHAR(MAX) NULL,               -- Full post caption or script
+    dc_type VARCHAR(50) DEFAULT 'MovingImage',       -- Post format type
+    dc_format VARCHAR(100) DEFAULT 'video/mp4',      -- MIME type
+    dc_date DATE NOT NULL,                           -- Planned post date (ISO 8601: YYYY-MM-DD)
+    dc_language VARCHAR(10) DEFAULT 'en',            -- Language code (en, es, etc.)
+    dc_relation NVARCHAR(250) NULL,                  -- Parent Campaign (e.g., 2026_Q3_Exfoliant)
+    dc_coverage NVARCHAR(250) NULL,                  -- Target scope (e.g., 2026-Q3; Global)
+    dc_rights NVARCHAR(250) DEFAULT 'Copyright 2026 Your Brand',
+    CreatedUtc DATETIME2 DEFAULT SYSUTCDATETIME(),
+
+    -- Relationship constraint linking Post back to Raw Asset
+    CONSTRAINT FK_Derivative_RawAsset FOREIGN KEY (RawAssetID) 
+        REFERENCES dbo.RawAssets(RawAssetID) 
+        ON DELETE SET NULL
+);

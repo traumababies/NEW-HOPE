@@ -1,0 +1,10 @@
+/* Shared Godzilla companion skin. Functional animation remains in the companion
+   script; these rules keep its controls, bubble, and sprite visually aligned. */
+.godzilla-companion { position: fixed; bottom: 14px; left: 40%; z-index: 40; width: 56px; height: 56px; pointer-events: none; }
+.godzilla-toggle-btn, .godzilla-treat-btn { display: inline-flex; align-items: center; justify-content: center; width: 30px; height: 30px; border: 1px solid #d5dde4; border-radius: 50%; background: #fff; color: #7a8084; box-shadow: 0 4px 12px rgba(0,0,0,.08); cursor: pointer; }
+.godzilla-toggle-btn { position: fixed; right: 14px; bottom: 14px; z-index: 41; }
+.godzilla-toggle-btn:hover, .godzilla-treat-btn:hover { border-color: #7a8084; color: #2f373d; }
+.godzilla-bubble { min-width: 120px; max-width: 220px; padding: 7px 10px; border: 1px solid #9aa2ab; border-radius: 8px; background: #fff; color: #5f6b77; box-shadow: 0 6px 18px rgba(0,0,0,.08); font-size: 12px; text-align: center; }
+.godzilla-treat-menu { gap: 4px; padding: 6px; border: 1px solid #d5dde4; border-radius: 8px; background: #fff; box-shadow: 0 6px 18px rgba(0,0,0,.1); }
+.godzilla-treat-option { width: 32px; height: 32px; border: 1px solid transparent; border-radius: 6px; background: transparent; cursor: pointer; }
+.godzilla-treat-option:hover { border-color: #d5dde4; background: #eef2f5; }

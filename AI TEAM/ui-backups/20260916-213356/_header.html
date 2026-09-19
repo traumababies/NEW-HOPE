@@ -1,0 +1,244 @@
+<header class="header"><div class="header-inner">
+  <a class="brand" href="/settings/brand" title="Brand settings">{% if brand.logo_url %}<img src="{{ brand.logo_url }}" alt="{{ brand.company_name }}">{% else %}<span aria-label="Brand settings">évolué</span>{% endif %}</a>
+  <nav class="nav" aria-label="Primary">
+    <div class="nav-group">
+      <a class="nav-top {{ 'current' if active_page|default('') in ['calendar', 'week', 'post'] else '' }}" href="/calendar">Calendar</a>
+      <div class="nav-submenu">
+        <a class="{{ 'on' if active_page|default('') == 'week' else '' }}" href="/week">Week</a>
+        <a class="{{ 'on' if active_page|default('') == 'post' else '' }}" href="/post">Post</a>
+      </div>
+    </div>
+    <div class="nav-group">
+      <a class="nav-top {{ 'current' if active_page|default('') == 'media_editor' else '' }}" href="/media-editor">Media Editor</a>
+      <div class="nav-submenu">
+        <a class="{{ 'on' if active_page|default('') == 'studio' else '' }}" href="/studio">Studio</a>
+      </div>
+    </div>
+    <div class="nav-group">
+      <a class="nav-top {{ 'current' if active_page|default('') in ['library', 'reviews', 'subjects'] else '' }}" href="/library">Library</a>
+      <div class="nav-submenu">
+        <a class="{{ 'on' if active_page|default('') == 'reviews' else '' }}" href="/library/reviews">Reviews</a>
+      </div>
+    </div>
+    <div class="nav-group">
+      <a class="nav-top {{ 'current' if active_page|default('') == 'approvals' else '' }}" href="/approvals">Approvals</a>
+      <div class="nav-submenu">
+        <a href="/week">Creative Brief</a>
+      </div>
+    </div>
+    <div class="nav-group">
+      <a class="nav-top {{ 'current' if active_page|default('') in ['publishing', 'manual_publish'] else '' }}" href="/publishing">Publishing</a>
+      <div class="nav-submenu">
+        <a href="/publishing/manual/instagram">Manual Publish · Instagram</a>
+        <a href="/publishing/manual/tiktok">Manual Publish · TikTok</a>
+      </div>
+    </div>
+    <div class="nav-group">
+      <a class="nav-top {{ 'current' if active_page|default('') == 'history' else '' }}" href="/history">History</a>
+      <div class="nav-submenu">
+        <a href="/history">Learning Center</a>
+      </div>
+    </div>
+    <div class="nav-group logout-group">
+      <a class="nav-top logout" href="/logout">Logout</a>
+      <div class="nav-submenu">
+        <a href="/library">Locked Folder</a>
+        <a href="/settings/brand">Brand Settings</a>
+      </div>
+    </div>
+    <!-- The recycle bin trigger now lives in the Library toolbar, beside upload,
+         where the owner actually works with files. Its dialog and context menu
+         stay here because a <dialog> opens from anywhere on the page. -->
+  </nav>
+</div></header>
+<style>
+/* Sitewide nav + heading + chatbox canon. Included in <body> after every
+   page's <head> styles, and scoped to .header with !important so per-page
+   CSS (overflow clipping, asymmetric padding, colored boxes) can never
+   fight the menu again. */
+.header,.header-inner{overflow:visible !important}
+.header .nav{display:flex !important;overflow:visible !important;align-items:center !important;gap:2px !important}
+.header .nav a{border-bottom:0 !important;background:none !important}
+.header .nav-group{position:relative !important;display:inline-flex !important}
+.header .nav .nav-top{display:inline-flex !important;align-items:center !important;padding:10px 14px !important;color:#A9AEB2 !important;font:500 11px "Jost","Segoe UI",sans-serif !important;letter-spacing:.18em !important;text-transform:uppercase !important;white-space:nowrap !important;text-decoration:none !important;border:0 !important;background:none !important;border-radius:0 !important}
+.header .nav .nav-top:hover,.header .nav .nav-top.current{color:#7A8084 !important}
+/* No underline under the page you're on - the current page is signalled by its cool grey ink only. */
+.header .nav .nav-top.current,.header .nav a.active,.header .nav .active{border-bottom:0 !important;border-bottom-color:transparent !important}
+.header .nav .nav-top.logout{margin-left:18px !important;color:#ADB3B8 !important;padding-left:0 !important;padding-right:0 !important}
+.header .nav .nav-top.logout:hover{color:#7A8084 !important}
+.header .nav .nav-group.logout-group .nav-submenu{left:0 !important}
+.header .nav .nav-submenu{display:none !important;position:absolute !important;top:100% !important;left:10px !important;min-width:150px !important;background:#fff !important;box-shadow:0 10px 26px rgba(122,128,132,.18) !important;border-radius:0 !important;padding:6px 0 !important;flex-direction:column !important;z-index:60 !important;border:0 !important}
+.header .nav-group:hover .nav-submenu,.header .nav-group:focus-within .nav-submenu{display:flex !important}
+.header .nav .nav-submenu a{display:block !important;padding:7px 16px !important;color:#A9AEB2 !important;font:500 10px "Jost","Segoe UI",sans-serif !important;letter-spacing:.14em !important;text-transform:uppercase !important;text-decoration:none !important;border:0 !important;background:#fff !important;white-space:nowrap !important;border-radius:0 !important}
+.header .nav .nav-submenu a:hover{color:#7A8084 !important;background:#f5f7f7 !important}
+.header .nav .nav-submenu a.on{color:#4c525a !important;font-weight:600 !important}
+/* One heading everywhere: same size, same weight, same color. */
+main h1{font-family:"Jost","Segoe UI",sans-serif !important;font-weight:200 !important;font-size:clamp(44px,5.5vw,72px) !important;line-height:1 !important;letter-spacing:.02em !important;color:#6b7480 !important;margin:10px 0 0}
+main .eyebrow{font:500 9px "Jost","Segoe UI",sans-serif !important;letter-spacing:.16em !important;text-transform:uppercase !important;color:#a9aeb2 !important}
+/* One chatbox everywhere: compact, smaller fonts, no air between lines. */
+.assistant-chat{border:1px solid #d8dee3 !important;background:#fbfcfd !important;border-radius:0;max-width:none !important;margin-top:0 !important}
+.assistant-chat-header{padding:8px 12px !important;border-bottom:1px solid #e8ecef !important}
+.assistant-tabs{gap:6px !important}
+.assistant-tab{padding:4px 0 !important;font:600 8px "Jost","Segoe UI",sans-serif !important;background:none !important;border:0 !important;color:#A9AEB2 !important}
+.assistant-tab.active{background:none !important;color:#4C525A !important;border:0 !important;border-bottom:1px solid #7A8084 !important}
+.assistant-chat-body{grid-template-columns:1fr 150px !important}
+.chat-messages{height:190px !important;padding:8px 10px !important;background:#fff !important;border-right:0 !important;font-size:11px !important}
+.chat-message{padding:3px 6px !important;margin-bottom:3px !important;font-size:11px !important;line-height:1.35 !important;max-width:94% !important;border-radius:0 !important}
+.chat-message strong{margin-bottom:1px !important}
+.chat-input-wrap{padding:8px 10px !important;gap:6px !important}
+.chat-input-wrap textarea{min-height:44px !important;padding:7px 9px !important;font-size:11px !important}
+.assistant-notes{gap:4px !important}
+.assistant-notes li{font-size:11px !important;line-height:1.35 !important}
+.assistant-chat .godzilla-treats button{padding:4px 5px !important;font-size:7px !important}
+</style>
+  <!-- Restore all / Empty now live inside this dialog. The old floating
+       .recycle-bin-menu div is gone on purpose: its CSS set display:flex, which
+       beats the browser's [hidden]{display:none}, so `menu.hidden = true` never
+       hid anything and it sat visible as two strips on every page. Deleting the
+       element is the fix. -->
+  {% if user and user.role.value == 'owner' %}<dialog data-recycle-bin-dialog class="recycle-bin-dialog" aria-labelledby="recycle-bin-title">
+    <div class="recycle-bin-head">
+      <h2 id="recycle-bin-title">Recycle bin</h2>
+      <div class="recycle-bin-bulk">
+        <button type="button" class="icon-action" data-recycle-restore-all title="Restore everything" aria-label="Restore everything"><svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M20 11a8 8 0 1 1-2.3-5.7"/><path d="M20 4v7h-7"/></svg></button>
+        <!-- Empty keeps its word: it destroys every file in the bin. -->
+        <button type="button" class="icon-action is-danger" data-recycle-empty title="Delete every file in the bin permanently" aria-label="Empty recycle bin"><svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M9 6V4h6v2m-9 0 1 15h10l1-15M10 10v7M14 10v7"/></svg><span>Empty</span></button>
+        <form method="dialog"><button type="submit" class="close-x" aria-label="Close recycle bin" title="Close"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg></button></form>
+      </div>
+    </div>
+    <div data-recycle-bin-items>Loading…</div>
+    <p class="recycle-bin-note" data-recycle-bin-note hidden></p>
+  </dialog>{% endif %}
+<style>
+/* The assistant panel. Opens centred on Library load and reopens from the
+   Activities icon in the chat box. Native <dialog> centres itself and traps
+   focus, so there is no positioning maths here. */
+.assistant-panel{max-width:640px;width:calc(100% - 32px);border:1px solid #CDD1D4;border-radius:0;padding:0;color:#7A8084;background:#fff}
+.assistant-panel::backdrop{background:rgba(47,55,61,.38)}
+.assistant-panel-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;padding:20px 22px 14px}
+.assistant-panel-head h2{margin:0;font:600 11px "Jost","Jost",sans-serif;letter-spacing:.18em;text-transform:uppercase}
+/* The close X is .close-x in ui-system.css now - shared with every other popup
+   on the site. Only the optical nudge into the corner lives here. */
+.assistant-panel-head .close-x{margin:-3px -6px 0 0}
+.assistant-duty-box{margin:10px 22px 0;padding:12px;border:1px solid #CDD1D4;background:#f7f8f9}
+.assistant-duty-box-title{font:600 8px "Jost",sans-serif;letter-spacing:.14em;text-transform:uppercase;color:#7A8084}
+.assistant-duty-options{display:flex;flex-wrap:wrap;align-items:center;gap:6px 12px;margin-top:9px}
+.assistant-duty-options label{display:flex;align-items:center;gap:5px;color:#8B9195;font-size:11px;letter-spacing:0;text-transform:none}
+/* Grey ticks, not the browser's blue accent. appearance:none drops the OS
+   control so the box and the tick are both drawn in the panel's own ink, and
+   the tick is the same path the rest of the app uses to mean approve. */
+.assistant-duty-options input[type=checkbox]{appearance:none;-webkit-appearance:none;box-sizing:border-box;flex:none;width:13px;height:13px;margin:0;border:1px solid #CDD1D4;background:#fff;cursor:pointer}
+.assistant-duty-options input[type=checkbox]:checked{border-color:#A9AEB2;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%237A8084' stroke-width='3.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5 13l4 4L19 7'/%3E%3C/svg%3E");background-size:11px 11px;background-position:center;background-repeat:no-repeat}
+.assistant-duty-options input[type=checkbox]:focus-visible{outline:1px solid #A9AEB2;outline-offset:1px}
+.assistant-duty-request{width:100%;min-height:48px;margin-top:9px;padding:7px;border:1px solid #CDD1D4;background:#fff;color:#7A8084;font:300 12px "Jost",sans-serif;resize:vertical}
+.assistant-row{display:flex;align-items:center;gap:12px;padding:13px 22px;border-top:1px solid #f0f2f3}
+.assistant-row-main{flex:1;min-width:0}
+.assistant-row-head{display:flex;align-items:baseline;flex-wrap:wrap;gap:10px;row-gap:2px}
+.assistant-row-name{flex:0 1 auto;min-width:0;font:700 9px "Jost",sans-serif;letter-spacing:.14em;text-transform:uppercase;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.assistant-row-status{margin-left:auto;flex:none;text-align:right;font:600 10px "Jost",sans-serif;letter-spacing:.06em;text-transform:uppercase;color:#8B9195;white-space:nowrap}
+.assistant-toggle{margin-left:8px;border:1px solid #CDD1D4;background:#fff;color:#7A8084;padding:3px 6px;font:600 8px "Jost",sans-serif;letter-spacing:.1em;cursor:pointer}
+.assistant-toggle[aria-pressed="false"]{color:#8c5a5a;border-color:#d9bfc4}
+.assistant-row-detail{margin-top:2px;font:600 9px "Jost",sans-serif;letter-spacing:.06em;text-transform:uppercase;color:#A9AEB2}
+/* Godzilla's lines and Muse's lines are the two things here that are NOT
+   uppercased. Her sleep tokens are three distinct spellings (zzzzzz /
+   Zzzzzzz / ZzZzZzZz) that caps would flatten into one, and Muse's lines are
+   full sentences that caps would make unreadable. */
+.assistant-row-godzilla{margin-top:3px;font-size:12px;color:#4a5c3a;line-height:1.5}
+.assistant-row-flavor{margin-top:4px;font-size:12px;font-style:italic;color:#8B9195;line-height:1.5}
+/* Start is a bare SVG, not a button box. */
+.icon-start{border:0;background:none;padding:0;cursor:pointer;display:inline-flex;color:#3f6b4a}
+.icon-start:hover{color:#2c4d34}
+.icon-start[disabled]{color:#cfd6da;cursor:default}
+/* The runner spinner. activity-panel.js has always emitted class="is-spinning"
+   on the SVG; the keyframes were never written, so a working assistant showed a
+   motionless arc that read as broken. */
+.icon-start .is-spinning{animation:assistant-spin 1s linear infinite;transform-origin:12px 12px}
+@keyframes assistant-spin{to{transform:rotate(360deg)}}
+.assistant-panel-foot{padding:12px 22px 18px;font:600 9px "Jost",sans-serif;letter-spacing:.06em;text-transform:uppercase;color:#A9AEB2}
+/* Whether the local Ollama service is actually up. Filled once per open. */
+.assistant-panel-ollama{margin:0;padding:10px 22px 0;font:600 9px "Jost",sans-serif;letter-spacing:.06em;text-transform:uppercase;color:#A9AEB2}
+.assistant-panel-ollama.is-warning{color:#8c5a5a}
+.assistant-progress{height:2px;background:#e7ecef;margin-top:6px}
+.assistant-progress span{display:block;height:2px;background:#3f6b4a}
+</style>
+<style>
+/* Every page uses the Calendar header geometry. Keep the shared partial last so
+  page-local legacy header rules cannot make the navigation stack or drift. */
+.header,.header-inner,.nav{overflow:visible !important}
+.header-inner{height:74px !important;max-width:1400px !important;padding:0 44px !important;gap:32px !important;align-items:center !important}
+.brand{display:flex !important;align-items:center !important;flex:0 0 auto !important;color:#7A8084 !important;text-decoration:none !important;font:200 26px "Jost","Segoe UI",sans-serif !important;letter-spacing:.02em !important}
+.brand img{display:block !important;max-width:180px !important;height:38px !important;object-fit:contain !important}
+.nav{display:flex !important;align-items:center !important;gap:4px !important;margin:0 !important;padding:0 !important;flex-wrap:nowrap !important}
+.nav>a{display:inline-flex !important;align-items:center !important;height:40px !important;padding:10px 14px 14px !important;border:0 !important;border-bottom:2px solid transparent !important;background:transparent !important;color:#8f969b !important;font:500 11px "Jost","Segoe UI",sans-serif !important;letter-spacing:.18em !important;text-transform:uppercase !important;white-space:nowrap !important;text-decoration:none !important}
+.nav>a:hover{color:#7A8084 !important}
+.nav>a.active{border-bottom-color:#7A8084 !important;color:#7A8084 !important}
+.nav>a.logout{margin-left:18px !important;padding-inline:0 !important;color:#b4babe !important}
+.nav-group,.nav-submenu{display:none !important}
+</style>
+<dialog data-activity-dialog class="assistant-panel" aria-labelledby="assistant-panel-title">
+  <div class="assistant-panel-head">
+    <h2 id="assistant-panel-title">Assistants</h2>
+    <form method="dialog"><button type="submit" class="close-x" aria-label="Close" title="Close"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg></button></form>
+  </div>
+  <!-- The five assistants, rendered server-side so they are ALWAYS here between
+       the title and the duty box - even before the fetch, and even if it
+       fails. assistant_panels is a hardcoded, DB-free list (ai_assistants.py
+       assistant_panels_for_user), so this costs no queries. activity-panel.js
+       replaces these rows with live counts once /api/activity answers; if it
+       cannot, it leaves them alone rather than blanking the panel.
+       The kind order matches snapshot()'s so nothing reflows on first open. -->
+  <div data-activity-items>
+    {% for kind in ['catalog', 'copywriter', 'creative_director', 'muse', 'media_editor', 'release_gate', 'publishing_worker', 'godzilla'] %}
+    {% for assistant in assistant_panels|default([]) if assistant.kind == kind %}
+    <div class="assistant-row" data-assistant-kind="{{ assistant.kind }}">
+      <span class="icon-start" disabled aria-hidden="true"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M10 8.5l6 3.5-6 3.5z"/></svg></span>
+      <div class="assistant-row-main">
+        <div class="assistant-row-head">
+          <div class="assistant-row-name">{{ assistant.name }}</div>
+          <div class="assistant-row-status">…</div>
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+    {% endfor %}
+  </div>
+  <div class="assistant-duty-box">
+    <div class="assistant-duty-box-title">Assign a duty</div>
+    <div class="assistant-duty-options" data-duty-options>
+      <label><input type="checkbox" value="catalog new media"> Catalog new media</label>
+      <label><input type="checkbox" value="write captions and hashtags"> Write captions and hashtags</label>
+      <label><input type="checkbox" value="plan the week"> Plan the week</label>
+      <label><input type="checkbox" value="find library inspiration"> Find library inspiration</label>
+      <label><input type="checkbox" value="report status only"> Report status only</label>
+      <!-- Apply lives in this row now, as a bare SVG, instead of the "Use
+           selected duties" text button that used to sit under the textarea. -->
+      <button type="button" class="icon-action" data-duty-use title="Apply" aria-label="Apply selected duties"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 13l4 4L19 7"/></svg></button>
+    </div>
+    <textarea class="assistant-duty-request" data-duty-request placeholder="Tell the assistant what you want done…"></textarea>
+  </div>
+  <p class="assistant-panel-ollama" data-ollama-status></p>
+  <p class="assistant-panel-foot" data-activity-summary>Loading…</p>
+</dialog>
+<!-- Godzilla reads the real gap from here. Set in one place rather than on
+     every template's <body>, and before her sprite script runs. -->
+<script>document.body.dataset.godzillaAwayDays = "{{ godzilla_away_days|default(0) }}";</script>
+<script src="/static/activity-panel.js?v=20260905-9" defer></script>
+<script src="/static/recycle-bin.js?v=20260905-4" defer></script>
+<style>
+.recycle-bin-trigger{display:inline-flex;align-items:center;justify-content:center;padding:8px;border:0;background:transparent;color:#A9AEB2;cursor:pointer}.recycle-bin-trigger:hover{color:var(--ink)}.recycle-bin-trigger svg{width:19px;height:19px}.recycle-bin-dialog{width:min(620px,calc(100% - 32px));border:1px solid #CDD1D4;padding:24px;color:#7A8084}.recycle-bin-item{display:flex;align-items:center;gap:10px;padding:12px 0;border-bottom:1px solid #e0e7ec}.recycle-bin-item span{flex:1}.recycle-bin-head{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:8px}
+.recycle-bin-head h2{margin:0;font:600 11px "Jost","Jost",sans-serif;letter-spacing:.18em;text-transform:uppercase}
+.recycle-bin-bulk{display:flex;align-items:center;gap:14px}
+/* Refusals and skipped files, reported where the button was pressed. */
+.recycle-bin-note{margin:10px 0 0;font-size:12px;color:#8c5a5a;line-height:1.5}
+/* Bare SVG actions: no border, no fill, no button box.
+   Written as button.icon-action so it beats per-page rules like
+   `.chat-actions button{border:...;background:...}` on specificity; this style
+   block is included in <body>, after each page's <head> styles, so an equal
+   specificity tie resolves here. */
+button.icon-action,a.icon-action,.icon-action{display:inline-flex;align-items:center;gap:6px;border:0;background:none;padding:4px;cursor:pointer;color:#7A8084;min-width:0;min-height:0}
+button.icon-action:hover,a.icon-action:hover,.icon-action:hover{color:#2f373d;background:none}
+button.icon-action.is-danger,.icon-action.is-danger{color:#8c5a5a}
+button.icon-action.is-danger:hover,.icon-action.is-danger:hover{color:#6d4343}
+.icon-action svg{display:block;flex:none}
+.icon-action span{font:600 8px "Jost",sans-serif;letter-spacing:.12em;text-transform:uppercase}
+</style>

@@ -1,0 +1,264 @@
+<!doctype html>
+<!-- LOCKED FILE - owner canon (Studio page, owner-approved design 2026-09-15 v3):
+     wall - loupe - subject-rows microfiche; per-tile stripes; tray restore.
+     Propose changes in chat and wait for the owner. -->
+<html lang="en">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Studio - {{ brand.company_name }}</title>
+  <link rel="stylesheet" href="/static/ui-system.css">
+  <script src="/static/studio.js?v=20260915-3" defer></script>
+  <style>
+    [hidden]{display:none !important}
+    main{padding:30px 0 0;font-size:13px}
+    .eyebrow{display:flex;align-items:center;gap:7px;font:500 9px "Jost","Segoe UI",sans-serif;letter-spacing:.18em;color:#a9aeb2;text-transform:uppercase}
+    .eyebrow svg{color:#b9c0c6}
+    .head-row{display:flex;align-items:flex-end;justify-content:space-between;gap:20px}
+    main h1{margin:10px 0 0;font-family:"Jost","Segoe UI",sans-serif;font-weight:200;font-size:76px;line-height:.95;color:#6b7480}
+    .head-stamp{margin:0 0 4px;font:500 9px "Jost","Segoe UI",sans-serif;letter-spacing:.12em;color:#b9c0c6}
+    .rule{height:1px;background:#e3e7ea;margin:14px 0 16px}
+    .action-strip{display:flex;align-items:center;gap:6px;padding:10px 0 2px}
+    .icon-act{border:0;background:transparent;padding:4px;cursor:pointer;color:#8a939c;display:flex}
+    .icon-act:hover{color:#201e1d}
+    .icon-act svg{display:block}
+    .action-note{font-size:10px;font-weight:300;color:#b9c0c6;margin-left:4px}
+    .head-actions{display:flex;align-items:center;gap:6px}
+    .head-actions button{border:0;background:transparent;padding:3px;cursor:pointer;color:#b9c0c6;display:flex}
+    .head-actions button:hover{color:#6b7480}
+    .head-actions .is-bin{color:#e5aebc}.head-actions .is-bin:hover{color:#9c5568}
+    .head-actions .is-commit{color:#9dc7a7}.head-actions .is-commit:hover{color:#3f6b4a}
+    .head-actions svg{display:block}
+    .week-nav{border:0;background:transparent;padding:3px;cursor:pointer;color:#8a939c;display:flex;text-decoration:none}
+    .week-nav:hover{color:#201e1d}
+    .week-nav svg{display:block}
+    /* hover bubbles - thinnest medium-grey outline, rounded corners */
+    .tt{position:relative}
+    .tt::after{content:attr(data-tip);position:absolute;bottom:calc(100% + 8px);left:50%;transform:translateX(-50%);background:#fff;border:1px solid #9aa2ab;border-radius:7px;color:#7a8494;font:500 9px "Jost","Segoe UI",sans-serif;letter-spacing:.06em;line-height:1.5;padding:4px 9px;white-space:nowrap;opacity:0;pointer-events:none;transition:opacity .15s;z-index:9}
+    .tt:hover::after{opacity:1}
+    .front{display:grid;grid-template-columns:1fr 260px 1fr;gap:16px;align-items:start}
+    .col-label{margin:0 0 12px;text-align:center;font:600 10px "Jost","Segoe UI",sans-serif;letter-spacing:.3em;color:#98a1ab;text-transform:uppercase;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    /* left: the nine posts wall */
+    .wall{display:grid;grid-template-columns:repeat(3,1fr);gap:7px}
+    .wtile{position:relative;aspect-ratio:9/16;background:#eef2f6;outline:1px solid #e3e7ea;outline-offset:-1px;cursor:pointer;transition:outline-color .12s}
+    .wtile img,.wtile video{width:100%;height:100%;object-fit:cover;display:block;background:#dfe5ec}
+    .wtile .no-sistema{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font:500 7.5px "Jost","Segoe UI",sans-serif;letter-spacing:.12em;color:#98a1ab;text-align:center;padding:0 2px}
+    .wtile-badge{position:absolute;top:4px;right:4px;background:#fff;padding:2px 4px;text-align:right;font:600 8px "Jost","Segoe UI",sans-serif;letter-spacing:.06em;color:#6b7480;line-height:1.3;pointer-events:none}
+    /* the stripe - always present, white, icons clear at the bottom */
+    .wtile .acts{position:absolute;left:0;right:0;bottom:0;display:flex;justify-content:center;align-items:center;gap:10px;padding:6px 0;background:#fff;border-top:1px solid #e8ecf0}
+    .wtile .acts button{border:0;background:transparent;padding:2px;cursor:pointer;display:flex}
+    .wtile .acts svg{display:block}
+    .wtile .acts .a-approve{color:#9dc7a7}.wtile .acts .a-approve:hover{color:#3f6b4a}
+    .wtile .acts .a-play{color:#e0af37}.wtile .acts .a-play:hover{color:#c99a2b}
+    .wtile .acts .a-reject{color:#e5aebc}.wtile .acts .a-reject:hover{color:#9c5568}
+    .wtile.is-chosen{outline:1px solid #9dc7a7}
+    .wtile.is-discarded{outline:1px solid #e5aebc}
+    .wtile.is-focus{outline:2px solid #9aa2ab}
+    /* center: the loupe - roughly double a wall tile, almost touched by the panels */
+    .reader{display:flex;flex-direction:column;align-items:center}
+    .reader-stage{position:relative;width:100%;max-width:224px;aspect-ratio:9/16;background:#eef2f6;outline:1px solid #e3e7ea;outline-offset:-1px;overflow:hidden}
+    .reader-stage video,.reader-stage img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;display:block;background:#15181c}
+    .reader-empty{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;text-align:center;font-size:11px;font-weight:300;color:#98a1ab;line-height:1.7}
+    .transport{display:flex;align-items:center;gap:8px;width:100%;max-width:224px;padding:9px 0 2px}
+    .transport button{border:0;background:transparent;padding:4px;cursor:pointer;color:#8a939c;display:flex}
+    .transport button:hover{color:#201e1d}
+    .transport button.a-play-toggle{color:#5c6672}
+    .transport svg{display:block}
+    .transport .track{flex:1;height:3px;background:#dce3ec;position:relative;overflow:hidden}
+    .transport .track i{position:absolute;left:0;top:0;bottom:0;background:#7a8494}
+    .transport .ttime{flex:none;font:600 10px "Jost","Segoe UI",sans-serif;letter-spacing:.04em;color:#8a939c}
+    .reader-status{margin-top:10px;display:flex;gap:2px;align-items:center}
+    .reader-status button{border:0;background:transparent;padding:3px;cursor:pointer;color:#b9c0c6;display:flex}
+    .reader-status button:hover{color:#6b7480}
+    .reader-status .a-raise{color:#9dc7a7}.reader-status .a-raise:hover{color:#3f6b4a}
+    .reader-status .a-dismiss{color:#e5aebc}.reader-status .a-dismiss:hover{color:#9c5568}
+    .reader-status svg{display:block}
+    .reader-meta{margin:12px 0 0;width:100%;max-width:240px;display:flex;flex-direction:column;gap:3px;font-family:"Jost","Segoe UI",sans-serif;font-size:11px;line-height:1.5;color:#7a8494;word-break:break-all}
+    .reader-name{margin:10px 0 0;width:100%;max-width:240px;font:600 12px "Jost","Segoe UI",sans-serif;letter-spacing:.05em;color:#5c6672;word-break:break-all}
+    .motion-ctl{margin-top:16px;width:100%;max-width:240px;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+    .motion-ctl span{font-size:10px;font-weight:300;color:#a9aeb2;line-height:1.5}
+    /* right: OPTIONS - one subject row per IPTC code, TI at the bottom */
+    .mrow{display:flex;align-items:center;gap:4px;margin-bottom:3px}
+    .mrow-label{flex:none;width:26px;text-align:right;font:600 6.5px "Jost","Segoe UI",sans-serif;letter-spacing:.04em;color:#98a1ab;white-space:nowrap}
+    .mrow-label.is-ti{color:#b2a265}
+    .mrow-cells{flex:1;min-width:0;display:grid;grid-template-columns:repeat(8,1fr);gap:3px}
+    .mcell{position:relative;aspect-ratio:9/16;background:#eef2f6;outline:1px solid #eceff2;outline-offset:-1px;overflow:hidden;cursor:pointer}
+    .mcell img{width:100%;height:100%;object-fit:cover;display:block}
+    .mcell .no-sistema{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font:500 5.5px "Jost","Segoe UI",sans-serif;letter-spacing:.08em;color:#b9c0c6}
+    .mcell-badge{position:absolute;top:2px;right:2px;background:#fff;padding:0 2px;font:600 7px "Jost","Segoe UI",sans-serif;color:#8a939c;pointer-events:none}
+    .mcell.is-chosen{outline:1px solid #9dc7a7}
+    .mcell.is-discarded{outline:1px solid #e5aebc}
+    .mcell.is-focus{outline:2px solid #9aa2ab}
+    .status{margin:26px 0 0;min-height:18px;font-size:12px;font-weight:300;color:#8a939c}
+    .status.error{color:#9c5568}
+    .status.success{color:#3f6b4a}
+    /* the trash tray - restore what is in the bin */
+    .tray{position:fixed;inset:0;z-index:60;background:rgba(32,30,29,.45);display:flex;align-items:center;justify-content:center;padding:24px}
+    .tray-frame{width:100%;max-width:540px;max-height:80vh;display:flex;flex-direction:column;background:#fff;border:1px solid #dce3ec}
+    .tray-head{flex:none;display:flex;align-items:center;justify-content:space-between;gap:16px;padding:14px 18px;border-bottom:1px solid #dce3ec}
+    .tray-title{font:600 10px "Jost","Segoe UI",sans-serif;letter-spacing:.14em;color:#7a8494}
+    .tray-head button{border:1px solid #dce3ec;background:#fff;color:#8a939c;cursor:pointer;padding:6px 10px;font:600 9px "Jost","Segoe UI",sans-serif;letter-spacing:.1em}
+    .tray-head button:hover{background:#f2f5f8}
+    .tray-list{flex:1;min-height:0;overflow-y:auto;padding:14px 18px;display:flex;flex-direction:column;gap:8px}
+    .tray-item{display:flex;align-items:center;gap:12px}
+    .tray-item img{width:38px;height:67px;flex:none;background:#eef1f3;object-fit:cover}
+    .tray-item span{flex:1;min-width:0;font-family:"Jost","Segoe UI",sans-serif;font-size:12px;color:#7a8494;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+    .tray-item button{border:1px solid #c3ddc9;background:#e7f2ea;color:#3f6b4a;cursor:pointer;padding:6px 10px;font:600 9px "Jost","Segoe UI",sans-serif;letter-spacing:.1em}
+    .tray-item button:hover{background:#d7e9dc}
+    .tray-empty{font-size:13px;font-weight:300;color:#b2bbc6;padding:10px 0}
+    .tray-foot{flex:none;display:flex;justify-content:flex-end;gap:10px;padding:12px 18px;border-top:1px solid #dce3ec}
+    .tray-foot button{border:1px solid #f0c8d1;background:#fbe1e6;color:#9c5568;cursor:pointer;padding:8px 14px;font:600 9px "Jost","Segoe UI",sans-serif;letter-spacing:.1em}
+    .tray-foot button:hover{background:#f7d2da}
+    /* the book room: panels dock at the bottom, dial on top */
+    .book{position:fixed;inset:0;z-index:70;background:linear-gradient(180deg,#eef2f6 0%,#f4f6f8 30%);display:flex;flex-direction:column}
+    .book-bar{flex:none;position:relative;display:flex;align-items:center;justify-content:center;gap:18px;padding:12px 20px;border-bottom:1px solid #dce3ec}
+    .dial-arrow{border:0;background:transparent;cursor:pointer;color:#8a939c;padding:4px 8px;display:flex}
+    .dial-arrow:hover{color:#201e1d}
+    .dial-arrow svg{display:block}
+    .dial-track{-webkit-appearance:none;appearance:none;width:210px;height:20px;background:transparent;cursor:w-resize;--rot:0deg}
+    .dial-track::-webkit-slider-runnable-track{height:2px;background:#dce3ec;border-radius:2px}
+    .dial-track::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;width:26px;height:26px;margin-top:-12px;border-radius:50%;border:1px solid #9aa2ab;background:#fff;box-shadow:0 1px 2px rgba(40,46,52,.18);background-image:linear-gradient(#7a8494,#7a8494) no-repeat 50% 4px / 2px 9px,linear-gradient(#fff,#fff);transform:rotate(var(--rot));transition:transform .12s}
+    .dial-track::-moz-range-track{height:2px;background:#dce3ec;border-radius:2px}
+    .dial-track::-moz-range-thumb{width:26px;height:26px;border-radius:50%;border:1px solid #9aa2ab;background:#fff;box-shadow:0 1px 2px rgba(40,46,52,.18)}
+    .dial-track::-moz-range-progress{height:2px;background:#c6cdd5}
+    .dial-num{min-width:48px;text-align:center;font:600 10px "Jost","Segoe UI",sans-serif;letter-spacing:.08em;color:#5c6672}
+    .book-title{position:absolute;left:20px;max-width:34%;font:500 10px "Jost","Segoe UI",sans-serif;letter-spacing:.14em;color:#98a1ab;text-transform:uppercase;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .book-close{position:absolute;right:18px;border:0;background:transparent;cursor:pointer;color:#8a939c;padding:6px;display:flex}
+    .book-close:hover{color:#201e1d}
+    .book-stage{flex:1;min-height:0;overflow-x:auto;overflow-y:hidden;display:flex;align-items:flex-end;gap:16px;padding:34px clamp(22px,4vw,60px) 30px;scroll-snap-type:x mandatory;scroll-behavior:smooth}
+    .bpanel{flex:none;width:min(300px,calc((100vw - 150px)/4));scroll-snap-align:start;scroll-snap-stop:always}
+    .bpanel-head{display:flex;align-items:baseline;justify-content:space-between;gap:8px;margin-bottom:8px;padding:0 2px}
+    .bpanel-head b{font:600 8.5px "Jost","Segoe UI",sans-serif;letter-spacing:.14em;color:#6b7480;text-transform:uppercase;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .bpanel-head span{font:500 8px "Jost","Segoe UI",sans-serif;letter-spacing:.08em;color:#b2bbc6;white-space:nowrap}
+    .bgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:5px;background:#edf1f6;padding:7px}
+    .btile{position:relative;aspect-ratio:9/16;background:#e4e9ee;outline:1px solid #dde3ea;outline-offset:-1px;cursor:pointer}
+    .btile img,.btile video{width:100%;height:100%;object-fit:cover;display:block;background:#dfe5ec}
+    .btile .no-sistema{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font:500 6px "Jost","Segoe UI",sans-serif;letter-spacing:.1em;color:#a9aeb2;text-align:center;padding:0 2px}
+    .btile-badge{position:absolute;top:2px;right:2px;background:#fff;padding:1px 3px;text-align:right;font:600 7px "Jost","Segoe UI",sans-serif;letter-spacing:.04em;color:#8a939c;line-height:1.3;pointer-events:none}
+    .btile .acts{position:absolute;left:0;right:0;bottom:0;display:flex;justify-content:center;align-items:center;gap:9px;padding:4px 0;background:#fff;border-top:1px solid #e8ecf0}
+    .btile .acts button{border:0;background:transparent;padding:2px;cursor:pointer;display:flex}
+    .btile .acts svg{display:block}
+    .btile .acts .a-approve{color:#9dc7a7}.btile .acts .a-approve:hover{color:#3f6b4a}
+    .btile .acts .a-play{color:#e0af37}.btile .acts .a-play:hover{color:#c99a2b}
+    .btile .acts .a-reject{color:#e5aebc}.btile .acts .a-reject:hover{color:#9c5568}
+    .btile.is-chosen{outline:1px solid #9dc7a7}
+    .btile.is-discarded{outline:1px solid #e5aebc}
+    .btile.is-focus{outline:2px solid #9aa2ab}
+    .enlarge{position:fixed;inset:0;z-index:80;background:rgba(255,255,255,.98);display:flex;align-items:center;justify-content:center}
+    .enlarge video,.enlarge img{max-width:min(92vw,92vh*0.5625);max-height:92vh;display:block;background:#15181c}
+    .enlarge-close{position:absolute;top:16px;right:20px;border:0;background:transparent;cursor:pointer;color:#8a939c;padding:6px}
+    .enlarge-close:hover{color:#201e1d}
+    @media (max-width:1100px){.front{grid-template-columns:1fr}.book-stage{flex-direction:column;align-items:center;overflow-y:auto}.bpanel{width:min(290px,86vw)}}
+  </style>
+</head>
+<body>
+{% include "_header.html" %}
+<main>
+  <div class="eyebrow">
+    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="2" width="13" height="17" rx="2"/><path d="M5 6h13"/><path d="M10 19v-3h4v3"/></svg>
+    MAKING THE CUT
+  </div>
+  <div class="head-row">
+    <h1>Studio</h1>
+    <div class="head-stamp">{{ state.year }}_W{{ '%02d'|format(state.week_no) }}_{{ state.theme or 'THEME' }}</div>
+  </div>
+
+  <div class="action-strip">
+    <button type="button" class="icon-act tt" data-drop-open data-tip="Drop the batch (or drag files here)"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg></button>
+    <span class="action-note">everything auto-generates from the calendar week</span>
+    <span style="flex:1"></span>
+    <div class="head-actions">
+      <button type="button" class="tt" data-open-book data-tip="The room - ten panels"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="3" width="14" height="18" rx="1"/><path d="M9.5 3v18"/></svg></button>
+      <button type="button" class="tt" data-undo data-tip="Undo (Z)"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg></button>
+      <button type="button" class="is-bin tt" data-open-tray data-tip="Trash bin - restore"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M8 6V4a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1v2"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/></svg></button>
+      <button type="button" class="is-commit tt" data-commit data-tip="Commit to Cataloger"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="m11 17 2 2a1 1 0 1 0 3-3"/><path d="m14 14 2.5 2.5a1 1 0 1 0 3-3l-3.88-3.88a3 3 0 0 0-4.24 0l-.88.88a1 1 0 1 1-3-3l2.81-2.81a5.79 5.79 0 0 1 7.06-.87l.47.28a2 2 0 0 0 1.42.25L21 4"/><path d="m21 3 1 11h-2"/><path d="M3 3 2 14l6.5 6.5a1 1 0 1 0 3-3"/><path d="M3 4h8"/></svg></button>
+    </div>
+    <a class="week-nav tt" data-tip="Previous week" href="/studio?week={{ state.week_prev }}"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="m15 6-6 6 6 6"/></svg></a>
+    <a class="week-nav tt" data-tip="Next week" href="/studio?week={{ state.week_next }}"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="m9 6 6 6-6 6"/></svg></a>
+    <input type="file" multiple hidden data-file-input>
+  </div>
+  <div class="rule"></div>
+
+  <div class="front">
+    <section>
+      <h2 class="col-label" data-theme-label>{{ state.year }}_W{{ '%02d'|format(state.week_no) }}_{{ state.theme or 'THEME' }}</h2>
+      <div class="wall" data-wall></div>
+    </section>
+
+    <section>
+      <h2 class="col-label">LOUP</h2>
+      <div class="reader">
+        <div class="reader-stage" data-reader-stage>
+          <div class="reader-empty">Nothing in the reader.<br>Press any tile - in the wall, the book, or the microfiche.</div>
+        </div>
+        <div class="transport" data-transport hidden>
+          <button type="button" data-rewind title="Rewind"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 19 2 12 11 5 11 19"/><polygon points="22 19 13 12 22 5 22 19"/></svg></button>
+          <button type="button" class="a-play-toggle" data-play-toggle title="Play / pause"><svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="8 5 19 12 8 19 8 5"/></svg></button>
+          <button type="button" data-forward title="Fast forward"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 19 22 12 13 5 13 19"/><polygon points="2 19 11 12 2 5 2 19"/></svg></button>
+          <div class="track"><i data-play-progress></i></div>
+          <span class="ttime" data-play-time>0:00 / 0:00</span>
+        </div>
+        <div class="reader-status">
+          <button type="button" class="a-raise tt" data-reader-raise data-tip="Approve - raise into the week"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12l5 5L20 7"/></svg></button>
+          <button type="button" class="a-dismiss tt" data-reader-dismiss data-tip="Reject - to the bin"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+          <button type="button" class="tt" data-enlarge-now data-tip="Enlarge (E)"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h6v6"/><path d="M9 21H3v-6"/><path d="M21 3l-7 7"/><path d="M3 21l7-7"/></svg></button>
+          <button type="button" class="tt" data-reader-prev data-tip="Previous"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="m15 6-6 6 6 6"/></svg></button>
+          <button type="button" class="tt" data-reader-next data-tip="Next"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="m9 6 6 6-6 6"/></svg></button>
+        </div>
+        <div class="reader-meta" data-reader-meta></div>
+        <div class="reader-name" data-reader-name></div>
+        <div class="motion-ctl">
+          <button type="button" class="drop-open" data-motion>MOTION ON</button>
+          <span>clips play only when you press play - kind to the 4 GB of VRAM.</span>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <h2 class="col-label">OPTIONS</h2>
+      <div data-microfiche></div>
+    </section>
+  </div>
+
+  <div class="status" data-studio-status role="status" aria-live="polite"></div>
+</main>
+
+<footer style="margin:44px auto 0;padding:16px 24px;border-top:1px solid #dde2e6;display:flex;justify-content:space-between;font:500 9px 'Jost','Segoe UI',sans-serif;letter-spacing:.16em;color:#a8afb6">
+  <span>EVOLEU MEDIA LIBRARY</span><span>PHOENIX, USA</span>
+</footer>
+
+<!-- Trash tray - restore rejected content -->
+<div class="tray" data-tray hidden>
+  <div class="tray-frame">
+    <div class="tray-head">
+      <span class="tray-title" data-tray-title>TRASH TRAY</span>
+      <button type="button" data-tray-close>CLOSE</button>
+    </div>
+    <div class="tray-list" data-tray-list></div>
+    <div class="tray-foot">
+      <button type="button" data-tray-empty>EMPTY TRAY</button>
+    </div>
+  </div>
+</div>
+
+<!-- The book room - ten panels, 4 tight in the front, hand-dial on top -->
+<div class="book" data-book hidden>
+  <div class="book-bar">
+    <div class="book-title" data-book-title>THE WEEK</div>
+    <button type="button" class="dial-arrow tt" data-book-prev data-tip="Previous panel"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="m15 6-6 6 6 6"/></svg></button>
+    <input type="range" class="dial-track" data-dial-track min="0" max="9" step="1" value="0" aria-label="Room panels">
+    <span class="dial-num" data-dial-label>1 / 10</span>
+    <button type="button" class="dial-arrow tt" data-book-next data-tip="Next panel"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="m9 6 6 6-6 6"/></svg></button>
+    <button type="button" class="book-close tt" data-book-close data-tip="Close (Esc)"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+  </div>
+  <div class="book-stage" data-book-stage></div>
+</div>
+
+<!-- Enlarge -->
+<div class="enlarge" data-enlarge hidden>
+  <button type="button" class="enlarge-close tt" data-enlarge-close data-tip="Close (Esc)"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+  <div data-enlarge-body></div>
+</div>
+
+<script>window.STUDIO_STATE = {{ state|tojson }};</script>
+</body>
+</html>

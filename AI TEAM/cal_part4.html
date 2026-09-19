@@ -1,0 +1,50 @@
+    {% if assistant_panels %}
+    <div class="hero-side">
+      <section class="assistant-chat" data-assistant-chat>
+        <div class="assistant-chat-header">
+          <div class="assistant-tabs" role="tablist" aria-label="Assistant chat tabs">
+            {% for assistant in assistant_panels %}
+            <button type="button" class="assistant-tab{% if loop.first %} active{% endif %}" data-assistant-tab="{{ assistant.kind }}" aria-selected="{{ 'true' if loop.first else 'false' }}">{{ assistant.name }}</button>
+            {% endfor %}
+          </div>
+          <div style="display:flex;align-items:center;gap:6px">
+            <button type="button" class="chat-godzilla" data-assistant-select="godzilla" title="Chat with Godzilla" aria-label="Chat with Godzilla">
+              <span class="minisprite" aria-hidden="true">
+                <span class="g-ear g-ear-l"></span>
+                <span class="g-ear g-ear-r"></span>
+                <span class="g-body"></span>
+                <span class="g-eye g-eye-l"></span>
+                <span class="g-eye g-eye-r"></span>
+                <span class="g-tail"></span>
+              </span>
+            </button>
+            <button type="button" data-activity-open title="Assistant activity" aria-label="Assistant activity" style="border:0;background:none;padding:0;cursor:pointer;color:#7A8084;display:inline-flex"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12h3.5l2-6 3.5 12 2.5-8 1.8 4H21"/></svg></button>
+          </div>
+        </div>
+        <div class="assistant-chat-body">
+          <div class="chat-messages" data-chat-messages>
+            <div class="empty-line"></div>
+          </div>
+          <div class="chat-input-wrap">
+            <textarea data-chat-input placeholder="Ask an assistant…"></textarea>
+            <div class="godzilla-treats" data-godzilla-treats hidden>
+              <button type="button" data-treat="bacon">🥓 Bacon</button>
+              <button type="button" data-treat="ice cream">🍦 Ice cream</button>
+              <button type="button" data-treat="rice pudding">🍚 Rice pudding</button>
+              <button type="button" data-treat="popcorn">🍿 Popcorn</button>
+              <button type="button" data-treat="McNuggets">🍗 McNuggets</button>
+              <button type="button" data-treat="hold hand">✋ Hold hand</button>
+            </div>
+            <div class="chat-actions">
+              <button type="button" data-chat-clear class="icon-btn" title="Clear the conversation" aria-label="Clear the conversation"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M9 9l6 6M15 9l-6 6"/></svg></button>
+              <button type="button" data-chat-send class="icon-btn" title="Send" aria-label="Send"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 3L10.5 13.5M21 3l-6.8 18-3.7-7.5L3 10l18-7z"/></svg></button>
+            </div>
+          </div>
+        </div>
+      </section>
+      <div class="week-nav" aria-label="Calendar navigation">
+        <a href="/calendar?start={{ previous_start.isoformat() }}" title="Earlier" aria-label="Earlier"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6l-6 6 6 6"/></svg></a>
+        <a href="/calendar?start={{ next_start.isoformat() }}" title="Later" aria-label="Later"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg></a>
+      </div>
+    </div>
+    {% endif %}

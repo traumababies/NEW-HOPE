@@ -66,7 +66,7 @@ def require_owner(request: Request):
 
 @router.get("/login", response_class=HTMLResponse)
 def login_page() -> str:
-    return """<!doctype html><html><head><meta charset="utf-8"><title>Login · Évolué</title>
+    return """<!doctype html><html><head><meta charset="utf-8"><link rel="stylesheet" href="/static/ui.css"><title>Login · Évolué</title>
 <style>
   :root{--ink:#7A8084;--muted:#8B9195;--line:#CDD1D4}
   *{box-sizing:border-box}html,body{margin:0;height:100%}

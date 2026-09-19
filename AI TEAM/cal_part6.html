@@ -1,0 +1,31 @@
+        <div class="tiles" aria-label="Nine posts">
+          {% for post in week.posts %}
+          {% set cv = version_map.get(post.cover_version_id) if post.cover_version_id else None %}
+          <div class="tile{% if post.creative_status.value == 'approved' %} decided approved{% elif post.creative_status.value in ('rejected', 'redo', 'replace') %} decided{% endif %}" data-tile data-post-id="{{ post.id }}" data-status="{{ post.creative_status.value }}" title="Post {{ post.visual_position }}">
+            <a class="tile-link" href="/posts/{{ post.id }}" aria-label="Post {{ post.visual_position }} — open editor">
+              {% if post.cover_version_id %}{% if cv and cv.mime_type and cv.mime_type.startswith('video/') %}
+              <video class="tile-img" data-tile-video muted playsinline preload="metadata" src="/media-versions/{{ post.cover_version_id }}?w=180&h=320"></video>
+              {% else %}
+              <img class="tile-img" loading="lazy" src="/media-versions/{{ post.cover_version_id }}?w=180&h=320" alt="Theme tile {{ post.visual_position }} for week {{ week.week_number }}">
+              {% endif %}{% else %}<span class="tile-no-media">{{ post.visual_position }}</span>{% endif %}
+            </a>
+            <span class="tile-badge" aria-hidden="true"><span class="b1">IPTC · SUBJECT CODES</span><span class="b2">SEQUENCE {{ '%02d'|format(post.visual_position) }}</span></span>
+            <div class="tile-strip" data-tile-strip>
+              {% if post.creative_status.value == 'approved' %}
+              <svg class="status-icon is-ok" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 13l4 4L19 7"/></svg>
+              {% elif post.creative_status.value in ('rejected', 'redo', 'replace') %}
+              <svg class="status-icon is-no" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M6 6l12 12M18 6L6 18"/></svg>
+              {% else %}
+              <button type="button" class="strip-act play-toggle" aria-label="Toggle play" title="Play / pause"><svg class="status-icon is-play" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="4" width="4" height="16" rx="1"/><rect x="14" y="4" width="4" height="16" rx="1"/></svg></button>
+              <button type="button" class="strip-act ok" data-approve aria-label="Approve" title="Approve"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 13l4 4L19 7"/></svg></button>
+              <button type="button" class="strip-act no" data-reject aria-label="Reject" title="Reject"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+              {% endif %}
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+      </article>
+      {% endfor %}{% endfor %}
+    </div>
+  </section>
+</main>

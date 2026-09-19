@@ -1,0 +1,304 @@
+Azure Cloud Server (http://127.0.0.1:8011):python -m uvicorn app.main:app --port 8011 --env-file app/.env
+Local Server:cd C:\Users\Bunbunz\Documents\New Hope
+powershell -ExecutionPolicy Bypass -File .\Scripts\start-local-8000.ps1
+OR:cd C:\Users\Bunbunz\Documents\New Hope
+$env:DATABASE_URL = "sqlite:///./local_sandbox.sqlite3"
+python -m uvicorn app.main:app --host 0.0.0.0 --port 8000 --env-file app/.env
+
+
+A. MEDIA LIBRARY
+
+1. Library/AI Team Chatbox and Panel
+a. Library Collections
+i. 9 Subjects (IPTC Subject Codes)
+-Each with own backup folder for Raw Original image/video without UUID and folder for Derivative Work not yet posted.
+-Each with own folder of formerly posted work with dates of when they were posted in case of repost.
+b. Assets
+i. Cataloged Assets- Final Approval by Jean makes them permanent Collection of the Library
+ii. Uncataloged Assets- Still in Queue for Cataloger to catalog and Request Jean's Approval.
+c. Cataloging System
+i. Cataloger
+-. Azure AI Vision
+-. Azure Documents and Intelligence
+-. Face Scan for Shared Photos with Disclaimer
+ii. ISO 8601 (YYYY-MM-DD)
+iii. IPTC Subject Codes (3 letters)
+a. Historical Beauty Rituals & Culture:
+CUL (01000000/20000040) - Culture, Customs, and Heritage Traditions
+b. Museum Art About Beauty:
+ART (01009000/20000043) <<OWNER CONFIRM>> - Libraries & Museums or Fine Art Exhibitions
+c. Hollywood & Editorial Philosophy / Skincare in Vintage Film:
+CIN (01005000/20000005) - Cinema/Film Industry
+d. Organic/Raw ingredients vs. Synthetic Ingredients (Cosmetic Safety Database):
+CHM (04002005) - Chemicals/Organic Compounds if focusing strictly on ingredients.
+e. Wellness and Healthy Habits:
+HLT (07000000) - Health & Welfare if focusing on health/safety
+f. Evolue Product Shot 
+PRD (04002003) - Consumer Products, or
+g. Evolue History:  FIN (04000000) - Business Brands
+h. Holidays:
+LIF (10000000/20000041) <<OWNER CONFIRM>> - Festive Events, Holidays, and Seasonal Observances
+i. Texture (ASMR, Oddly Satisfying, Sensory Videos):
+HUM (08000000) - Human interest/Novelty & Oddities or Visual Art & Design
+iv. Dublin Core (15 Subjects + UUID w/uuidv7(), dcterms:hasVersion and dcterms:isVersionof)- 1. dc:title = In file name (available after MUSE) a: "YYYY_W##_THEME_FILE-EXTENSION_SEQUENCE_for-HOST"
+- 2. dc:creator = "Evolue Media Team" is default
+- 3. dc:subject = In file name (available after Muse): IPTC-SUBJECT-CODES
+- 4. dc:description = Captions and Hashtags for Instagram/TikTok once they are Approved (COPYWRITER - available after final approval)
+- 5. dc:publisher = "Evolue Skincare Inc" by default
+- 6. dc:contributor = "Original Creator via url of platform and image/video" ex: Jane Doe via www.pixels.com/photo/12345 (Available by CONTENT SCOUTS after Studio Cut)
+- 7. dc:date = In file name: "yyyy-mm-dd" - always use creation date after final approval (MEDIA EDITOR)
+- 8. dc:type = In file name: .FILE-EXTENSION - use "MovingImage" for video (mp4) and "StillImage" for image (jpeg, png, webp), and for documents, codes, html, anything in a language use "Text" (docx, pdf, html, json, md), "Sound" for audio files, "Dataset" for spreadsheets and databases, "Software" for computer programs, applications, or executable scripts (distinct from the raw text files containing code), and "InteractiveResource" for web applications, VR environments, or games requiring user input (Available by CONTENT SCOUTS after Studio Cut)
+- 9. dc:format = in file name: .FILE-EXTENSION - use image/jpeg or image/png or image/webp. For videos, video/mp4. For text, text/docx, text/html, text/md, text/json, text/pdf (Available at the same time as dc:type, after Studio Cut)
+- 10. dc:identifier = Full file name - "YYYY-MM-DD_W##_IPTC-SUBJECT-CODES_THEME_SEQUENCE_HOST.FILE_EXTENSION" (Available after Final Approval)
+- 11. dc:source = "URL of platform" ex: www.pixels.com (Available after Studio Cut)
+- 12. dc:language = "eng" by default - Use ISO 639-3 Standards
+- 13. dc:relations = In file name: "YYYY_IPTC-SUBJECT-CODE" ex: 2026_CUL
+- 14. dc:coverage = "Global" by default
+- 15. dc:rights = "© 2026 Evolue Skincare Inc. All rights reserved for new creative additions. Pre-existing image elements are utilized under the standard content license provided by dc:resource." is default (Available by CONTENT SCOUT after Studio Cut)
+ex: © 2026 Evolue Skincare Inc. All rights reserved for new creative additions. Pre-existing image elements are utilized under the standard content license provided by www.pexels.com
+- 16. dcterms:hasVersion (Original) and dcterms:isVersionof (Derivative) are "Version" with dc:identifier=url of original work creating UUIDs that links both Original and Derivative works. UUIDs are created using uuidv7() which uses time and random numbers.
+v. Schema.org (Json-LD)
+Schema.org is JSON-LD, a PROJECTION of the Dublin Core block plus catalog evidence - never an independent invention. If a Dublin Core field is blank, the matching Schema.org field stays blank.
+- @type mapping from dc:type: StillImage>ImageObject, MovingImage>VideoObject, Sound>AudioObject, Text>DigitalDocument, Dataset>Dataset, Software>SoftwareApplication, InteractiveResource>MediaObject
+- Required (7): @context, @type, @id (= uuidv7(), the same UUID linking Original and Derivative), name (dc:title), description (dc:description), contentUrl (SAS-token URL ONLY - a raw/private URL is NEVER written here; omitted if not authorized for sharing), encodingFormat (dc:format)
+- Structural (6): width, height (ImageObject only), duration (seconds; VideoObject/AudioObject only), uploadDate (ISO date from the FILENAME only), dateCreated (immutable-filename rule - empty if filename has no ISO date, never guessed), thumbnailUrl (SAS token)
+- Provenance (6): creator (dc:creator, "Evolue Media Team" default), publisher (dc:publisher, "Evolue Skincare Inc"), contributor (dc:contributor), license, creditText, copyrightNotice (dc:rights wording incl. source platform)
+- Lineage (3): isBasedOn (original's dc:identifier URL - the machine mirror of dcterms:isVersionof on the Derivative), isPartOf (YYYY_W##_THEME), keywords (IPTC Subject Codes + derived)
+- Rules: no private person/location/claim/private URL ever exposed; never promoted to public schema without approval - private archive first; canonical definitions at https://schema.org
+- Full field tables and worked JSON-LD examples: SCHEMA-ORG-JSON-LD-CATALOG-STANDARD.md (single authoritative source)
+vi. Open Graphs/META (OG)
+Core Open Graph Fields (Required 4)
+- og:title: The title of your page or object. (Keep it under 60 characters so it does not get cut off).
+- og:type: The type of content you are sharing (common values include website or article).
+- og:image: The URL for an image that represents your content (recommended size is 1200×630 pixels).
+- og:url: The canonical (permanent and unique) URL of your page.
+Common Optional Fields
+- og:description: A short summary of your content (usually 2 to 4 sentences).
+- og:site_name: The name of your overall brand or website.
+- og:locale: The language of the page (e.g., en_US).
+- og:video or og:audio: Links to media files if your page features a clip or track.
+Extended Fields (For Articles)
+- article:published_time: When the post went live (in ISO 8601 format).
+- article:modified_time: When the post was last updated.
+- article:author: A link to the writer's profile.
+- article:tag: Keywords or categories associated with the post.
+d. Virtual Data Room (VDR) with Lock
+-Locked with Key Vault
+2. Reviews/AI Team Chatbox and Panel
+a. Content queues are here for the Cataloger to catalog and for Jean to Review and Approve/Reject/Replace. Once approved, content enters the Library Collection.
+
+3. Content Request/VIP Access/Shared
+a. Must sign a disclaimer so the Cataloger can use Face Recognition tech to retrieve your face for you to download.
+b. VIP Access for games and kittens
+
+4. Calendar/AI Team Chatbox and Panel
+a. Where Jean can write the THEME of the week for up to 52 weeks ahead. Must SAVE.
+b. It has light green checkmarks on all tiles that are approved and waiting to post, allowing her to see nine weeks at a glance.
+c. Arrows move 9 weeks previously or next at a time.
+5. Week/Creative Studio
+a. Where 'Creative Director', 'Current Events', and 'Fact Check' write the 'Creative Brief'
+b. The 'Creative Brief' JAN review is requested here. Jean approves on the 'Creative Brief' Page under Approvals Page.
+c. Week's THEME IMAGE is here and can be loaded, edited, and approved here. d. There are two arrows at the top for the Creative Brief and another set at the bottom for Theme Images for the previous week and the next week.
+When she first routes here she lands on the current week.
+e. It has a CHECKMARK icon for Jean to Approve the THEME IMAGE. Jean can upload and approve any THEME Image and Posts for any week at any time. These Approved Images go directly to the 'Publishing Page'. Once Jean Approves, the AI Team does not recommend ideas for them in Creative Briefs, nor do they edit or redo them. They skip and move on to next that is not approved.
+f. Once Jean Approves, the AI Team does not recommend ideas for them in Creative Briefs, nor do they edit or redo them. They skip and move on to next that is not approved.g. There is also a 'Standalone Project' option here where what Jean creates goes into 'Jean's Creations Collections folder with "YYYY_IPTC-Subject-Code.File-Format" 
+6. Post/Creative Studio/AI Team Chatbox and Panela. There are two arrows on the right moving from post to post.When she routes here, she is routed to the current week's post.b. Jean can make simple edits and use the Creative Studio to add Stickers, Emojis, and Words.c. There are basic audio, image, and video editors here. For advanced software, go to Media Editor Page.d. Jean can upload and approve any Posts for any week at any time here. These Approved Images/videos go directly to the Approvals Page for 'Copywriter', 'Current Events', and 'Fact Check' to work on Captions and 5 Hashtags.e. Once Jean Approves, the AI Team stops recommending ideas for it in Creative Briefs and does not edit or redo it. They skip the approved item and move on to the next unapproved one.f. There is also a 'Standalone Project' option here where what Jean creates goes into 'Jean's Creations Collections folder with "YYYY_IPTC-Subject-Code.File-Format"
+7. Media Editor/Creative Studio
+a. AI-generated Image, Video, and Audio software
+b. In the Create Box, pick Image, Video, or Audio, write the prompt, and click generate for quick start - choose standalone or Week/Postc. Connected Console buttons and features for ComfyUI (including versions like Animatediff and HunYuan 1.5) and Ace Studio's song/instrumental music generator (using the INSPIRE ME prompt with lyrics) are also available. Also available is the AI-generated video correcting tool GrowMask. Read directions on the bubbles that appear when you hover over the controls. Defaults are programmed.d. There is also a 'Standalone Project' option here where what Jean creates goes into 'Jean's Creations Collections folder with "YYYY_IPTC-Subject-Code.File-Format"e. Review Desks has Approve/Reject/Replace and Save options.
+
+8. Studioa. The Studio is designed so Jean can quickly go through 90+ images and videos in the Microfiche room; this is the first pass. b. Everything she Selects goes to the front room for deeper review.c. All images have Approve, Play/Pause, and Reject options. Rejected ones go to Recycle Bin where they can be Restored. d. The content that didn't make the cut for the Week's Posts, but wasn't Rejected, appears in the Options section on the right. Jean can select Upload, and it goes immediately to the cataloger, then to the appropriate back up folder.e. When Jean commits at the end, all unselected work is destroyed instantly so there are no accidental leftovers ending up in the Collections. f. Upon COMMIT, the SELECTED content generates uuidv7() and creates the Derivative Version, linking them with dc:indicator. They are given two separate metadata sets—one for Original Work and one for Derivative Work—and routed accordingly.
+g. For the 9 tiles on the Panel for the Week's Posts, she can Pick from the middle if she wants them to go to the Post Page for simple Edits, or send them to the Media Editor to modify via AI generation.
+
+9. Approvalsa. 9 Posts with image/video editing done are waiting for the COPYWRITER, Current Events, and Fact Check to write a Caption and 5 Hastags for each Post (TikTok and Instagram separately) for Jean to Approve/Reject/Replace - up to 2 times, then more only with Jean's password.b. After approval here, Posts are sent to the Cataloger to be Cataloged and once Approved, they become a permanent part of the Library Collections in Container Bunbuns. Afterward, they are sent to the Publishing Page to prepare and post.c. Two arrows on the top right navigate to the previous and next week
+
+10. Creative Brief
+a. Dropdown under Approvalsb. Creative direction detailing very specific visuals for the videos.c. 10 panels that are 3x3 (9x16 dimensions) with a description under each panel giving exact directions on what the video needs to be about along with lyrics or instrumental for custom songsd. Title on top left of page: "YYYY_W##_THEME_HOST"e. Top Right Corner of Every Tile: "IPTC-Subject-Code_Sequence##"
+
+11. Publishing
+a. Two 3x3 Panels, one for TikTok and one for Instagram with the Week's Theme Image and different tile numbers according to the platform.b. When you click on the Theme Image Tile, it shows individual Posts.c. The rows show which tiles are ready, which three columns are ready to post, and which ones are not. Posts holding up the line show the same stripe at the bottom as in the Studio, indicating Approved/Rejected/OnHold status.d. Two arrows on the top right go to the previous and next week.e. Next to the arrows are icons that take Jean to the Manual Publishing Pages for TikTok or Instagram
+12. Manual Publishing
+a. It has the same 3x3s for Instagram and TikTok as the Publishing Room. b. Arrows for previous and next week.c. Icons route to TikTok or Instagram login page.d. Jean must come back after posting and confirm.
+
+13. History
+a. Shows ten theme images and posts per page with image thumbnails and partial text edits with relevant metadata. with arrows for previous and next 10 items.b. Clicking on each item routes to the Learning Center where you can read the full Creative Brief, what was rejected or replaced and why.c. Objective: To train new Team Members or anyone who needs training on how to achieve the desired aesthetic/quality standard.
+14. Learning Center
+a. Each page is dedicated to a post, containing 1 (created from scratch) or 2 (Original and Derivative work) images, the Creative Brief, and all markups, text, and multiplicative edits. This page includes a section where Jean can write more called 'Grading Rationale/Methodology' to explain Why.
+
+15. Brand Setting
+a. Upload Brand Logo
+b. Type your Entity's name is you would like to display on website
+
+16. Login/Logout
+a. Need email and password to request access.
+
+B.  AI TEAM
+1. Creative Director AI
+2. Brief Validator AI
+3. Creative Grader AI
+4. Production Grader AI
+5. Current Events AI
+a. Groq Compound
+b. Azure AI Vision
+
+6. Fact Check AI
+a. Groq Compound-mini
+b. Azure AI Vision
+
+7. Muse AI
+8. Content Scouts
+- Azure AI Vision
+"YYYY_W##_IPTC-Subject-Code_Sequence"
+a. Pixabay API Prompt: Role: You are an AI Media Sourcing Agent dedicated solely to the Pixabay API.
+Objective: Find media for 9 distinct subjects.
+API Constraints & Strategy:- Maximize your single payload: Set `per_page=200` to grab 200 items in one call.
+- Strict Capping: Do NOT paginate. Limit your lookup to Page 1 only per subject. 
+- Evaluation: Parse the array of 200 image objects. Rate the relevance of the images based on tags, description, and type.
+- Target: Select the top matches that fulfill the subject requirements. If no matches are found in the 200 items, mark the subject as "failed/requires keyword rewrite." Do not request page 2.
+b. Pexels API Prompt: "YYYY_W##_IPTC-Subject-Code_Sequence"Role: You are an AI Media Sourcing Agent dedicated solely to the Pexels API.
+Objective: Find media for 9 distinct subjects.
+API Constraints & Strategy:
+- Maximize your payload: Set `per_page=80` to grab 80 items in a single call.
+- Strict Capping: Limit your lookup to Page 1 only per subject. Do not request page 2.
+- Evaluation: Review the 80 image metadata objects (tags, alt text, photographer style) to score relevance.
+- Target: Select the top matches. If the first 80 results do not contain what the user needs, stop searching this keyword and report back.
+c. Unsplash API Prompt:"YYYY_W##_IPTC-Subject-Code_Sequence"Role: You are an AI Media Sourcing Agent dedicated solely to the Unsplash API.
+Objective: Find media for 9 distinct subjects.
+API Constraints & Strategy:
+- Baseline Limit: Set `per_page=30` (Unsplash's maximum limit).
+- Pacing/Throttling: You are strictly rate-limited to 50 requests per hour. You MUST execute a hard 12-second delay (sleep) between each of the 9 subjects to prevent API blocks.
+- Pagination Conditional: You are permitted to check `page=2` ONLY if Page 1 returns fewer than 3 relevant matches. Never go past page 2.
+- Target: Isolate the highest-quality photography matches from the 30–60 items retrieved.
+d. Coverr API Prompt:"YYYY_W##_IPTC-Subject-Code_Sequence"Role: You are an AI Video Sourcing Agent dedicated solely to the Coverr API.
+Objective: Find stock video footage for 9 distinct subjects.
+API Constraints & Strategy:
+- Baseline Limit: Set `page_size=20` (Coverr's maximum limit).
+- Pacing/Throttling: You are strictly rate-limited to 50 requests per hour. You MUST execute a hard 12-second delay (sleep) between each of the 9 subject queries.
+- Strict Capping: Do NOT paginate. Limit your lookup to Page 1 only per subject.
+- Evaluation: Video processing is heavy. Evaluate the video titles, tags, and aspect ratios of the 20 results carefully to find the best match. 
+
+9. Cataloger AI
+a. Azure AI Vision
+b. Azure Document and Intelligence
+c. Face Scan
+
+10. Media Editor AI
+
+11. Copywriter AI
+12. Copy Grader AI
+
+13. Scheduler AI
+C. CONTENT
+1. THEME
+a. 1 THEME per week
+b. 1 THEME IMAGE per week
+i. Image relating to theme per week
+ii. Cut into 9 tiles and attached as thumbnail/cover posts to 9 posts of the week
+2. SUBJECTS - 9 SUBJECTS of the brand - IMMUTABLE
+a. Historical Beauty Rituals & Culture: CUL  - Culture, Customs, and Heritage Traditions
+b. Museum Art About Beauty: ART - Libraries & Museums or Fine Art Exhibitions
+c. Hollywood & Editorial Philosophy / Skincare in Vintage Film: CIN - Cinema/Film Industry
+d. Organic/Raw ingredients vs. Synthetic Ingredients (Cosmetic Safety Database): CHM - Chemicals/Organic Compounds if focusing strictly on ingredients.
+e. Wellness and Healthy Habits: HLT  - Health & Welfare if focusing on health/safety
+f. Evolue Product Shot: PRD - Consumer Products
+g. Evolue History: FIN - Business Brands
+h. Holidays: LIF - Festive Events, Holidays, and Seasonal Observances
+i. Texture (ASMR, Oddly Satisfying, Sensory Videos): HUM - Human interest/Novelty & Oddities or Visual Art & Design
+3. IDEAS - IDEAS are how the Week's THEME relates to the company's SUBJECT. One idea per SUBJECT, then look for 9 videos per Idea, totaling 81 per week. Only one idea is chosen out of 9.
+a. Idea 1 - Each Idea is given 9 images/videos from which to select. Content Scouts gather them, or the Media Editor creates them from scratch.
+b. Idea 2 - Same As Above
+c. Idea 3 - Same As Above
+d. Idea 4 - Same As Above
+e. Idea 5 - Same As Above
+f. Idea 6 - Same As Above
+g. Idea 7 - Same As Above
+h. Idea 8 - Same As Above
+i. Idea 9 - Same As Above
+
+D. CREATIVE BRIEF (Needs a Subdirectory Under Approvals)
+1. JAN (Jean Approval Needed)
+2. Content -  81 Ideas, 9 Subjects (with IPTC Subject Codes) and how each relates to the Week's THEME x 9.
+3. Creative Direction: Mood, feelings, scenes, audio with or without lyrics, and detailed image and video directions.
+4. FORM (A page with Approve, Reject, and Replace options for when content is written, and for the Media Editor to create rejected items after studio review.)  Tracks completion status and reasons for pending items)
+i. Creative Brief has YYYY_W##_THEME_HOST as Title
+ii. Creative Direction
+iii. 10 PANELS (1 for THEME IMAGE, 9 for POSTS) - Each Panel has 9 tiles for Images/Videos. Every Tile for Posts has an IPTC Subject Code and is numbered 1 to 9. The THEME IMAGE Panel has 9 Tiles that are numbered TI01, TI02, TI03.... TI09. Each Panel can be Approved/Rejected/Replaced (A/R/R) as a whole; each Tile can be A/R/R individually. Shows what has been gathered by 'Content Scouts'.
+iv. Section for the Media Editor to check off for each post whether the work he will be doing is Derivative or Create from Scratch, with choices he can check off for what software he will be using. v. An area for Jean to comment at every Review fork so the edits are tracked correctly without confusion. 
+
+E. Rules
+1. JAN - Jean Approval Needed to Move Forward
+a.Content Needing Jean's Approval with her password
+b. When requested, Jean is alerted, the request is on the AI TEAM Panel as Jean's Pending.
+c. When anyone tries to move forward on the Content, it is blocked with an explanation that it is pending Jean's Approval
+d. Once Jean Approves, the block is removed for the next phases until the next JAN step. All phases are programmed with which JANs need approval for them to unblock access.
+e. Jean can override the block with a unique override password.
+2. Once Jean Approves a THEME IMAGE or a POST, the AI Team stops recommending ideas for it in Creative Briefs and refrains from editing or redoing it. They skip the approved item and move on to the next unapproved one.
+3. For Publishing, All Content must go out in numerical Order.
+4. Subject Spread - No single IPTC Subject may occupy more than 5 of a week's 9 Post tiles; target 3-5 distinct subjects per week so platform classifiers can place the account. Enforced in code (subject_spread_ok), never in a prompt.
+5. Identifier clarity - Two distinct identifiers exist and must never be read as one: (a) Assignment/Tile label (display, Creative Brief, Scout numbering): YYYY_W##_IPTC-Subject-Code_Sequence  (b) Canonical FILENAME on disk: YYYY-MM-DD_W##_IPTC-SUBJECT-CODES_THEME_SEQUENCE_HOST.FILE_EXTENSION - date-first, so dc:date/dc:identifier/ISO 8601 always resolve from the filename.
+F. Formats
+1. For THEME on CALENDAR Page and/or WEEK Page - YYYY_W##_THEME
+2. For Creative Brief Title - "YYYY_W##_THEME_HOST"
+3. For every tile for approval on pages and Creative Briefs - Top Right Corner "IPTC-Subject-Code_Sequence##"
+4. When gathering images and videos, each Tile on the Creative Brief is the CONTENT SCOUT NUMBER and Unique Assignment Name made with YYYY_W##_IPTC-Subject-Code_SEQUENCE.
+5. Content Scouts need to collect various data for each Tile - dc:contributor, dc:type, dc:format, dc:source, dc:rights
+6. Once UUIDs are generated, the Original Work is "dc:identifier_dcterms:hasVersion_Version_uuid" and the DERIVATIVE copy is "dc:identifier_dcterms:isVersionof_Version_uuid"
+7. Full name once approved in Post Page or Media Editor Page are "YYYY_W##_IPTC-Subject-Code_THEME_Sequence_HOST.File-Extension" for newly created works. For Derivatives it's "YYYY_W##_IPTC-Subject-Code_THEME_Sequence_HOST_dc:identifier_dcterms:isVersionof_uuidv7().File-Extension".
+8. Jean's Standalone Projects are saved in Jean's Creations' Folder in Library Collections with "YYYY_IPTC-Subject-Code.File-Format"
+G. Backend Architecture
+1. To reduce duplicates of large image and video files, maximize the efficiency of linear routing between subdomains, and preserve content quality across multiple steps, I chose the 'State-Machine Pipeline via Centralized Metadata Architecture' or 'Metadata-Driven Pipeline' with 'Closed-Loop' for the following reasons:
+2. Our main Blob Storage is godzilla11267. The Library keeps the original large files untouched inside Container Bunbuns.3. We need high quality images and videos to move from the Week page to the Post page, then to the Media Editor page, the Approvals page, and the Publishing page before it can finally be named and filed in Container Bunbuns with other cataloged assets where they will be sent to the History Page and the Learning Center as a mirages using Direct-to-Blob 'Remote Asset Distribution' with Shared Access Signature (SAS) tokens stored in the Azure SQL database.4. Since each step/phase manages the images and videos, saving them in high quality at every phase is burdensome and unnecessary. I built a separate Container to manage fleeting assets by keeping heavy files stationary in a shared temporary workspace. This space is shared by the various pages and their steps, and an Azure SQL Database tracks the file's current state as it moves through the Pages.
+a. This Scrappa Container is different from Container Ephemera, which stores temporary files the Content Scouts bring back for Selection Review.5. We can destroy the files after every phase but it's unnecessary and we might want to go back and revise. Therefore, I decided on Just-in-Time Destruction; the moment of destruction is when the Asset is Approved in the Reviews Page after the Cataloger catalogs it and waits for Jean's pending review before entering the permanent Library Collection in Container Bunbuns. The images/videos will be queued to Catalog and enter Container Bunbuns as part of the permanent Collection. At this time all previous versions will be deleted from the Scratchpad Container, CLOSING THE LOOP.6. This will not hinder other Posts from using the Scratchpad Container shared space while they wait to be Published since each image/video (or any file) gets its own row in the SQL Database that keeps track of its current status.7. Since we are charged for Azure Storage use, I decided to use the free, built-in Azure Blob Lifecycle Management, which allows us to program the automatic deletion of unnecessary files automatically after a given time.8. This setup requires an Azure Blob Storage account configured with a main vault and a 'Pipeline Scratchpad Container', an Azure SQL Database tracking table, and Python-based subdomain applications utilizing SAS tokens to process files.a. Azure SQL Database Tracking Tablei. Core Identifier: "YYYY_W##_IPTC-Subject-Codes-Sequence" until after Selection COMMIT then "YYYY_W##_IPTC-Subject-Code_Sequence_dcterms:isVersionof_uuidv7()"ii. Exact Naming of Schema Components - YYYY=creation date, W##=Week scheduled to Publish, IPTC-Subject-Code=Subject, THEME=Theme of the week, Sequence=##, dcterms:isVersionof=Derivative Work, uuidv7()=UUID version with time and random numbersiii. State Machine Location Tracker: - CurrentState - Tracking string that tells the system exactly which room the file is in (e.g., STEP_0_ORIGINAL, STEP_1_COMPLETE, STEP_2_PENDING, PIPELINE_COMPLETE_APPROVED).- ActiveBlobPath - Exact URL or container path pointing to the active heavy file. When a file is in the middle of the pipeline, this points to the pipeline-scratchpad container. When the loop closes, Python script updates this to point to the main-vault container. - AssetVersion - Tracks changes on the Derivative copy separate from the UUID (e.g., v1-0, v1-2).iv. Automated Date Flags:- DateCreated - A system timestamp of exactly when the file entered the universe (YYYY)- LastModified - A system timestamp that updates every single time a subdomain finishes an edit and saves changes.b. Python-based Subdomain ApplicationTo run this pipeline smoothly, every subdomain application workload needs to be built with the exact same four core technical capabilities. Even if each subdomain performs a completely different functions, their underlying Python connection code should be identical.
+Here is exactly what each subdomain application must have:
+i. The Azure SQL Connector (The Listener)
+- Each subdomain must have a database connection module (using a library like pyodbc). This module needs to run a scheduled query (or background worker) that constantly "listens" to the master database to see if work is waiting for it.
+- The Rule: Room 2 should only fetch rows where CurrentState = 'STEP_1_COMPLETE'.
+ii. A Secure Blob Streamer (The SAS Token Generator)
+- Because the pipeline-scratchpad and main-vault containers are strictly private, the subdomain application cannot use raw links to display files. It must include the Azure Blob Storage SDK (azure-storage-blob) to dynamically generate short-lived, read-only SAS tokens.
+- The Rule: When a user logs into Subdomain 2, the backend automatically generates a 1-hour secure URL so the user's browser can safely view the heavy video or image file as a "mirage."
+iii. The "State-Advancement" Logic (The Process Controller)
+- When "Approve" or "Commit" inside a subdomain, the application backend must perform a coordinated three-step execution sweep to pass the file forward:
+- Upload: It pushes the newly edited heavy file into the pipeline-scratchpad using the updated naming schema component (e.g., updating the version tag to v1-2).
+- Update SQL: It executes an UPDATE SQL query on the master database row, moving the CurrentState to the next step and changing the ActiveBlobPath to point to the new file.
+- Special Rule for after STUDIO Page COMMIT: The Studio Page COMMIT icon's application specifically must include a UUID generation library (uuid) to run the uuidv7() code and inject that token into the row for the first time.
+iv. Cross-Origin Resource Sharing (CORS) Alignment- The frontend code of each subdomain app must be configured to pass cross-origin headers correctly. Because the images are streaming from your central storage domain or main domain, the subdomain application's server headers must explicitly allow the browser to render those media files without security blocks.
+v. Closing the Loop- After the Image/Video is cataloged by the Cataloger and Jean Approves the Review of the Asset's Catalog in the Reviews Page, The file enters the Container Bunbuns as permanent Library Collection and all other versions of the file are DELETED, closing the Loop.
+c. The Developer Handout
+i. The Architecture Pattern: A State-Machine Media Pipeline running on a Centralized Metadata Architecture.
+ii. The Storage Tier: One Azure Storage Account utilizing a Permanent Master Blob Container and a Transient/Shared Scratchpad Blob Container with Cross-Origin Resource Sharing (CORS) enabled for your subdomains.
+iii. The Database Tier: A single Azure SQL Database acts as the Workflow State Controller. It must utilize a single AssetIndex table that breaks down the custom filename schema into atomic relational columns.
+iv. The UUID Requirement: The AssetUUID column must be Nullable initially, as a UUIDv7() token is generated programmatically and injected via an UPDATE query specifically after clicking COMMIT on the STUDIO Page of the workflow.
+v. The Automated Queue: An Asynchronous Closed-Loop Lifecycle that "Approve" completed content to the Pulishing Room via a chronological date-check query (Target_Publish_Date <= GETDATE()) while completely isolating and hiding unfinished, pending assets.
+
+STEPS:
+1. 'Jean' saves the "YYYY_W##_THEME" on the CALENDAR or WEEK Pages (See Formats)
+2. The 'Creative Director,' with two assistants, 'Current Events' and 'Fact Check,' writes the 'Creative Brief.'
+A. 'Creative Director and Current Event plan 9 ideas each for 9 SUBJECTS. 
+B. 'Fact Check' writes receipts and flags Ideas she can't fact check.
+C. 'Creative Director and 'Current Events' rewrite Ideas 'Fact Check' flagged.
+D. 'Fact Check' writes receipts. 
+E. 'Fact Check' reports to 'Creative Director' that all Ideas of the Week has receipts.
+F. 'Creative Director' finalizes the 'Creative Brief' in its FORM.
+3. 'Creative Director' sends the 'JAN Request' alerting Jean and landing on the AI TEAM Panel as Jean's PENDING
+4. If Jean approves the 'Creative Brief,' it automatically queues the 'Muse', if Jean rejects the 'Creative Brief,' then the 'Creative Director,' 'Current Events,' and 'Fact Check' rewrite the rejected items only (Creative Brief has boxes to check for Approve,Reject,Replace).
+5. 'Muse' compares 'Creative Brief' Ideas with Cataloged Assets in the Library Collections. She uploads matching content to the STUDIO for review. and checks the appropriate boxes as READY FOR REVIEW (RFR) where the images/videos uploaded to the STUDIO show RFR.
+6. 'MUSE' assigns remaining tiles in the Creative Brief to Content Scouts, giving each Tile the CONTENT SCOUT NUMBER and Unique Assignment Name made with YYYY_W##_IPTC-Subject-Code_SEQUENCE. Content Scouts need to collect various data for each Tile they gather content for - dc:contributor, dc:type, dc:format, dc:source, dc:rights.
+7. To gather content, each 'Content Scout' is assigned to 1 Platform with all IPTC-Subject-Codes (Prevents API key conflicts, Maximizes platform coverage, Easy to track which platform performs best) to avoid Duplicative work. 
+A. 'Content Scouts' use specific prompts tailored to each platform's API limits to ensure they do not exceed them. 'They use API Keys (stored in Key Vaults) to enter Platforms and download Images/videos with Week's THEME pertaining to IPTC-Subject-Codes, specifically in the 'Creative Brief'. When they download, they shrink contents so it's large enough for their HOST (ex: ig-tt or instagram and TikTok are HOST for these runs). They collect metadata for the cataloger (dc:contributor, dc:type, dc:format, dc:source, dc:rights).
+B. The Library's Storage is Azure Blob godzilla11267 with 2 Containers. Container Bunbuns' keeps the Uncataloged Assets queued for the 'Cataloger', and also the Collections and contents the 'Cataloger' cataloged and Jean Approved into the Library Collection.
+C. 'Content Scouts' use the Container 'Ephemera,' which is specifically for quarantining content until it is reviewed in the Studio. The contents are quarantined in Ephemera until they are reviewed in the Studio. Selected items are sent to the Cataloger's Queue, and Rejected are Destroyed as soon as Jean clicks on COMMIT in the Studio. This way there can't be accidental leftovers of unselected works in the Library, they never touch the Library.
+8. When all of them finish searching, Results are loaded into the Studio and the 'Creative Brief' in the appropriate Panel/Subjects/Numbers Tiles. The 'Request to Review Search Results JAN' is sent landing on Jean's Pending list in the AI Team Panel. 
+9. The Studio is designed so Jean can quickly go through 90+ images and videos in the Microfiche room; this is the first pass. Everything she Selects goes to the front room for deeper review.
+where she COMMITS the selected items at the end.
+A. She can Select the content for the Week's Posts, and also Upload the ones she likes to the Backup Folder's Subject Folders after the Cataloger catalogs them. She can also pick the ones she wants Queued in the Post Page if they are simple edits that does not require AI generated content.
+B. When Jean clicks COMMIT, all unselected items are automatically destroyed.
+C. Upon COMMIT, the selected tiles for posts immediately assign UUIDs using 'uuidv7()' - the method that uses time and random numbers - tagging themselves as "dcterms:hasVersion" and replicating DERIVATIVE copies with "dcterms:isVersionof" and "dc:identifier" which is the URL of the original content. The versions are 'Original' and 'Derivative'. They also share "YYYY_W##_IPTC-Subject-Codes_Sequence".
+D. Once UUIDs are assigned, the Original Work "dc:identifier_dcterms:hasVersion_Version_uuid" goes to the Cataloger to be cataloged as Original Content with appropriate metadata. The DERIVATIVE copy "dc:identifier_dcterms:isVersionof_Version_uuid" is sent to the 'Media Editor'.
+E. The Commit also writes the Metadata for both versions here, so the Cataloger's work coming through the Studio should be lighter compared to the other work he has to catalog.
+10. Original works land in the Cataloger's queue. Cataloger follows ISO 8601 standards, Dublin Core, IPTC Subject Codes, Schema.org JSON, and Open Graph standards for all content uploaded into the Library queue. Review and Approval of the Cataloger's work is always required.
+A. Afterward, Jean must approve it before it goes into the Library Collections, under no condition can the Cataloger approve it himself or allow anyone else to approve it.
+B. After, the Original works goes to the Collections Folder, which has its IPTC-Subject-Code in the 'Originals Folder', and the 'History Page' and 'Learning Center' with "YYYY_W##_IPTC-Subject-Code_Sequence_dcterms:hasVersion_dc:identifier_uuid".
+C. He is equipped with Azure AI Vision to catalog images and videos, and is the only AI with Face Recognition software. Therefore, if anyone wants their photos, they need to sign a disclaimer and get their IDs scanned by the cataloger for him to find all their faces.
+D. When the Cataloger finishes cataloging pending items, he always requests JAN where Jean has the option to Approve, Reject, or Replace.
+11. Derivative copies land in the 'Media Editor Page' in Queue. The 'Media Editor' checks the 'Creative Brief' to see which Derivative Work he will transform, and it also displays which Tile slots on the Week's Theme Posts need Content 'Created from Scratch'. He pulls them and separates them into 2 types of content to create. 'Creative Brief' has a section for 'Media Editor,' where he as to fill in if  the work is Derivative Work "YYYY-W##_IPTC-Subject-Code_Sequence_dcterms:isVersionof_uuidv7()" or Created from Scratch "YYYY-W##_IPTC-Subject-Code_Sequence". The section also requires the Media Editor to check off the software they will use for each work, such as the version of ComfyUI, Music Gen, Ace Studio, for each work. When finished, the Media Editor requests JAN review.
+12. Jean gets notice, and the Request for Review JAN posts on the AI Team Panel. Jean can Approve, Reject, or Replace. The 'Media Editor' can only redo work if Jean rejects it, with a strict maximum of two redos enforced. Only Jean can override this rule with her password. A. When Jean Approves or Replaces or Takes over and Finishes the work, it finally gets the full FILE NAME "YYYY_W##_IPTC-Subject-Code_THEME_Sequence_HOST.File-Extension" for newly created works. For Derivatives it's "YYYY_W##_IPTC-Subject-Code_THEME_Sequence_HOST_dc:identifier_dcterms:isVersionof_uuidv7().File-Extension".  B. Jean can create content even if it's not part of the post by checking the content as 'Standalone Project' in the 'Create Box' the the Media Editor Page, and save it inside the Review Desk - it will queue with the 'Cataloger' then once approved go into the Collections under 'Jean's Creations' with "YYYY_IPTC-Subject-Code.File-Format".13. When the Theme Image gets approved in the WEEK Page or Media Editor Page, the Week's 'Theme Image' goes to the Cataloger to be cataloged, reviewed, and Approved where it enters the permanent Library Collection in Container Bunbuns. This will delete all previous versions, closing the loop. Then the THEME IMAGE is routed to the PUBLISHING Pages.14. When Posts are Approved in the 'Post Page' or 'Media Editor Page', Posts are sent to the APPROVALS Page where the 'COPYWRITER,' 'Current Events,' and 'Fact Check' write the caption and 5 hashtags each for the Instagram and TikTok posts. Jean can also request the Copywriter, Current Events, and Fact check to write the captions and Hashtags in the Post Page and send the post directly to Publishing by Approving it there. After writing them, the 'Copywriter' requests JAN Review.15. Jean is alerted, and the JAN review posts on the AI Team Panel. Jean can Approve/Reject/Replace. Upon rejection, the 'Copywriter' can 'REDO'. This can only be done twice unless Jean enters her password to override it. Once the captions and hashtags are approved, they are sent to the Cataloger to be cataloged, reviewed, and approved before entering the permanent Library Collection in the Container Bunbuns. This is crucial because all previous versions are deleted at this point, closing the loop. Afterward, the images/videos are sent to the  PUBLISHING Page. 16. In the Publishing Page, the 'Scheduler' formats the THEME IMAGE and POSTS to match the different social media platform formats. TikTok and Instagram have different size and numbering requirements. The Posts are published 3 at a time, 3 times a week on Mondays, Wednesdays, and Fridays.A. The Week's THEME IMAGE must go out in order since it is cut into 9 TILES and Instagram posts need to go out 1 to 9, and TikTok posts must go out 9 to 1. B. Three posts are published at a time so all the images on the account display properly. Tiles 1, 2, 3 for Instagram (9, 8, 7 for TikTok) go out on Mondays between 7am and 9am. Tiles 4, 5, 6, for Instagram (6, 5, 4 for TikTok) go out on Wednesdays between 11am and 1pm. Tiles 7, 8, 9 for Instagram (3, 2, 1 for TikTok) go out Friday between 3pm and 5pm. The TIMEZONE is Phoenix, Arizona USA Mountain Standard Time (MST) with Daylight Savings all year around. C. If there is an issue with the API key, or the Scheduler cannot log in, Jean is alerted immediately so she can go to the MANUAL PUBLISH Page to log in manually and post. She must return to the Manual Publish Page to CONFIRM the Posts were Posted. 17. Because all the Week's Posts must post IN ORDER, if one post is not Approved, all subsequent posts are blocked. They can post IN ORDER until Sunday, 11:59pm of their scheduled week. 18. Since the posts are tiles and the themes are time-sensitive (e.g., can't send Christmas offers on NYE), if posts are missed, all remaining posts on the Publishing Page are sent to the Collections in their appropriate IPTC-Subject-Code Folder to its UNPUBLISHED Folder, then to the History Page and Learning Center (including the Raw Original Image, Final Post Image, Creative Brief, and the TEXT edits and Multiplication options checked as reasons for rejection or replacement) as mirages using Direct-to-Blob 'Remote Asset Distribution' with Shared Access Signature (SAS) tokens stored in the Azure SQL database.19. For the Published Posts, their image or video is sent to Collections in their appropriate folders UPON Publishing or after Jean confirms publication on the Manual Publish Page. The materials for the History Page and Learning Center are sent afterward as mirages using Direct-to-Blob 'Remote Asset Distribution' with Shared Access Signature (SAS) tokens stored in the Azure SQL database.

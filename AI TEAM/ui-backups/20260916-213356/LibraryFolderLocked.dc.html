@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Locked folder · {{ brand.company_name }}</title>
+<link rel="stylesheet" href="/static/ui-system.css">
+<script src="/static/ui-navigation.js" defer></script>
+<style>
+:root{--ink:#7A8084;--muted:#8B9195;--quiet:#A9AEB2;--line:#CDD1D4;--soft:#fafbfb}
+*{box-sizing:border-box}html,body{margin:0;background:#fff;color:var(--ink);font-family:"Jost","Segoe UI",sans-serif}a{color:inherit;text-decoration:none}
+.header{border-bottom:1px solid var(--line);position:sticky;top:0;background:rgba(255,255,255,.96);z-index:10}
+.header-inner{max-width:1400px;height:74px;margin:auto;padding:0 44px;display:flex;align-items:center;justify-content:space-between;gap:32px}
+.brand{font-size:26px;font-weight:200}.brand img{height:38px;max-width:180px;object-fit:contain}
+.nav{display:flex;overflow:auto}.nav a{padding:10px 14px;color:#8f969b;font:500 11px "Jost","Segoe UI",sans-serif;letter-spacing:.18em;text-transform:uppercase;white-space:nowrap}
+.nav .active{border-bottom:2px solid var(--ink);color:var(--ink)}
+main{max-width:480px;margin:0 auto;padding:100px 24px;text-align:center}
+.lock-icon{font-size:40px;margin-bottom:16px}
+h1{font-size:22px;font-weight:600;margin:0 0 8px}
+p{color:var(--muted);font-size:14px;margin:0 0 24px}
+.notice{margin:0 0 16px;padding:10px 14px;background:#fbe1e6;color:#9c4f5e;font-size:13px;border-radius:2px}
+form{display:flex;flex-direction:column;gap:10px}
+input[type=password]{width:100%;padding:10px 12px;border:1px solid var(--line);border-radius:2px;font:inherit;font-size:14px}
+button{padding:10px 14px;border:1px solid var(--ink);background:#ebedf0;color:var(--ink);font:600 10px "Jost","Segoe UI",sans-serif;letter-spacing:.14em;text-transform:uppercase;cursor:pointer;border-radius:2px}
+button:hover{background:var(--ink);color:#fff}
+.back{display:inline-block;margin-top:18px;color:var(--quiet);font-size:12px}
+</style>
+</head>
+<body>
+{% include "_header.html" %}
+<main>
+<div class="lock-icon">🔒</div>
+<h1>{{ folder.name }} is locked</h1>
+<p>This folder is password-protected. Enter the password to view its contents.</p>
+{% if flash and flash.level == 'error' %}<div class="notice">{{ flash.message }}</div>{% endif %}
+<form method="post" action="/library/folders/{{ folder.id }}/unlock">
+<input type="hidden" name="return_to" value="/library?folder={{ folder.id }}">
+<input type="password" name="password" placeholder="Folder password" required autofocus>
+<button type="submit">Unlock</button>
+</form>
+<a class="back" href="/library">&larr; Back to Library</a>
+</main>
+</body>
+</html>

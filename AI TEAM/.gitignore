@@ -1,0 +1,80 @@
+# Secrets and local configuration
+.env
+.env.*
+env
+env.*
+!.env.example
+*.pem
+*.key
+*.p12
+*.pfx
+*.credentials
+credentials*.json
+secrets*.json
+local.settings.json
+settings.local.json
+
+# Databases and runtime state
+*.db
+*.sqlite
+*.sqlite3
+*.wal
+*.shm
+
+# Python
+.venv/
+venv/
+__pycache__/
+_pycache_/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+# Dependencies
+node_modules/
+Node Modules/
+
+# Local/editor/cloud state
+.vscode/
+.claude/
+.azure/
+.terraform/
+*.tfstate
+*.tfstate.*
+
+# Logs, temporary files, and backups
+*.log
+*.out
+*.err
+*.tmp
+*.temp
+*.bak
+*.backup
+*~
+
+# Generated/local media and models
+storage/
+media/
+uploads/
+downloads/
+output/
+outputs/
+musicgen-output/
+*.onnx
+*.pt
+*.pth
+*.ckpt
+*.safetensors
+
+# Archives
+*.zip
+*.7z
+*.tar
+*.tar.gz
+*.tgz
+
+# App Service settings export (local only - never commit)
+appservice-settings.json

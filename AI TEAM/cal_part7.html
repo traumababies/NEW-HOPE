@@ -1,0 +1,62 @@
+<footer><span>{{ brand.company_name }}</span></footer>
+<script>
+(() => {
+  // Approve / reject straight from the strip. On success the tile swaps to a
+  // single large icon (green check / pink X) and the controls disappear.
+  document.querySelectorAll('[data-tile]').forEach((tile) => {
+    const decide = async (action) => {
+      const postId = tile.dataset.postId;
+      const button = action === 'approve' ? tile.querySelector('[data-approve]') : tile.querySelector('[data-reject]');
+      if (button) button.disabled = true;
+      try {
+        const body = new FormData();
+        body.append('action', action);
+        const res = await fetch('/calendar/tiles/' + postId + '/decision', {
+          method: 'POST', body, credentials: 'same-origin', headers: { 'X-Requested-With': 'XMLHttpRequest' },
+        });
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok) throw new Error(data.detail || 'Decision failed.');
+        const strip = tile.querySelector('[data-tile-strip]');
+        const ok = action === 'approve';
+        strip.innerHTML = ok
+          ? '<svg class="status-icon is-ok" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 13l4 4L19 7"/></svg>'
+          : '<svg class="status-icon is-no" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M6 6l12 12M18 6L6 18"/></svg>';
+        tile.classList.add('decided');
+        tile.dataset.status = ok ? 'approved' : 'rejected';
+        const notice = document.querySelector('[data-save-notice]');
+        if (notice) { notice.hidden = false; notice.className = 'notice'; notice.textContent = ok ? 'Approved.' : 'Rejected — flagged for attention.'; }
+      } catch (error) {
+        const notice = document.querySelector('[data-save-notice]');
+        if (notice) { notice.hidden = false; notice.className = 'notice error'; notice.textContent = error.message; }
+      } finally {
+        const button2 = action === 'approve' ? tile.querySelector('[data-approve]') : tile.querySelector('[data-reject]');
+        if (button2) button2.disabled = false;
+      }
+    };
+    const approve = tile.querySelector('[data-approve]');
+    const reject = tile.querySelector('[data-reject]');
+    if (approve) approve.addEventListener('click', (e) => { e.preventDefault(); e.stopPropagation(); decide('approve'); });
+    if (reject) reject.addEventListener('click', (e) => { e.preventDefault(); e.stopPropagation(); decide('reject'); });
+    // Videos are stills until the play/pause button asks them to move.
+    const play = tile.querySelector('.play-toggle');
+    const video = tile.querySelector('[data-tile-video]');
+    if (play && video) {
+      play.addEventListener('click', (e) => {
+        e.preventDefault(); e.stopPropagation();
+        if (video.paused) {
+          video.muted = true;
+          video.play().catch(() => {});
+          video.setAttribute('controls', '');
+        } else {
+          video.pause();
+          video.removeAttribute('controls');
+        }
+      });
+    } else if (play) {
+      play.addEventListener('click', (e) => { e.preventDefault(); e.stopPropagation(); });
+    }
+  });
+})();
+</script>
+</body>
+</html>

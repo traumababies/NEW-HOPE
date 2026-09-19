@@ -1,0 +1,42 @@
+    /* Godzilla's face as the chat icon. Same sprite parts as everywhere else. */
+    .chat-godzilla{display:inline-flex;align-items:center;gap:8px;cursor:pointer;border:0;background:none;padding:4px 6px;position:relative}
+    .chat-godzilla:hover{background:#f5f7f7}
+    .chat-godzilla .minisprite{position:relative;width:26px;height:24px;flex:none}
+    .chat-godzilla .minisprite .g-body{left:2px;bottom:2px;width:22px;height:14px}
+    .chat-godzilla .minisprite .g-ear{top:-1px;border-left:5px solid transparent;border-right:5px solid transparent;border-bottom:8px solid #8a6248;width:0;height:0}
+    .chat-godzilla .minisprite .g-ear-l{left:2px;transform:rotate(-14deg)}
+    .chat-godzilla .minisprite .g-ear-r{left:17px;transform:rotate(14deg)}
+    .chat-godzilla .minisprite .g-eye{top:6px;width:4px;height:4px;border-radius:50%}
+    .chat-godzilla .minisprite .g-eye-l{left:6px;background:#29d64a}
+    .chat-godzilla .minisprite .g-eye-r{left:16px;background:#f2c116}
+    .chat-godzilla .minisprite .g-tail{right:-2px;bottom:3px;width:10px;height:5px;background:#8a6248}
+    /* Calendar navigation: bare arrows on the right, above the rule. */
+    .week-nav{display:flex;justify-content:flex-end;gap:2px;margin:10px 0 0}
+    .week-nav a{display:inline-flex;align-items:center;justify-content:center;width:34px;height:30px;color:var(--muted);border:1px solid var(--line)}
+    .week-nav a:hover{color:var(--ink);border-color:var(--ink)}
+    /* The week board: one thin-line frame, 3x3 weeks, hairline gutters. */
+    .calendar-weeks{margin-top:34px}
+    .weeks{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:1px;border:1px solid var(--line);background:var(--line)}
+    .week{min-height:0;padding:20px;background:#f7f8f9;display:flex;flex-direction:column;gap:12px;overflow:hidden}
+    .week:hover{background:#eef0f2}
+    .month-label{color:var(--quiet);font:500 8px "Jost",sans-serif;letter-spacing:.18em;text-transform:uppercase}
+    .week-top{display:flex;justify-content:space-between;gap:12px;align-items:flex-start}
+    .week-top-left{min-width:0;display:flex;flex-direction:column;gap:2px}
+    .week-number{font:600 10px "Jost",sans-serif;letter-spacing:.18em;color:var(--ink);text-transform:uppercase}
+    .range{color:#9ba9b7;font-size:12px;font-weight:300}
+    .status{margin-top:4px;color:var(--muted);font:500 8px "Jost",sans-serif;letter-spacing:.12em;text-transform:uppercase}
+    .status.skipped{color:#9a6b6b}
+    .status.approved{color:var(--ok)}
+    .week-actions{display:flex;flex-direction:column;align-items:flex-end;gap:6px;flex:none}
+    /* Bare SVG controls: upload, save. Open week stays a text link. */
+    .icon-btn{border:0;background:none;padding:4px;cursor:pointer;color:var(--muted);display:inline-flex;align-items:center}
+    .icon-btn:hover{color:var(--ink)}
+    .upload-theme{position:relative;display:inline-flex}
+    .upload-theme input[type=file]{position:absolute;left:0;top:0;width:1px;height:1px;opacity:0;overflow:hidden}
+    .plan{display:flex;flex-direction:column;gap:8px;min-width:0}
+    .theme-input,.notes-input{display:block;width:100%;border:1px solid var(--line);background:#fff;color:#3a3f43;font:300 12px "Jost",sans-serif;padding:3px 8px}
+    .theme-input{height:26px;line-height:18px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+    .notes-input{height:44px;line-height:1.4;resize:vertical}
+    .plan-actions{display:flex;align-items:center;gap:10px;min-height:26px}
+    .open{color:var(--muted);font:500 9px "Jost",sans-serif;letter-spacing:.14em;text-transform:uppercase}
+    .open:hover{color:var(--ink)}

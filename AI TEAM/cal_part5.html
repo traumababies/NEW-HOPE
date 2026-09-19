@@ -1,0 +1,30 @@
+  </section>
+  <div class="rule"></div>
+  {% set approved_total = namespace(value=0) %}{% set published_total = namespace(value=0) %}
+  {% for group in month_groups %}{% for item in group.weeks %}{% set approved_total.value = approved_total.value + item.approved_count %}{% set published_total.value = published_total.value + item.published_count %}{% endfor %}{% endfor %}
+  <div class="stats"><span>9 weeks visible</span><span>{{ approved_total.value }} posts approved</span><span>{{ published_total.value }} posts published</span><span>Past work remains in history</span></div>
+
+  <section class="calendar-weeks" aria-label="Planning weeks">
+    <div class="weeks">
+      {% for group in month_groups %}{% for item in group.weeks %}{% set week = item.week %}
+      <article class="week" id="week-{{ week.id }}" data-week-id="{{ week.id }}">
+        <div class="week-top">
+          <div class="week-top-left">
+            <div class="month-label">{{ group.label }}</div>
+            <div class="week-number">Week {{ '%02d'|format(week.week_number) }}</div>
+            <div class="range">{{ week.week_start.strftime('%b %d') }}–{{ week.week_end.strftime('%b %d') }}</div>
+            <span class="status {% if week.status.value == 'skipped' %}skipped{% elif item.approved_count == 9 %}approved{% endif %}">{% if week.status.value == 'skipped' %}Skipped{% elif item.published_count == 9 %}Published{% elif item.approved_count == 9 %}Ready{% elif item.approved_count %}{{ item.approved_count }}/9{% else %}In progress{% endif %}</span>
+          </div>
+          <div class="week-actions">
+            <form method="post" action="/weeks/{{ week.id }}/theme-image-edit" enctype="multipart/form-data"><input type="hidden" name="return_to" value="{{ request.url.path }}{% if request.url.query %}?{{ request.url.query }}{% endif %}"><label class="upload-theme icon-btn" title="Upload theme image" aria-label="Upload theme image"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 16V4M7 9l5-5 5 5"/><path d="M4 16v3a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-3"/></svg><input type="file" name="theme_image" accept="image/*" required onchange="this.form.requestSubmit()"></label></form>
+          </div>
+        </div>
+        <form class="plan" data-save-in-place method="post" action="/weeks/{{ week.id }}/calendar-plan">
+          <input type="hidden" name="return_to" value="{{ request.url.path }}{% if request.url.query %}?{{ request.url.query }}{% endif %}">
+          <input class="theme-input" name="theme" value="{{ week.theme }}" placeholder="THEME" aria-label="Theme for week {{ week.week_number }}">
+          <textarea class="notes-input" name="thoughts" placeholder="Thoughts and planning notes…" aria-label="Notes for week {{ week.planning_week_number }}">{{ week.thoughts }}</textarea>
+          <div class="plan-actions">
+            <button class="icon-btn save" type="submit" title="Save" aria-label="Save theme and notes"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 3h11l4 4v14H5V3z"/><path d="M8 3v6h8V3M8 21v-7h8v7"/></svg></button>
+            <a class="open" href="/weeks/{{ week.id }}">Open week →</a>
+          </div>
+        </form>

@@ -1,0 +1,338 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Calendar · {{ brand.company_name }}</title>
+  <link rel="stylesheet" href="/static/ui-system.css">
+  <link rel="stylesheet" href="/static/godzilla-companion.css">
+  <script src="/static/ui-navigation.js" defer></script>
+  <script src="/static/assistant-chat.js" defer></script>
+  <script src="/static/godzilla-companion.js" defer></script>
+  <script src="/static/save-feedback.js" defer></script>
+  <style>
+    /* Calendar — rebuilt from the original static design. Cool-grey ramp,
+       one hairline frame for the week board, hairline gutters between the
+       nine tiles, Jost only, no pills, no outlines on images, no black. */
+    :root{--ink:#7A8084;--muted:#8B9195;--quiet:#A9AEB2;--line:#CDD1D4;--soft:#f7f8f9;--pink:#f9eff2;--green:#dfece5;--green-ink:#3f6b4a;--pink-ink:#9c5568}
+    *{box-sizing:border-box}html,body{margin:0;background:#fff;color:var(--ink);font-family:"Jost","Segoe UI",sans-serif;-webkit-font-smoothing:antialiased}a{color:inherit;text-decoration:none}
+    main{max-width:1400px;margin:0 auto;padding:52px 44px 0;font-size:13px}
+    .hero{display:block}
+    .eyebrow{color:var(--quiet);font:500 11px "Jost","Segoe UI",sans-serif;letter-spacing:.22em;text-transform:uppercase}
+    .lede{display:flex;flex-direction:column}
+    .lede h1{margin:14px 0 0;font-weight:200;font-size:clamp(54px,6vw,76px);line-height:1;color:var(--ink);letter-spacing:.02em}
+    .lede p{max-width:760px;margin:16px 0 0;color:var(--muted);font-size:16px;font-weight:300;line-height:1.7}
+    .calendar-nav{display:flex;align-items:center;justify-content:flex-end;gap:2px;margin-top:12px}
+    .calendar-nav a{display:inline-flex;align-items:center;justify-content:center;width:30px;height:30px;border:0;background:none;color:var(--muted);cursor:pointer}
+    .calendar-nav a:hover{color:var(--ink)}
+    .calendar-nav a svg{display:block}
+    .rule{height:1px;margin:14px 0 26px;background:var(--line)}
+    .stats{padding:0 0 6px;display:flex;gap:26px;flex-wrap:wrap;color:var(--quiet);font:500 10px "Jost","Segoe UI",sans-serif;letter-spacing:.16em;text-transform:uppercase}
+    .calendar-weeks{margin-top:16px}
+    /* The board: one hairline frame, 1px separators, soft grey week cards. */
+    .weeks{display:grid;grid-template-columns:repeat(3,minmax(360px,1fr));gap:1px;background:var(--line);border:1px solid var(--line)}
+    .week{min-width:0;min-height:390px;padding:24px;background:var(--soft);display:flex;flex-direction:column;gap:12px;scroll-margin-top:96px}
+    .week:hover{background:#f1f3f4}
+    .week-top{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
+    .week-meta{min-width:0;display:flex;flex-direction:column}
+    .month-label{color:var(--quiet);font:600 8px "Jost","Segoe UI",sans-serif;letter-spacing:.18em;text-transform:uppercase;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
+    .week-number{margin-top:5px;font:600 9px "Jost","Segoe UI",sans-serif;letter-spacing:.18em;text-transform:uppercase}
+    .range{margin-top:4px;color:var(--muted);font-size:12px;font-weight:300}
+    .status{margin-top:8px;align-self:flex-start;padding:4px 7px;border:1px solid var(--line);background:#fff;color:var(--muted);font:600 8px "Jost","Segoe UI",sans-serif;letter-spacing:.12em;text-transform:uppercase}
+    .status.approved{background:var(--green);border-color:#c3ddc9;color:var(--green-ink)}
+    .status.skipped{background:var(--pink);border-color:#f0d8df;color:var(--pink-ink)}
+    .status:empty{display:none}
+    .week-actions{display:flex;flex-direction:column;align-items:flex-end;gap:8px;flex:none}
+    .upload-theme{display:inline-flex;align-items:center;justify-content:center;width:30px;height:30px;border:0;background:none;color:var(--muted);cursor:pointer}
+    .upload-theme:hover{color:var(--ink)}
+    .upload-theme svg{display:block}
+    .upload-theme input{display:none}
+    .plan{display:flex;flex-direction:column;gap:6px;min-width:0}
+    .theme-input,.notes-input{width:100%;min-width:0;box-sizing:border-box;border:1px solid var(--line);border-radius:0;background:#fff;color:var(--ink);font-family:inherit}
+    .theme-input{padding:7px 9px;font-family:"Jost","Segoe UI",sans-serif;font-weight:300;font-size:15px;line-height:1.2;text-transform:uppercase}
+    .theme-input::placeholder{color:#b4babe}
+    .notes-input{min-height:40px;padding:7px 9px;font-size:12px;font-weight:300;line-height:1.45;resize:vertical}
+    .plan-actions{min-height:32px;display:flex;align-items:center;gap:12px}
+    .save{display:inline-flex;align-items:center;justify-content:center;width:30px;height:30px;padding:0;border:0;background:none;color:var(--muted);cursor:pointer}
+    .save svg{display:block}
+    .save:hover{color:var(--ink)}
+    .save.is-saving{opacity:.5;pointer-events:none}
+    .open{margin-left:auto;font:500 9px "Jost","Segoe UI",sans-serif;letter-spacing:.18em;text-transform:uppercase;color:var(--muted)}
+    .open:hover{color:var(--ink)}
+    /* Nine 9:16 phone tiles, hairline gutters, white status strip at the foot. */
+    .tiles{width:100%;display:grid;grid-template-columns:repeat(3,1fr);gap:2px;background:var(--line)}
+    .tile{position:relative;aspect-ratio:9/16;min-width:0;background:#fff;overflow:hidden}
+    .tile-link{display:block;position:absolute;inset:0}
+    .tile-link img{width:100%;height:100%;object-fit:cover;display:block}
+    .tile-link:hover img{filter:brightness(.95)}
+    .tile-strip{position:absolute;left:0;right:0;bottom:0;z-index:2;height:26px;padding:0 6px;background:#fff;display:flex;align-items:center;gap:2px}
+    .tile-mark{display:inline-flex;align-items:center;color:#d9a55a}
+    .tile-mark svg{display:block}
+    .tile-decision{display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;padding:0;border:0;background:none;cursor:pointer}
+    .tile-decision.approve{color:#3f7a54}
+    .tile-decision.reject{color:#b04a5d;margin-left:auto}
+    .tile-decision:hover{color:var(--ink)}
+    .tile-decision svg{display:block}
+    .tile.approved .tile-strip,.tile.rejected .tile-strip{height:42px;justify-content:center;padding:0}
+    .tile.approved .tile-mark{color:#3f7a54}
+    .tile.rejected .tile-mark{color:#b04a5d}
+    .notice{position:fixed;right:24px;bottom:24px;z-index:100;max-width:min(420px,calc(100vw - 40px));padding:12px 14px;border:1px solid #c3ddc9;background:#e7f2ea;color:var(--green-ink);font:500 10px "Jost","Segoe UI",sans-serif;letter-spacing:.12em;text-transform:uppercase;box-shadow:0 12px 30px rgba(122,128,132,.16)}
+    .notice.error{border-color:#e5aebc;background:#fbe1e6;color:#9c5568}
+    .notice[hidden]{display:none}
+    footer{max-width:1400px;margin:70px auto 0;padding:22px 44px;border-top:1px solid var(--line);color:#b4babe;font-size:9px;font-weight:500;letter-spacing:.2em;text-transform:uppercase;display:flex;justify-content:space-between}
+    /* Compact chat: Godzilla's face + one quiet dropdown, no pill tabs. */
+    .hero-side{width:100%;max-width:none;display:flex;flex-direction:column;margin-top:18px}
+    .hero-side .assistant-chat{border:1px solid var(--line) !important;background:#fff !important;margin:0 !important;border-radius:0 !important;display:flex !important;flex-direction:column !important}
+    .hero-side .assistant-chat-header{display:flex !important;align-items:center !important;justify-content:flex-start !important;gap:8px !important;padding:8px 12px !important;border-bottom:1px solid #e8ecef !important;border-radius:0 !important}
+    .chat-godzilla-face{width:34px;height:30px;padding:0;border:0;background:none;cursor:pointer;display:inline-flex;align-items:flex-end}
+    .chat-godzilla-face:focus{outline:1px solid var(--line);outline-offset:2px}
+    .chat-godzilla-face .godzilla-sprite{transform:scale(.55);transform-origin:bottom left;pointer-events:none}
+    .chat-assistant-select{border:0;background-color:transparent;color:var(--quiet);font:600 8px "Jost","Segoe UI",sans-serif;letter-spacing:.12em;text-transform:uppercase;cursor:pointer;padding:2px 16px 2px 2px;appearance:none;-webkit-appearance:none;background-image:url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' width='12' height='12' fill='none' stroke='%23a9aeb2' stroke-width='2' stroke-linecap='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right center;background-size:10px}
+    .chat-assistant-select:hover{color:var(--ink)}
+    .hero-side .assistant-chat-body{padding:8px 12px 10px !important;display:flex !important;flex-direction:column !important;gap:6px !important;grid-template-columns:none !important}
+    .hero-side .chat-messages{min-height:0 !important;height:auto !important;max-height:150px !important;overflow-y:auto !important;display:flex !important;flex-direction:column !important;gap:3px !important;font-size:11px !important;font-weight:300 !important;color:#4c525a !important;line-height:1.45 !important;padding:0 2px 0 0 !important;border-right:0 !important;background:#fff !important}
+    .hero-side .chat-message{border-radius:0 !important;border:0 !important;background:none !important;padding:2px 0 !important;margin:0 !important;max-width:100% !important;font-size:11px !important;line-height:1.45 !important}
+    .hero-side .chat-message strong{display:block !important;margin:0 !important;font:600 8px "Jost","Segoe UI",sans-serif !important;letter-spacing:.12em !important;text-transform:uppercase !important;opacity:.72 !important}
+    .empty-line{color:var(--quiet);font-size:11px}
+    .hero-side .chat-input-wrap{padding:0 !important;display:flex;align-items:flex-end;gap:6px}
+    .hero-side .chat-input-wrap textarea{flex:1;min-height:0;border:0;border-bottom:1px solid var(--line);background:transparent;resize:none;font-family:inherit;font-size:11px;font-weight:300;color:#4c525a;padding:4px 2px;line-height:1.4;max-height:60px}
+    .godzilla-treats{display:flex;gap:6px;flex-wrap:wrap}
+    .hero-side .assistant-chat .godzilla-treats button{padding:3px 8px !important;font-size:8px !important}
+    @media(max-width:980px){.weeks{grid-template-columns:repeat(2,minmax(0,1fr))}}
+    @media(max-width:720px){.weeks{grid-template-columns:1fr}.lede h1{font-size:clamp(42px,12vw,60px)}main{padding:34px 20px 0}.calendar-nav a{width:28px;height:28px}footer{padding:20px;flex-direction:column;gap:8px;margin-top:46px}}
+  </style>
+</head>
+<body>
+{% include "_header.html" %}
+<main>
+  <div class="notice{% if flash and flash.level == 'error' %} error{% endif %}" data-save-notice role="status" aria-live="polite" {% if not flash %}hidden{% endif %}>{% if flash %}{{ flash.message }}{% endif %}</div>
+  <section class="hero">
+    <div class="lede">
+      <div class="eyebrow">Calendar / nine weeks</div>
+      <h1>One year ahead</h1>
+      <p>{{ window_start.strftime('%B %d, %Y').replace(' 0', ' ') }} — {{ window_end.strftime('%B %d, %Y').replace(' 0', ' ') }}. Every week runs Monday through Sunday. Choose the theme now; build and approve each post whenever inspiration arrives.</p>
+      <div class="calendar-nav">
+        <a href="/calendar?start={{ previous_start.isoformat() }}" title="Previous" aria-label="Previous"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg></a>
+        <a href="/calendar?start={{ next_start.isoformat() }}" title="Next" aria-label="Next"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5l7 7-7 7"/></svg></a>
+      </div>
+    </div>
+    {% if assistant_panels %}
+    <div class="hero-side">
+      <section class="assistant-chat" data-assistant-chat>
+        <div class="assistant-chat-header">
+          <button type="button" class="chat-godzilla-face" data-assistant-tab-godzilla title="Chat with Godzilla" aria-label="Chat with Godzilla"><span class="godzilla-sprite"><span class="g-ear g-ear-l"></span><span class="g-ear g-ear-r"></span><span class="g-tail"></span><span class="g-body"></span><span class="g-eye g-eye-l"></span><span class="g-eye g-eye-r"></span><span class="godzilla-zzz">ZzZzZzZz</span></span></button>
+          <select class="chat-assistant-select" data-assistant-select-ui title="Switch assistant" aria-label="Switch assistant">
+            {% for assistant in assistant_panels if assistant.kind != 'godzilla' %}
+            <option value="{{ assistant.kind }}"{% if loop.first %} selected{% endif %}>{{ assistant.name }}</option>
+            {% endfor %}
+          </select>
+          <div class="assistant-tabs" role="tablist" aria-label="Assistant chat tabs" hidden>
+            {% for assistant in assistant_panels %}
+            <button type="button" class="assistant-tab{% if loop.first %} active{% endif %}" data-assistant-tab="{{ assistant.kind }}" aria-selected="{{ 'true' if loop.first else 'false' }}">{{ assistant.name }}</button>
+            {% endfor %}
+          </div>
+          <button type="button" data-activity-open title="Assistant activity" aria-label="Assistant activity" style="margin-left:auto;border:0;background:none;padding:0;cursor:pointer;color:#7A8084;display:inline-flex"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12h3.5l2-6 3.5 12 2.5-8 1.8 4H21"/></svg></button>
+        </div>
+        <div class="assistant-chat-body">
+          <div class="chat-messages" data-chat-messages>
+            <div class="empty-line">Choose an assistant and ask a question.</div>
+          </div>
+          <div class="chat-input-wrap">
+            <textarea data-chat-input placeholder="Ask Creative Director, Copywriter, Muse, or Cataloger…"></textarea>
+            <div class="godzilla-treats" data-godzilla-treats hidden>
+              <button type="button" data-treat="bacon">🥓 Bacon</button>
+              <button type="button" data-treat="ice cream">🍦 Ice cream</button>
+              <button type="button" data-treat="rice pudding">🍚 Rice pudding</button>
+              <button type="button" data-treat="popcorn">🍿 Popcorn</button>
+              <button type="button" data-treat="McNuggets">🍗 McNuggets</button>
+              <button type="button" data-treat="hold hand">✋ Hold hand</button>
+            </div>
+            <div class="chat-actions">
+              <button type="button" data-chat-clear class="icon-action" title="Clear the conversation" aria-label="Clear the conversation"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M9 9l6 6M15 9l-6 6"/></svg></button>
+              <button type="button" data-chat-send class="icon-action" title="Send" aria-label="Send"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 3L10.5 13.5M21 3l-6.8 18-3.7-7.5L3 10l18-7z"/></svg></button>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+    {% endif %}
+  </section>
+  <div class="rule"></div>
+  {% set approved_total = namespace(value=0) %}{% set published_total = namespace(value=0) %}
+  {% for group in month_groups %}{% for item in group.weeks %}{% set approved_total.value = approved_total.value + item.approved_count %}{% set published_total.value = published_total.value + item.published_count %}{% endfor %}{% endfor %}
+  <div class="stats"><span>9 weeks visible</span><span>{{ approved_total.value }} posts approved</span><span>{{ published_total.value }} posts published</span><span>Past work remains in history</span></div>
+    <section class="calendar-weeks" aria-label="Planning weeks">
+    <div class="weeks">
+      {% for group in month_groups %}{% for item in group.weeks %}{% set week = item.week %}
+      <article class="week" id="week-{{ week.id }}">
+        <div class="week-top">
+          <div class="week-meta">
+            <div class="month-label">{{ group.label }}</div>
+            <div class="week-number">Week {{ '%02d'|format(week.week_number) }}</div>
+            <div class="range">{{ week.week_start.strftime('%b %d') }}–{{ week.week_end.strftime('%b %d') }}</div>
+            <span class="status {% if week.status.value == 'skipped' %}skipped{% elif item.approved_count == 9 %}approved{% endif %}">{% if week.status.value == 'skipped' %}Skipped{% elif item.published_count == 9 %}Published{% elif item.approved_count == 9 %}Ready{% elif item.approved_count %}{{ item.approved_count }}/9{% endif %}</span>
+          </div>
+          <div class="week-actions">
+            <form method="post" action="/weeks/{{ week.id }}/theme-image-edit" enctype="multipart/form-data"><input type="hidden" name="return_to" value="{{ request.url.path }}{% if request.url.query %}?{{ request.url.query }}{% endif %}"><label class="upload-theme" title="Upload theme image" aria-label="Upload theme image"><svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 16V5"/><path d="M7 9l5-5 5 5"/><path d="M4 15v4a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-4"/></svg><input type="file" name="theme_image" accept="image/*" required onchange="this.form.requestSubmit()"></label></form>
+          </div>
+        </div>
+        <form class="plan" data-save-in-place method="post" action="/weeks/{{ week.id }}/calendar-plan">
+          <input type="hidden" name="return_to" value="{{ request.url.path }}{% if request.url.query %}?{{ request.url.query }}{% endif %}">
+          <input class="theme-input" name="theme" value="{{ week.theme }}" placeholder="THEME" aria-label="Theme for week {{ week.week_number }}">
+          <textarea class="notes-input" name="thoughts" placeholder="Thoughts and planning notes…" aria-label="Notes for week {{ week.planning_week_number }}">{{ week.thoughts }}</textarea>
+          <div class="plan-actions"><button class="save" type="submit" title="Save week" aria-label="Save week"><svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 4h11l2 2v14H5z"/><path d="M8 4v5h8V4"/><path d="M8 20v-6h8v6"/></svg></button><a class="open" href="/weeks/{{ week.id }}">Open week →</a></div>
+        </form>
+        <div class="tiles" aria-label="Nine posts">
+          {% for post in week.posts %}{% set status = post.creative_status.value %}<div class="tile{% if status == 'approved' %} approved{% elif status in ('rejected','redo','replace') %} rejected{% else %} uwork{% endif %}" data-tile-id="{{ post.id }}">
+            <a class="tile-link" href="/posts/{{ post.id }}" title="Post {{ post.visual_position }}">{% if post.cover_version_id %}<img src="/media-versions/{{ post.cover_version_id }}?w=144&h=256" alt="Theme tile {{ post.visual_position }} for week {{ week.week_number }}" loading="lazy" decoding="async">{% endif %}</a>
+            <div class="tile-strip"><span class="tile-mark">{% if status == 'approved' %}<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12.5l5 5L20 6.5"/></svg>{% elif status in ('rejected','redo','replace') %}<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 6l12 12M18 6L6 18"/></svg>{% else %}<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M6 5l11 7-11 7z"/><path d="M18 5h2v14h-2z"/></svg>{% endif %}</span>{% if status not in ('approved','rejected','redo','replace') %}<button type="button" class="tile-decision approve" data-tile-decision="approve" title="Approve post" aria-label="Approve post"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12.5l5 5L20 6.5"/></svg></button><button type="button" class="tile-decision reject" data-tile-decision="reject" title="Reject post" aria-label="Reject post"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button>{% endif %}</div>
+          </div>{% endfor %}
+        </div>
+      </article>
+      {% endfor %}{% endfor %}
+    </div>
+  </section>
+</main>
+<footer><span>évolué media library</span><span>phoenix, usa</span></footer>
+<script>
+(() => {
+  // Calendar tile quick decisions + icon-safe in-place saves. Registered during
+  // parse (before save-feedback.js) so the icon-only Save button never gets its
+  // SVG replaced by a text label.
+
+  const notice = document.querySelector('[data-save-notice]');
+  let noticeTimer;
+  function showNotice(message, failed = false) {
+    if (!notice) return;
+    window.clearTimeout(noticeTimer);
+    notice.textContent = message;
+    notice.classList.toggle('error', failed);
+    notice.hidden = false;
+    noticeTimer = window.setTimeout(() => { notice.hidden = true; }, failed ? 9000 : 3200);
+  }
+
+  const BIG_CHECK = '<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12.5l5 5L20 6.5"/></svg>';
+  const BIG_X = '<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 6l12 12M18 6L6 18"/></svg>';
+
+  const updateWeekCounter = (tile) => {
+    const tiles = tile.closest('.tiles');
+    const week = tiles && tiles.closest('.week');
+    const badge = week && week.querySelector('.status');
+    if (!tiles || !week || !badge) return;
+    if (badge.classList.contains('skipped')) return;
+    const total = tiles.querySelectorAll('.tile').length;
+    const approved = tiles.querySelectorAll('.tile.approved').length;
+    badge.classList.remove('approved');
+    if (approved === total) { badge.textContent = 'Ready'; badge.classList.add('approved'); }
+    else if (approved) { badge.textContent = approved + '/' + total; }
+    else { badge.textContent = ''; }
+  };
+
+  document.querySelectorAll('.tiles').forEach((tilesBox) => {
+    tilesBox.addEventListener('click', async (event) => {
+      const button = event.target.closest('[data-tile-decision]');
+      if (!button) return;
+      event.preventDefault();
+      event.stopPropagation();
+      const tile = button.closest('.tile');
+      if (!tile || tile.dataset.decisionPending === '1') return;
+      const action = button.dataset.tileDecision;
+      tile.dataset.decisionPending = '1';
+      const buttons = [...tile.querySelectorAll('.tile-decision')];
+      buttons.forEach((b) => { b.disabled = true; });
+      try {
+        const body = new FormData();
+        body.append('action', action);
+        const response = await fetch('/calendar/tiles/' + tile.dataset.tileId + '/decision', {
+          method: 'POST',
+          body: body,
+          credentials: 'same-origin',
+          headers: { 'X-Requested-With': 'XMLHttpRequest' },
+        });
+        let payload = {};
+        try { payload = await response.json(); } catch (_) {}
+        if (!response.ok || !payload.ok) {
+          throw new Error(payload.detail || payload.message || 'Decision failed.');
+        }
+        tile.classList.remove('uwork');
+        tile.classList.add(action === 'approve' ? 'approved' : 'rejected');
+        buttons.forEach((b) => b.remove());
+        const mark = tile.querySelector('.tile-mark');
+        if (mark) mark.innerHTML = action === 'approve' ? BIG_CHECK : BIG_X;
+        updateWeekCounter(tile);
+        showNotice(action === 'approve' ? 'Approved.' : 'Rejected.');
+      } catch (error) {
+        buttons.forEach((b) => { b.disabled = false; });
+        delete tile.dataset.decisionPending;
+        showNotice(error.message, true);
+      }
+    });
+  });
+
+  document.querySelectorAll('form.plan').forEach((form) => {
+    form.addEventListener('submit', async (event) => {
+      event.preventDefault();
+      event.stopImmediatePropagation();
+      const button = event.submitter && event.submitter.matches('.save')
+        ? event.submitter
+        : form.querySelector('button.save');
+      if (button) { button.classList.add('is-saving'); button.disabled = true; }
+      try {
+        const response = await fetch(form.action, {
+          method: 'POST',
+          body: new FormData(form),
+          credentials: 'same-origin',
+          headers: { 'X-Requested-With': 'XMLHttpRequest' },
+        });
+        let result = {};
+        try { result = await response.json(); } catch (_) {}
+        if (!response.ok || !result.ok) {
+          throw new Error(result.message || 'DID NOT SAVE.');
+        }
+        showNotice(result.message || 'Saved.');
+      } catch (error) {
+        showNotice(error.message, true);
+      } finally {
+        if (button) { button.classList.remove('is-saving'); button.disabled = false; }
+      }
+    });
+  });
+})();
+</script>
+<script>
+(() => {
+  // Compact chat switcher: the real assistant tabs are kept (hidden) so the
+  // shared assistant-chat.js logic keeps working unchanged; this page-only
+  // script maps the unobtrusive <select> and Godzilla's face icon onto them.
+  const panel = document.querySelector('[data-assistant-chat]');
+  if (!panel) return;
+  const select = panel.querySelector('[data-assistant-select-ui]');
+  const godzillaBtn = panel.querySelector('[data-assistant-tab-godzilla]');
+  const tabs = [...panel.querySelectorAll('[data-assistant-tab]')];
+  const clickTab = (kind) => {
+    const tab = tabs.find((button) => button.dataset.assistantTab === kind);
+    if (tab) tab.click();
+  };
+  if (select) select.addEventListener('change', () => clickTab(select.value));
+  if (godzillaBtn) godzillaBtn.addEventListener('click', () => clickTab('godzilla'));
+  if (select) {
+    const sync = () => {
+      const active = tabs.find((button) => button.classList.contains('active'));
+      if (active && active.dataset.assistantTab !== 'godzilla') {
+        select.value = active.dataset.assistantTab;
+      }
+    };
+    new MutationObserver(sync).observe(panel, {
+      attributes: true,
+      subtree: true,
+      attributeFilter: ['class'],
+    });
+  }
+})();
+</script>
+</body>
+</html>
+
+
+
+
