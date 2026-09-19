@@ -45,6 +45,9 @@ class Settings(BaseSettings):
     sql_username: str = ""
     sql_password: str = ""
     sql_conn_str: str = ""  # overrides the four above when non-empty
+    # Full URL form from .env, e.g.
+    #   mssql+pyodbc://USER:PWD@SERVER:1433/DB?driver=ODBC+Driver+18+for+SQL+Server
+    database_url: str = Field(default="", validation_alias="DATABASE_URL")
 
     # Azure Blob storage --------------------------------------------------
     azure_blob_account: str = "godzilla1126"

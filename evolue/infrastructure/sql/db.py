@@ -8,14 +8,43 @@ boundary is Azure SQL (free-the-information-101010 / sanctuary-888).
 from __future__ import annotations
 
 import os
+import re
+import urllib.parse
+
 import pyodbc
 
 from evolue.config import settings
 
 
+_URL_RE = re.compile(
+    r"^[a-z0-9+]+://([^:]+):([^@]+)@([^/:]+)(?::(\d+))?/([^?]+)(?:\?.*)?$"
+)
+
+
+def connection_string_from_url(url: str) -> str:
+    """Translate our DATABASE_URL (mssql+pyodbc://user:pwd@host:1433/db?...) into
+    an ODBC connection string. Never logs the password."""
+    m = _URL_RE.match(url)
+    if not m:
+        raise ValueError("DATABASE_URL is not in mssql+pyodbc://user:pass@host:1433/db form")
+    user_enc, pwd_enc, host, port, db = m.groups()[0], m.groups()[1], m.groups()[2], m.groups()[3] or "1433", m.groups()[4]
+    user = urllib.parse.unquote(user_enc)
+    pwd = urllib.parse.unquote(pwd_enc)
+    return (
+        f"DRIVER={{ODBC Driver 18 for SQL Server}};"
+        f"SERVER={host},{port};"
+        f"DATABASE={db};"
+        f"UID={user};"
+        f"PWD={pwd};"
+        "Encrypt=yes;TrustServerCertificate=no;"
+    )
+
+
 def build_connection_string() -> str:
     if settings.sql_conn_str:
         return settings.sql_conn_str
+    if settings.database_url:
+        return connection_string_from_url(settings.database_url)
     return (
         f"DRIVER={{ODBC Driver 18 for SQL Server}};"
         f"SERVER={settings.sql_server};"
