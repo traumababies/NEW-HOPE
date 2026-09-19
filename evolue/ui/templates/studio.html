@@ -1,0 +1,110 @@
+{% extends "base.html" %}
+{% block title %}Studio · Évolué{% endblock %}
+
+{% block content %}
+<div class="crumb">
+  <span>Studio · owner selection room</span>
+  <span class="badge {{ 'ok' if candidates else 'warn' }}">{{ candidates | length }} candidates</span>
+</div>
+<h1>Studio</h1>
+<p class="sub">Review candidates from Ephemera. Select what to keep. COMMIT assigns uuidv7, splits original/derivative, destroys the rest.</p>
+
+<div class="panel">
+  <div class="panel-title">Microfiche Room — Rapid Review</div>
+  <p style="margin:0 0 14px;font-size:13px;color:var(--muted);">Click tiles to select (green = selected). Unselected tiles are destroyed on COMMIT.</p>
+  <div class="week-grid" id="candidateGrid">
+    {% for c in candidates %}
+    <div class="week-card candidate-card" data-id="{{ c.id }}" data-label="{{ c.subject_code or 'TI' }}_{{ '%02d' % c.sequence }}" onclick="toggleSelect(this)" style="cursor:pointer;">
+      <div class="week-head">
+        <b>{{ c.subject_code or 'TI' }}_{{ '%02d' % c.sequence }}</b>
+        <span class="badge">{{ c.platform }}</span>
+      </div>
+      <div style="aspect-ratio:9/16;background:var(--soft);display:flex;align-items:center;justify-content:center;color:var(--quiet);font-size:12px;">{{ c.dc_type or 'media' }}</div>
+      <div style="padding:8px 10px;font-size:11px;">
+        <div style="font-weight:500;">{{ c.title or c.assignment_name }}</div>
+        <div style="color:var(--quiet);font-size:10px;">{{ c.dc_source }} · {{ c.media }}</div>
+      </div>
+      <div class="week-foot">{{ c.status }}</div>
+    </div>
+    {% endfor %}
+    {% if not candidates %}
+    <div class="panel" style="grid-column:1/-1;">
+      <p style="color:var(--muted);margin:0;">No candidates in Ephemera. Run Content Scouts first from the <a href="/brief/{{ year }}/{{ week_number }}" style="text-decoration:underline">Creative Brief</a> page.</p>
+    </div>
+    {% endif %}
+
+
+{% if candidates %}
+<div class="panel">
+  <div class="panel-title">Front Room — Deep Review</div>
+  <p style="margin:0 0 14px;font-size:13px;color:var(--muted);">Selected items appear here. Review before COMMIT.</p>
+  <div id="selectedList" style="min-height:60px;border:1px dashed var(--line);border-radius:6px;padding:12px;">
+    <span style="color:var(--quiet);font-size:12px;">Click tiles above to select</span>
+  </div>
+</div>
+
+<div class="panel">
+  <div class="panel-title">COMMIT</div>
+  <p style="margin:0 0 14px;font-size:13px;color:var(--muted);">
+    <strong>Irreversible.</strong> Selected → uuidv7 → Original to Cataloger, Derivative to Post/Media Editor. Unselected → destroyed.
+  </p>
+  <button class="btn danger" id="btnCommit" onclick="commitStudio()" disabled>🔥 COMMIT SELECTED</button>
+  <div id="commitStatus" style="margin-top:10px;"></div>
+</div>
+
+<div class="panel" id="commitResult" style="display:none;">
+  <div class="panel-title">COMMIT Result</div>
+  <div id="commitOutput"></div>
+</div>
+{% endif %}
+{% endblock %}
+
+{% block scripts %}
+<script>
+const selected = new Set();
+function toggleSelect(card) {
+  const id = card.dataset.id;
+  if (selected.has(id)) { selected.delete(id); card.style.border='1px solid var(--line)'; card.style.background='var(--soft)'; }
+  else { selected.add(id); card.style.border='2px solid var(--green-ink)'; card.style.background='var(--green)'; }
+  const list = document.getElementById('selectedList');
+  const btn = document.getElementById('btnCommit');
+  if (selected.size===0) { list.innerHTML='<span style="color:var(--quiet);font-size:12px;">Click tiles above to select</span>'; btn.disabled=true; return; }
+  btn.disabled = false;
+  let html = '<div style="display:flex;flex-wrap:wrap;gap:4px;">';
+  selected.forEach(id => { const c=document.querySelector('[data-id="'+id+'"]'); html+='<span class="badge ok">'+c.dataset.label+'</span>'; });
+  html += '</div>'; list.innerHTML = html;
+}
+async function commitStudio() {
+  const status = document.getElementById('commitStatus');
+  const btn = document.getElementById('btnCommit');
+  if (!confirm('COMMIT '+selected.size+' items? Unselected content will be DESTROYED.')) return;
+  btn.disabled = true; btn.textContent = '⏳ COMMITTING...';
+  status.innerHTML = '<span class="badge warn">Processing...</span>';
+  try {
+    const tiles = [];
+    selected.forEach(id => { const c=document.querySelector('[data-id="'+id+'"]'); tiles.push(c.dataset.label); });
+    const resp = await fetch('/api/ai/studio/commit', {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ brief_id:'{{ year }}_W{{ "%02d" % week_number }}_{{ theme }}', selected_tiles:tiles }),
+    });
+    if (!resp.ok) throw new Error(await resp.text());
+    const data = await resp.json();
+    document.getElementById('commitResult').style.display = 'block';
+    let out = '<pre style="white-space:pre-wrap;font-size:12px;max-height:400px;overflow:auto;background:#fff;padding:12px;border:1px solid var(--line);border-radius:6px;">';
+    data.committed.forEach(c => {
+      out += 'Tile: ' + c.tile + '\n  Original:   ' + c.original + '\n  Derivative: ' + c.derivative + '\n  UUID: ' + c.uuid + '\n\n';
+    });
+    out += '</pre>';
+    document.getElementById('commitOutput').innerHTML = out;
+    status.innerHTML = '<span class="badge ok">COMMIT complete — '+data.committed.length+' items with uuidv7</span>';
+    document.querySelectorAll('.candidate-card').forEach(c => { if(!selected.has(c.dataset.id)){c.style.opacity='0.3';c.style.pointerEvents='none';} });
+  } catch(e) { status.innerHTML = '<span class="badge err">'+e.message+'</span>'; }
+  btn.textContent = '🔥 COMMIT SELECTED';
+}
+</script>
+{% endblock %}
+
+{% block footer_right %}Studio{% endblock %}
+  </div>
+</div>
+{% endblock %}

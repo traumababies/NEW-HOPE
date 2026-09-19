@@ -129,4 +129,25 @@ def save_brand_settings(request: Request, brand_voice: str = Form(""), tone_note
                         taste_exclusions: str = Form("")):
     redir = _auth(request)
     if redir: return redir
+
+
+@router.get("/studio", response_class=HTMLResponse)
+@router.get("/studio/{year}/{week_number}", response_class=HTMLResponse)
+def studio_page(request: Request, year: int = 0, week_number: int = 0):
+    redir = _auth(request)
+    if redir: return redir
+    candidates = []
+    if year and week_number:
+        try:
+            candidates = fetch_all(
+                "SELECT * FROM ephemera_candidates WHERE year=? AND week_number=? ORDER BY subject_code, sequence",
+                (year, week_number),
+            )
+        except Exception:
+            candidates = []
+    return templates.TemplateResponse("studio.html", {
+        "request": request, "candidates": candidates,
+        "year": year or 2026, "week_number": week_number or 0, "theme": "",
+        "active_nav": "studio",
+    })
     return RedirectResponse("/settings/brand", status_code=303)
