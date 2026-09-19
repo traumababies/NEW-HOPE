@@ -23,6 +23,7 @@ storage/
 scrappa/
 bunbuns/
 ephemera/
+data/
 
 # IDE / caches
 .vscode/
