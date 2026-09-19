@@ -105,6 +105,117 @@ def step6_muse_assign_scouts(brief: WeeklyBrief, muse_matches: list[dict]) -> li
     return assignments
 
 
+
+
+# ---------------------------------------------------------------------------
+# Step 10: Cataloger catalogs the original; Jean must approve (JC never self-approves)
+# ---------------------------------------------------------------------------
+def step10_cataloger(original_row: dict) -> dict:
+    """Cataloger adds ISO/DublinCore/OG metadata and requests JAN; never approves."""
+    catalog = dict(original_row)
+    catalog["catalog_status"] = "pending_jean_approval"  # Jean must approve
+    return catalog
+
+
+# ---------------------------------------------------------------------------
+# Step 11/12: Media Editor transforms original (Derivative) or creates from
+# scratch; checks software in the brief; max 2 redoes, owner password override.
+# ---------------------------------------------------------------------------
+def step11_12_media_editor(
+    *, work_kind: str, software: list[str], redo_count: int = 0, owner_override: str = ""
+) -> str:
+    if work_kind not in {"derivative", "create_from_scratch"}:
+        raise ValueError("work_kind must be derivative or create_from_scratch")
+    if redo_count > 2 and not owner_override:
+        raise PermissionError("Media Editor redo limit is 2; owner password required to exceed.")
+    if not software:
+        raise ValueError("Media Editor must check off the software used.")
+    return f"{work_kind}|{','.join(software)}|redo{redo_count}"
+
+
+# ---------------------------------------------------------------------------
+# Step 13: Approved Theme Image -> Cataloger -> permanent Library -> Publishing
+# ---------------------------------------------------------------------------
+def step13_theme_image_to_library(week: Week) -> str:
+    if not week.theme_image_key:
+        raise ValueError("Step 13: no theme image uploaded for week.")
+    return f"{week.theme_image_key} -> Library (Bunbuns) -> Publishing"
+
+
+# ---------------------------------------------------------------------------
+# Step 14/15: Copywriter (w/ Current Events + Fact Check) writes captions +
+# 5 hashtags per platform; JAN; redo max 2; then final naming + Cataloger.
+# ---------------------------------------------------------------------------
+def step14_15_copywriter(*, platform: str, caption: str, hashtags: list[str]) -> dict:
+    platform = platform.lower()
+    if platform not in {"instagram", "tiktok"}:
+        raise ValueError("platform must be instagram or tiktok")
+    if not caption.strip():
+        raise ValueError("Caption required.")
+    tags = [h for h in hashtags if h.startswith("#")]
+    if len(tags) != 5:
+        raise ValueError("Exactly 5 hashtags required per platform.")
+    return {"platform": platform, "caption": caption.strip(), "hashtags": tags, "j": "pending"}
+
+
+# ---------------------------------------------------------------------------
+# Step 16: Scheduler formats + publishes 3 at a time Mon/Wed/Fri, MST.
+# IG order 1-9, TT order 9-1.
+# ---------------------------------------------------------------------------
+def step16_scheduler(*, platform: str, tile: int) -> int:
+    """Return the tile's slot position (1-based) for the platform's posting order."""
+    if platform.lower() == "instagram":
+        return tile
+    return 10 - tile  # TikTok posts 9..1
+
+
+# ---------------------------------------------------------------------------
+# Step 17: in-order enforcement — if any earlier tile not approved, block.
+# ---------------------------------------------------------------------------
+def step17_in_order(*, platform: str, tile: int, approved_up_to: int) -> bool:
+    order = step16_scheduler(platform=platform, tile=tile)
+    return order <= approved_up_to
+
+
+# ---------------------------------------------------------------------------
+# Step 18/19: missed/unpublished => unpublish on Status; published => history as mirage.
+# ---------------------------------------------------------------------------
+def step18_19_history(*, published: bool, storage_key: str) -> dict:
+    state = "published" if published else "unpublished_archive"
+    return {"storage_key": storage_key, "state": state, "mirage": True}
+
+
+# Convenience: run the full 1-19 spine against a week + selected tiles, no DB.
+def run_full_spine(week: Week, *, selected_tiles: list[str] | None = None) -> dict:
+    """Exercise STEPS 1-19 without DB; raises at the first broken step."""
+    out = {}
+    out["s1_theme"] = step1_save_theme(week)
+    brief = step2_compose_brief(week)
+    out["s2_brief_id"] = brief.brief_id
+    out["s3"] = "JAN requested (needs DB)"
+    matches = step5_muse_to_studio(brief, approved_assets=[])
+    out["s5_rfr"] = sum(1 for m in matches if m["rfr"])
+    out["s6_scouts"] = len(step6_muse_assign_scouts(brief, matches))
+    if selected_tiles:
+        comm = step9_studio_commit(brief, selected_tiles)
+        out["s9_orig"] = [c["original"] for c in comm["committed"]]
+        out["s9_deriv"] = [c["derivative"] for c in comm["committed"]]
+        cat = step10_cataloger({"original": out["s9_orig"][0], "id": 1})
+        out["s10_status"] = cat["catalog_status"]
+        out["s11_12"] = step11_12_media_editor(work_kind="derivative", software=["ComfyUI"])
+        if week.theme_image_key:
+            out["s13"] = step13_theme_image_to_library(week)
+        cp = step14_15_copywriter(
+            platform="instagram",
+            caption="Under one moon.",
+            hashtags=["#a", "#b", "#c", "#d", "#e"],
+        )
+        out["s14_15_j"] = cp["j"]
+        out["s16_tile3_tt"] = step16_scheduler(platform="tiktok", tile=3)
+        out["s17_blocked"] = not step17_in_order(platform="tiktok", tile=3, approved_up_to=2)
+        out["s18_19"] = step18_19_history(published=True, storage_key="k")
+    return out
+
 # ---------------------------------------------------------------------------
 # Step 7/8: Content Scouts fetch (owned per-platform) -> Ephemera -> Studio JAN
 # ---------------------------------------------------------------------------
@@ -116,12 +227,22 @@ def step9_studio_commit(brief: WeeklyBrief, selected_tiles: list[str]) -> dict:
     """
     import uuid
 
+    # Extract year + week from the brief id (YYYY_W##_THEME_HOST).
+    ident = brief.brief_id.split("_")
+    year = int(ident[0])
+    week_number = int(ident[1].lstrip("W"))
     results = []
+    SUBJECTS = ("ART", "CHM", "CIN", "CUL", "FIN", "HLT", "HUM", "LIF", "PRD")
     for label in selected_tiles:
+        code = label.split("_")[0] if label.split("_")[0] in SUBJECTS else "TI"
+        seq_str = label.split("_")[-1] if "_" in label else "0"
+        seq = int(seq_str or 0) if seq_str.isdigit() else 0
         u = uuid.uuid4().hex
         results.append({
             "tile": label,
-            "original": original_uuid_name(2026, 39, "CUL", 1, u),
-            "derivative": derivative_uuid_name(2026, 39, "CUL", 1, u),
+            "code": code,
+            "sequence": seq,
+            "original": original_uuid_name(year, week_number, code, seq, u),
+            "derivative": derivative_uuid_name(year, week_number, code, seq, u),
         })
     return {"committed": results}
