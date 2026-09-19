@@ -7,18 +7,37 @@ from __future__ import annotations
 
 from functools import lru_cache
 
+from pydantic import Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 class Settings(BaseSettings):
-    model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8", extra="ignore")
+    # Reads .env keys directly (no prefix). Field aliases map the owner's
+    # actual key names (OWNER_EMAIL / OWNER_PASSWORD) onto our settings fields.
+    model_config = SettingsConfigDict(
+        env_file=".env",
+        env_file_encoding="utf-8",
+        extra="ignore",
+        env_prefix="",
+        case_sensitive=False,
+    )
 
     app_name: str = "Évolué Media Team"
     app_env: str = "development"  # development | production
 
     # Authorisation -------------------------------------------------------
-    admin_email: str = ""
-    session_secret: str = ""  # set in .env; used for signed session cookies
+    # validate_as so OWNER_EMAIL maps onto admin_email:
+    admin_email: str = Field(default="", validation_alias="OWNER_EMAIL")
+    session_secret: str = Field(default="", validation_alias="SESSION_SECRET")
+    owner_password: str = Field(default="", validation_alias="OWNER_PASSWORD")
+
+    model_config = SettingsConfigDict(
+        env_file=".env",
+        env_file_encoding="utf-8",
+        extra="ignore",
+        env_prefix="",  # read keys as-is (OWNER_EMAIL -> OWNER_EMAIL)
+        case_sensitive=False,
+    )
 
     # Azure SQL -----------------------------------------------------------
     sql_server: str = ""
