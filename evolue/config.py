@@ -78,6 +78,16 @@ class Settings(BaseSettings):
     groq_model: str = ""
     groq_fact_model: str = ""
 
+    # DeepSeek (Creative Director, Muse, Creative Grader, Cataloger, Copywriter)
+    deepseek_api_key: str = ""
+    deepseek_base_url: str = "https://api.deepseek.com"
+    deepseek_model: str = "deepseek-chat"
+
+    # OpenRouter (fallback for all roles) ------------------------------------
+    openrouter_api_key: str = ""
+    openrouter_base_url: str = "https://openrouter.ai/api/v1"
+    openrouter_model: str = "anthropic/claude-sonnet-4"
+
     # Providers for the four Content Scouts (from The Library / B.8) --------
     pexels_api_key: str = ""
     pixabay_api_key: str = ""
