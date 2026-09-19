@@ -127,12 +127,25 @@ def _key_from_conn_str(conn_str: str) -> str:
 
 
 def copy_first_promotion(src: BlobRef, dst: BlobRef) -> None:
-    """Copy src -> dst (copy-first), never move; caller deletes src to close the loop."""
+    """Copy src -> dst (copy-first), never move; caller deletes src to close the loop.
+
+    Uses a client-side byte copy (download -> upload) so it works within one
+    account without SAS-header pitfalls; the semantics are exactly copy-first
+    (the source is never deleted here).
+    """
+    from azure.storage.blob import ContentSettings
+
     service = _service()
     _ensure_container(service, dst.container)
-    source_client = service.get_blob_client(container=src.container, blob=src.key)
-    dest_client = service.get_blob_client(container=dst.container, blob=dst.key)
-    dest_client.start_copy_from_url(source_client.url)
+    src_client = service.get_blob_client(container=src.container, blob=src.key)
+    props = src_client.get_blob_properties()
+    stream = src_client.download_blob().readall()
+    dst_client = service.get_blob_client(container=dst.container, blob=dst.key)
+    dst_client.upload_blob(
+        stream,
+        overwrite=True,
+        content_settings=ContentSettings(content_type=props.content_settings.content_type or "application/octet-stream"),
+    )
 
 
 def ensure_container(container: str) -> None:
