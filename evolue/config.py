@@ -65,6 +65,11 @@ class Settings(BaseSettings):
     ollama_model: str = "qwen2.5:3b"
     ollama_vision_model: str = ""
 
+    # Azure AI Vision (Cataloger eyes; scout triage) -------------------------
+    azure_vision_endpoint: str = Field(default="", validation_alias="AZURE_VISION_ENDPOINT")
+    azure_vision_api_key: str = Field(default="", validation_alias="AZURE_VISION_API_KEY")
+    azure_vision_key: str = ""                       # alternate spelling
+
     # Groq (Current Events / Fact Check) ------------------------------------
     groq_api_key: str = ""
     groq_model: str = ""
