@@ -133,3 +133,31 @@ def copy_first_promotion(src: BlobRef, dst: BlobRef) -> None:
     source_client = service.get_blob_client(container=src.container, blob=src.key)
     dest_client = service.get_blob_client(container=dst.container, blob=dst.key)
     dest_client.start_copy_from_url(source_client.url)
+
+
+def ensure_container(container: str) -> None:
+    """Create a container if absent (idempotent)."""
+    _ensure_container(_service(), container)
+
+
+def enable_storage_cors(allowed_origins: list[str] | None = None) -> None:
+    """Set account-level CORS so mirage SAS URLs render in the browser.
+
+    Per The Library.txt G.8.b.iv: browser must be able to stream media from the
+    central storage domain into the app pages without security blocks.
+    """
+    from azure.storage.blob import CorsRule
+
+    service = _service()
+    origins = allowed_origins or ["*"]
+    service.set_service_properties(
+        cors=[
+            CorsRule(
+                allowed_origins=origins,
+                allowed_methods=["GET", "HEAD", "OPTIONS"],
+                allowed_headers=["*"],
+                exposed_headers=["content-type", "content-length"],
+                max_age_in_seconds=3600,
+            )
+        ]
+    )
