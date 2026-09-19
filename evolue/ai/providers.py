@@ -100,7 +100,7 @@ class OpenRouterProvider(_OpenAICompatible):
 class GroqProvider(AIProvider):
     def __init__(self):
         self._api_key = settings.groq_api_key
-        self._default_model = settings.groq_model or "llama-3.3-70b-versatile"
+        self._default_model = settings.groq_model or "qwen/qwen3.8-27b"
 
     def chat(self, messages, *, model="", temperature=0.7, max_tokens=4096, response_format=None):
         url = "https://api.groq.com/openai/v1/chat/completions"

@@ -79,37 +79,37 @@ ROLE_REGISTRY: dict[str, RoleConfig] = {
     "current_events": RoleConfig(
         role="current_events",
         primary_provider="groq",
-        primary_model="llama-3.3-70b-versatile",
+        primary_model="qwen/qwen3.8-27b",
         temperature=0.5,
     ),
     "fact_checker": RoleConfig(
         role="fact_checker",
         primary_provider="groq",
-        primary_model="llama-3.3-70b-versatile",
+        primary_model="qwen/qwen3.8-27b",
         temperature=0.1,  # very conservative
     ),
     "brief_validator": RoleConfig(
         role="brief_validator",
         primary_provider="groq",
-        primary_model="llama-3.3-70b-versatile",
+        primary_model="qwen/qwen3.8-27b",
         temperature=0.1,  # deterministic
     ),
     "production_grader": RoleConfig(
         role="production_grader",
         primary_provider="groq",
-        primary_model="llama-3.3-70b-versatile",
+        primary_model="qwen/qwen3.8-27b",
         temperature=0.3,
     ),
     "media_editor": RoleConfig(
         role="media_editor",
         primary_provider="groq",
-        primary_model="llama-3.3-70b-versatile",
+        primary_model="qwen/qwen3.8-27b",
         temperature=0.4,
     ),
     "copy_grader": RoleConfig(
         role="copy_grader",
         primary_provider="groq",
-        primary_model="llama-3.3-70b-versatile",
+        primary_model="qwen/qwen3.8-27b",
         temperature=0.2,
     ),
 }

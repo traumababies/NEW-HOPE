@@ -75,7 +75,7 @@ class Settings(BaseSettings):
 
     # Groq (Current Events / Fact Check) ------------------------------------
     groq_api_key: str = ""
-    groq_model: str = ""
+    groq_model: str = "qwen/qwen3.8-27b"
     groq_fact_model: str = ""
 
     # DeepSeek (Creative Director, Muse, Creative Grader, Cataloger, Copywriter)
