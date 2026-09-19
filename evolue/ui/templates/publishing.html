@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% block title %}Publishing · Évolué{% endblock %}
+
+{% block content %}
+<div class="crumb"><span>Publishing · Mon/Wed/Fri schedule</span></div>
+<h1>Publishing</h1>
+<p class="sub">3 posts per day. IG order 1-9, TT order 9-1. In-order enforcement active.</p>
+
+<div class="panel">
+  <div class="panel-title">Schedule</div>
+  <div class="week-grid">
+    {% for day in ['Monday', 'Wednesday', 'Friday'] %}
+    <div class="week-card">
+      <div class="week-head"><b>{{ day }}</b></div>
+      <div class="tiles">
+        {% for i in range(1, 4) %}
+        {% set slot = (loop.index0 * 3 + loop.index) if day == 'Monday' else (loop.index0 * 3 + loop.index + 3) if day == 'Wednesday' else (loop.index0 * 3 + loop.index + 6) %}
+        <div class="tile" data-t="{{ slot }}">
+          <span class="no">{{ slot }}</span>
+        </div>
+        {% endfor %}
+      </div>
+      <div class="week-foot">{{ day }}</div>
+    </div>
+    {% endfor %}
+  </div>
+</div>
+
+<div class="panel">
+  <div class="panel-title">In-Order Enforcement</div>
+  <p style="margin:0;font-size:13px;color:var(--muted);">
+    Posts must be approved in order. Tile 3 cannot publish until tiles 1 and 2 are approved.
+    TikTok posts in reverse order (9→1), Instagram in forward order (1→9).
+  </p>
+</div>
+{% endblock %}
+
+{% block footer_right %}Publishing{% endblock %}

@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% block title %}History · Évolué{% endblock %}
+
+{% block content %}
+<div class="crumb"><span>Published content · mirage delivery</span></div>
+<h1>History</h1>
+<p class="sub">Published content delivered as short-lived SAS mirages. Missed content archived.</p>
+
+<div class="panel">
+  <div class="panel-title">Published</div>
+  {% if published %}
+  {% for item in published %}
+  <div class="ai-item">
+    <div class="ai-role">{{ item.storage_key }}</div>
+    <span class="badge ok">{{ item.state }}</span>
+  </div>
+  {% endfor %}
+  {% else %}
+  <p style="color:var(--muted);margin:0;">No published content yet.</p>
+  {% endif %}
+</div>
+
+<div class="panel">
+  <div class="panel-title">Archived</div>
+  {% if archived %}
+  {% for item in archived %}
+  <div class="ai-item">
+    <div class="ai-role">{{ item.storage_key }}</div>
+    <span class="badge warn">{{ item.state }}</span>
+  </div>
+  {% endfor %}
+  {% else %}
+  <p style="color:var(--muted);margin:0;">No archived content.</p>
+  {% endif %}
+</div>
+{% endblock %}
+
+{% block footer_right %}History{% endblock %}

@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% block title %}Approvals · Évolué{% endblock %}
+
+{% block content %}
+<div class="crumb"><span>JAN Approvals · owner only</span></div>
+<h1>Approvals</h1>
+<p class="sub">Items waiting for Jean's decision. Approve, reject, or replace.</p>
+
+{% if pending %}
+{% for item in pending %}
+<div class="panel">
+  <div class="panel-title">{{ item.phase }} · {{ item.entity_type }} #{{ item.entity_id }}</div>
+  <p style="margin:0 0 10px;font-size:13px;">Requested by: <strong>{{ item.requested_by }}</strong></p>
+  <form method="post" action="/approvals/{{ item.id }}/decide" style="display:flex;gap:8px;align-items:flex-end;">
+    <div class="field" style="flex:1;margin:0;">
+      <label>Note</label>
+      <input type="text" name="note" placeholder="Optional note">
+    </div>
+    <button type="submit" name="decision" value="approve" class="btn primary">Approve</button>
+    <button type="submit" name="decision" value="reject" class="btn danger">Reject</button>
+  </form>
+</div>
+{% endfor %}
+{% else %}
+<div class="panel">
+  <p style="color:var(--muted);margin:0;">No items pending approval. All clear! 🎉</p>
+</div>
+{% endif %}
+{% endblock %}
+
+{% block footer_right %}Approvals{% endblock %}

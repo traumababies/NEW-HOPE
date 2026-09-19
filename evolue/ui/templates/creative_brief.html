@@ -1,0 +1,79 @@
+{% extends "base.html" %}
+{% block title %}Creative Brief · W{{ week.week_number }} · Évolué{% endblock %}
+
+{% block content %}
+<div class="crumb">
+  <span>Creative Brief · Week {{ week.week_number }} · {{ week.theme or 'No theme' }}</span>
+  <a href="/weeks/{{ week.year }}/{{ week.week_number }}" class="btn sm">← Week</a>
+</div>
+<h1>Creative Brief</h1>
+<p class="sub">{{ week.theme }} · {{ week.start }} – {{ week.end }}</p>
+
+{% if not week.theme %}
+<div class="panel"><p style="color:var(--muted)">Set a theme on the <a href="/weeks/{{ week.year }}/{{ week.week_number }}" style="text-decoration:underline">Week page</a> first.</p></div>
+{% else %}
+<div class="panel">
+  <div class="panel-title">Pipeline</div>
+  <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px;">
+    <button class="btn primary" onclick="runStep('cd')">1. Creative Director</button>
+    <button class="btn" id="btnCE" onclick="runStep('ce')" disabled>2. Current Events</button>
+    <button class="btn" id="btnFC" onclick="runStep('fc')" disabled>3. Fact Check</button>
+    <button class="btn" id="btnBV" onclick="runStep('bv')" disabled>4. Validator</button>
+    <button class="btn" id="btnCG" onclick="runStep('cg')" disabled>5. Creative Grade</button>
+    <button class="btn" id="btnPG" onclick="runStep('pg')" disabled>6. Production Grade</button>
+  </div>
+  <div id="pipelineStatus"></div>
+</div>
+<div class="panel" id="briefResult" style="display:none;">
+  <div class="panel-title">Brief Output</div>
+  <pre id="briefJSON" style="white-space:pre-wrap;font-size:12px;max-height:500px;overflow:auto;background:#fff;padding:12px;border:1px solid var(--line);border-radius:6px;"></pre>
+</div>
+<div class="panel" id="graderResults" style="display:none;">
+  <div class="panel-title">Grader Results</div>
+  <div id="graderContent"></div>
+</div>
+{% endif %}
+{% endblock %}
+
+
+{% block scripts %}
+<script>
+let briefData = null;
+const week = { year: {{ week.year }}, week_number: {{ week.week_number }}, theme: '{{ week.theme }}' };
+const endpoints = {
+  cd: ['/api/ai/brief/compose', 'Creative Director thinking...'],
+  ce: ['/api/ai/brief/current-events', 'Finding current events...'],
+  fc: ['/api/ai/brief/fact-check', 'Fact checking...'],
+  bv: ['/api/ai/brief/validate', 'Validating structure...'],
+  cg: ['/api/ai/brief/creative-grade', 'Creative grading...'],
+  pg: ['/api/ai/brief/production-grade', 'Production grading...'],
+};
+const enableNext = { cd:'btnCE', ce:'btnFC', fc:'btnBV', bv:'btnCG', cg:'btnPG' };
+
+async function runStep(step) {
+  const status = document.getElementById('pipelineStatus');
+  const [url, msg] = endpoints[step];
+  status.innerHTML = '<span class="badge warn">' + msg + '</span>';
+  try {
+    const body = step === 'cd' ? JSON.stringify(week) : JSON.stringify({ brief_output: briefData });
+    const resp = await fetch(url, { method:'POST', headers:{'Content-Type':'application/json'}, body });
+    if (!resp.ok) throw new Error(await resp.text());
+    const data = await resp.json();
+    if (step === 'cd') {
+      briefData = data.result;
+      document.getElementById('briefResult').style.display = 'block';
+      document.getElementById('briefJSON').textContent = JSON.stringify(briefData, null, 2);
+    } else {
+      document.getElementById('graderResults').style.display = 'block';
+      document.getElementById('graderContent').innerHTML += '<div class="ai-item"><div class="ai-role">' + step.toUpperCase() + ' via ' + data.provider_used + '</div><pre style="margin:6px 0 0;font-size:11px;white-space:pre-wrap;">' + JSON.stringify(data.result, null, 2) + '</pre></div>';
+    }
+    status.innerHTML = '<span class="badge ok">' + step.toUpperCase() + ' complete via ' + data.provider_used + '</span>';
+    if (enableNext[step]) document.getElementById(enableNext[step]).disabled = false;
+  } catch(e) {
+    status.innerHTML = '<span class="badge err">Error: ' + e.message + '</span>';
+  }
+}
+</script>
+{% endblock %}
+
+{% block footer_right %}Creative Brief{% endblock %}

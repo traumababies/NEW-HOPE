@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+{% block title %}Brand Settings · Évolué{% endblock %}
+
+{% block content %}
+<div class="crumb">
+  <span>Brand Settings · owner only</span>
+</div>
+
+<h1>Brand Settings</h1>
+<p class="sub">Voice, palette, taste preferences, prohibited content. Every AI role reads these.</p>
+
+<div class="panel">
+  <div class="panel-title">Brand Voice</div>
+  <form method="post" action="/settings/brand">
+    <div class="field">
+      <label>Brand Voice (one line)</label>
+      <input type="text" name="brand_voice" value="{{ brand.brand_voice or '' }}" placeholder="e.g. Warm, restrained, editorial">
+    </div>
+    <div class="field">
+      <label>Tone Notes</label>
+      <textarea name="tone_notes" rows="3" placeholder="Additional tone guidance for the AI team">{{ brand.tone_notes or '' }}</textarea>
+    </div>
+    <div class="field">
+      <label>Prohibited Content</label>
+      <textarea name="prohibited" rows="3" placeholder="e.g. No before/after, No anti-aging claims, No clinical white">{{ brand.prohibited or '' }}</textarea>
+    </div>
+    <div class="field">
+      <label>Taste Preferences</label>
+      <textarea name="taste_prefs" rows="3" placeholder="e.g. Authentic-found over staged, warm surfaces, pink hue">{{ brand.taste_prefs or '' }}</textarea>
+    </div>
+    <div class="field">
+      <label>Taste Exclusions</label>
+      <textarea name="taste_exclusions" rows="3" placeholder="e.g. No AI-soup, No generic stock, No over-produced sparkle">{{ brand.taste_exclusions or '' }}</textarea>
+    </div>
+    <button type="submit" class="btn primary">Save Brand Settings</button>
+  </form>
+</div>
+
+<div class="panel">
+  <div class="panel-title">Platform Rules</div>
+  <div class="field">
+    <label>Instagram Format</label>
+    <input type="text" value="{{ brand.ig_format or '1080x1350' }}" disabled>
+  </div>
+  <div class="field">
+    <label>TikTok Format</label>
+    <input type="text" value="{{ brand.tt_format or '1080x1920' }}" disabled>
+  </div>
+  <div class="field">
+    <label>Hashtags per Platform</label>
+    <input type="text" value="{{ brand.hashtags_per_platform or '5' }}" disabled>
+  </div>
+  <div class="field">
+    <label>Posts per Day</label>
+    <input type="text" value="{{ brand.posts_per_day or '3 (Mon/Wed/Fri)' }}" disabled>
+  </div>
+</div>
+{% endblock %}
+
+{% block footer_right %}Settings{% endblock %}

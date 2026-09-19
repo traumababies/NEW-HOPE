@@ -63,8 +63,8 @@ def create_app() -> FastAPI:
 
     register_router("evolue.web.routers.auth")
     register_router("evolue.web.routers.calendar")
-    register_router("evolue.web.routers.rooms")
     register_router("evolue.web.routers.ai_team")
+    register_router("evolue.web.routers.pages")
 
     return app
 
